@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مساعد صيانة سيارتي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: white; }
+        .card { background: #1e293b; border-radius: 15px; transition: transform 0.2s; }
+        .card:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body class="p-6">
+
+    <!-- Header -->
+    <div class="text-center mb-10">
+        <h1 class="text-3xl font-bold text-blue-400">🚗 جدول صيانة سيارتي</h1>
+        <p class="text-gray-400 mt-2">تابع حالة سيارتك وربعك بكل سهولة</p>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- بطاقة الزيت -->
+        <div class="card p-5 border-r-4 border-green-500 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">زيت المحرك</h2>
+                <span class="bg-green-900 text-green-300 px-3 py-1 rounded-full text-sm">ممتاز</span>
+            </div>
+            <p class="text-gray-400 text-sm italic">الممشى الحالي: 120,000 كم</p>
+            <div class="mt-4">
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div class="bg-green-500 h-2.5 rounded-full" style="width: 80%"></div>
+                </div>
+                <p class="mt-2 text-xs">باقي لك <span class="text-green-400 font-bold">2,000 كم</span> على التغيير</p>
+            </div>
+        </div>
+
+        <!-- بطاقة القماشات -->
+        <div class="card p-5 border-r-4 border-yellow-500 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">فحمات الفرامل</h2>
+                <span class="bg-yellow-900 text-yellow-300 px-3 py-1 rounded-full text-sm">قريباً</span>
+            </div>
+            <p class="text-gray-400 text-sm italic">آخر تغيير: 100,000 كم</p>
+            <div class="mt-4">
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 40%"></div>
+                </div>
+                <p class="mt-2 text-xs text-yellow-400 italic font-bold">يفضل الفحص خلال الشهر القادم</p>
+            </div>
+        </div>
+
+        <!-- بطاقة البطارية -->
+        <div class="card p-5 border-r-4 border-blue-500 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">البطارية</h2>
+                <span class="bg-blue-900 text-blue-300 px-3 py-1 rounded-full text-sm">مستقر</span>
+            </div>
+            <p class="text-gray-400 text-sm italic">تاريخ التركيب: 2025/01/10</p>
+            <div class="mt-4">
+                <p class="text-xs">عمر البطارية الحالي: <span class="text-blue-400 font-bold">14 شهر</span></p>
+                <p class="text-[10px] text-gray-500 mt-1">العمر الافتراضي المتوقع: 24 شهر</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- زر الإضافة -->
+    <div class="fixed bottom-8 left-8">
+        <button class="bg-blue-600 hover:bg-blue-700 text-white w-14 h-14 rounded-full shadow-2xl text-2xl font-bold flex items-center justify-center transition">
+            +
+        </button>
+    </div>
+
+</body>
+</html>
