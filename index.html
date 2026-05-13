@@ -3,77 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مساعد صيانة سيارتي</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <title>إدارة سياراتي المتكاملة</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: white; }
-        .card { background: #1e293b; border-radius: 15px; transition: transform 0.2s; }
-        .card:hover { transform: scale(1.02); }
+        :root { --primary: #fbbf24; --bg-site: #0b0f1a; --card-bg: #161b2a; --text-main: #f8fafc; --text-muted: #94a3b8; --danger: #f87171; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { margin: 0; background-color: var(--bg-site); color: var(--text-main); direction: rtl; }
+        .top-nav { display: flex; background: #111827; padding: 10px 5px; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000; overflow-x: auto; }
+        .nav-item { flex: 1; text-align: center; padding: 12px 5px; cursor: pointer; font-size: 13px; color: var(--text-muted); min-width: 80px; }
+        .nav-item.active { color: var(--primary); font-weight: bold; border-bottom: 3px solid var(--primary); }
+        .main-content { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .form-container { background: var(--card-bg); padding: 25px; border-radius: 20px; border: 1px solid #2d3748; min-height: 450px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        label { font-size: 14px; color: var(--primary); font-weight: 600; }
+        input, select { padding: 14px; border: 1px solid #334155; border-radius: 12px; background: #0f172a; color: white; font-size: 15px; outline: none; width: 100%; }
+        .btn-save { padding: 16px; border: none; border-radius: 15px; font-weight: 700; cursor: pointer; width: 100%; background: var(--primary); color: #0b0f1a; font-size: 16px; margin-bottom: 10px; }
+        .btn-delete-car { padding: 12px; border: 1px solid var(--danger); border-radius: 12px; font-weight: 600; cursor: pointer; width: 100%; background: transparent; color: var(--danger); font-size: 14px; }
+        .log-item { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-right: 4px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .btn-excel { background: #10b981; color: white; margin-bottom: 20px; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; }
+        .btn-del { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+        .track-alert { background: rgba(251, 191, 36, 0.1); border: 1px solid var(--primary); color: var(--primary); padding: 12px; border-radius: 10px; margin-bottom: 20px; text-align: center; font-size: 13px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-card { background: #1a202e; border: 1px solid #2d3748; border-radius: 18px; padding: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .stat-value { font-size: 18px; font-weight: 700; }
     </style>
 </head>
-<body class="p-6">
+<body>
 
-    <!-- Header -->
-    <div class="text-center mb-10">
-        <h1 class="text-3xl font-bold text-blue-400">🚗 جدول صيانة سيارتي</h1>
-        <p class="text-gray-400 mt-2">تابع حالة سيارتك وربعك بكل سهولة</p>
-    </div>
+<nav class="top-nav">
+    <div class="nav-item active" onclick="showTab('p1', this)">📄 المركبة</div>
+    <div class="nav-item" onclick="showTab('p2', this)">🔧 صيانة</div>
+    <div class="nav-item" onclick="showTab('p6', this)">⛽ الوقود</div>
+    <div class="nav-item" onclick="showTab('p3', this)">📍 التتبع</div>
+    <div class="nav-item" onclick="showTab('p4', this)">📊 إحصائيات</div>
+    <div class="nav-item" onclick="showTab('p5', this)">📑 سجل</div>
+</nav>
 
-    <!-- Dashboard -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        
-        <!-- بطاقة الزيت -->
-        <div class="card p-5 border-r-4 border-green-500 shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold">زيت المحرك</h2>
-                <span class="bg-green-900 text-green-300 px-3 py-1 rounded-full text-sm">ممتاز</span>
-            </div>
-            <p class="text-gray-400 text-sm italic">الممشى الحالي: 120,000 كم</p>
-            <div class="mt-4">
-                <div class="w-full bg-gray-700 rounded-full h-2.5">
-                    <div class="bg-green-500 h-2.5 rounded-full" style="width: 80%"></div>
-                </div>
-                <p class="mt-2 text-xs">باقي لك <span class="text-green-400 font-bold">2,000 كم</span> على التغيير</p>
-            </div>
-        </div>
+<main class="main-content">
+    <div id="content-area" class="form-container"></div>
+</main>
 
-        <!-- بطاقة القماشات -->
-        <div class="card p-5 border-r-4 border-yellow-500 shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold">فحمات الفرامل</h2>
-                <span class="bg-yellow-900 text-yellow-300 px-3 py-1 rounded-full text-sm">قريباً</span>
-            </div>
-            <p class="text-gray-400 text-sm italic">آخر تغيير: 100,000 كم</p>
-            <div class="mt-4">
-                <div class="w-full bg-gray-700 rounded-full h-2.5">
-                    <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 40%"></div>
-                </div>
-                <p class="mt-2 text-xs text-yellow-400 italic font-bold">يفضل الفحص خلال الشهر القادم</p>
-            </div>
-        </div>
+<script>
+    let cars = JSON.parse(localStorage.getItem('myGarage')) || [];
+    let activeIdx = parseInt(localStorage.getItem('activeIdx')) || 0;
 
-        <!-- بطاقة البطارية -->
-        <div class="card p-5 border-r-4 border-blue-500 shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold">البطارية</h2>
-                <span class="bg-blue-900 text-blue-300 px-3 py-1 rounded-full text-sm">مستقر</span>
-            </div>
-            <p class="text-gray-400 text-sm italic">تاريخ التركيب: 2025/01/10</p>
-            <div class="mt-4">
-                <p class="text-xs">عمر البطارية الحالي: <span class="text-blue-400 font-bold">14 شهر</span></p>
-                <p class="text-[10px] text-gray-500 mt-1">العمر الافتراضي المتوقع: 24 شهر</p>
-            </div>
-        </div>
+    function showTab(tabId, el) {
+        if(el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); }
+        const area = document.getElementById('content-area');
+        let car = cars[activeIdx];
 
-    </div>
+        if(tabId === 'p1') {
+            area.innerHTML = `
+                <h3 style="text-align:center; color:var(--primary)">بيانات المركبة</h3>
+                <select id="carSel" onchange="switchCar(this.value)" style="margin-bottom:20px;">
+                    ${cars.map((c, i) => `<option value="${i}" ${i==activeIdx?'selected':''}>🚗 ${c.type}</option>`).join('')}
+                    <option value="new">+ إضافة مركبة جديدة</option>
+                </select>
+                <div class="input-group"><label>نوع المركبة</label><input type="text" id="v_type" value="${car?car.type:''}"></div>
+                <div class="input-group"><label>الموديل</label><input type="text" id="v_model" value="${car?car.model||'':''}"></div>
+                <div class="input-group"><label>سنة الصنع (يدوي)</label><input type="text" id="v_year" value="${car?car.year||'':''}"></div>
+                <div class="input-group"><label>رقم الهيكل (VIN)</label><input type="text" id="v_vin" value="${car?car.vin||'':''}"></div>
+                <button class="btn-save" onclick="saveCar()">${car ? 'تحديث البيانات 💾' : 'إضافة مركبة 💾'}</button>
+                ${car ? `<button class="btn-delete-car" onclick="deleteCar()">حذف هذه المركبة ❌</button>` : ''}`;
+        }
+        else if(tabId === 'p2') {
+            area.innerHTML = `<h3 style="text-align:center; color:var(--primary)">تسجيل صيانة</h3>
+                <div class="input-group"><label>نوع الصيانة</label><input type="text" id="m_t" placeholder="مثلاً: تغيير زيت"></div>
+                <div class="input-group"><label>المبلغ (ريال)</label><input type="text" id="m_p" placeholder="ادخل المبلغ يدوياً"></div>
+                <div class="input-group"><label>التاريخ</label><input type="date" id="m_d"></div>
+                <button class="btn-save" onclick="addLog('صيانة')">حفظ 🔧</button>`;
+            document.getElementById('m_d').valueAsDate = new Date();
+        }
+        else if(tabId === 'p6') {
+            area.innerHTML = `<h3 style="text-align:center; color:var(--primary)">تسجيل الوقود</h3>
+                <div class="input-group"><label>بكم عبيت؟ (ريال)</label><input type="text" id="f_p" placeholder="ادخل المبلغ يدوياً"></div>
+                <div class="input-group"><label>التاريخ</label><input type="date" id="f_d"></div>
+                <button class="btn-save" onclick="addLog('وقود')">حفظ ⛽</button>`;
+            document.getElementById('f_d').valueAsDate = new Date();
+        }
+        else if(tabId === 'p3') {
+            const day = new Date().getDate();
+            let alertHTML = day > 5 ? `<div class="track-alert">💡 يفضل تسجيل الممشى أول 5 أيام من الشهر لدقة الإحصائيات.</div>` : '';
+            area.innerHTML = `<h3 style="text-align:center; color:var(--primary)">تحديث الممشى</h3>${alertHTML}
+                <div class="input-group"><label>الممشى الحالي (كم)</label><input type="text" id="odo_val" placeholder="مثال: 50200"></div>
+                <button class="btn-save" onclick="updateOdo()">تحديث القراءة 📍</button>`;
+        }
+        else if(tabId === 'p5') {
+            if(!car || car.logs.length === 0) { area.innerHTML = "<h3 style='text-align:center'>السجل فارغ</h3>"; return; }
+            area.innerHTML = `<button class="btn-excel" onclick="exportExcel()">تصدير سجل ${car.type} إلى Excel 📊</button>` + 
+                car.logs.slice().reverse().map((l, i) => `
+                <div class="log-item">
+                    <div><strong>${l.cat}:</strong> ${l.title}</div>
+                    <div style="text-align:left">
+                        <span style="color:var(--primary)">${l.price} ر</span><br><small>${l.date}</small><br>
+                        <button class="btn-del" onclick="deleteLog(${car.logs.length - 1 - i})">حذف 🗑️</button>
+                    </div>
+                </div>`).join('');
+        }
+        else if(tabId === 'p4') {
+            if(!car) { area.innerHTML = "أضف مركبة أولاً"; return; }
+            const mLogs = car.logs.filter(l => l.cat === 'صيانة');
+            const fLogs = car.logs.filter(l => l.cat === 'وقود');
+            area.innerHTML = `<h3 style="text-align:right; color:var(--primary)">الإحصائيات</h3>
+                <div class="stats-grid">
+                    <div class="stat-card" style="border-right:4px solid #f87171;"><div>صيانات</div><div class="stat-value">${mLogs.length}</div></div>
+                    <div class="stat-card" style="border-right:4px solid #fbbf24;"><div>تكاليف</div><div class="stat-value">${mLogs.reduce((a,b)=>a+Number(b.price || 0),0)} ر</div></div>
+                    <div class="stat-card" style="border-right:4px solid #34d399;"><div>تعبئات</div><div class="stat-value">${fLogs.length}</div></div>
+                    <div class="stat-card" style="border-right:4px solid #a78bfa;"><div>الممشى</div><div class="stat-value">${car.lastOdo || '—'}</div></div>
+                </div>`;
+        }
+    }
 
-    <!-- زر الإضافة -->
-    <div class="fixed bottom-8 left-8">
-        <button class="bg-blue-600 hover:bg-blue-700 text-white w-14 h-14 rounded-full shadow-2xl text-2xl font-bold flex items-center justify-center transition">
-            +
-        </button>
-    </div>
+    function saveCar() {
+        const type = document.getElementById('v_type').value;
+        if(!type) return alert("سجل النوع");
+        const carData = { 
+            type: type, 
+            model: document.getElementById('v_model').value, 
+            year: document.getElementById('v_year').value, 
+            vin: document.getElementById('v_vin').value,
+            logs: cars[activeIdx] ? cars[activeIdx].logs : [],
+            lastOdo: cars[activeIdx] ? cars[activeIdx].lastOdo : ''
+        };
+        if(cars[activeIdx]) cars[activeIdx] = carData; else { cars.push(carData); activeIdx = cars.length - 1; }
+        updateStorage(); alert("تم حفظ البيانات بنجاح"); showTab('p1');
+    }
 
+    function deleteCar() {
+        if(confirm(`هل أنت متأكد من حذف مركبة (${cars[activeIdx].type}) وكل سجلاتها؟ لا يمكن التراجع!`)) {
+            cars.splice(activeIdx, 1);
+            activeIdx = 0;
+            updateStorage();
+            alert("تم حذف المركبة");
+            showTab('p1');
+        }
+    }
+
+    function switchCar(v) { if(v === 'new') { activeIdx = cars.length; showTab('p1'); return; } activeIdx = parseInt(v); updateStorage(); showTab('p1'); }
+
+    function addLog(cat) {
+        if(!cars[activeIdx]) return alert("أضف سيارة أولاً");
+        let dateVal = cat === 'وقود' ? document.getElementById('f_d').value : document.getElementById('m_d').value;
+        let entry = { 
+            cat: cat, 
+            date: dateVal ? new Date(dateVal).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB'),
+            price: cat === 'وقود' ? document.getElementById('f_p').value : document.getElementById('m_p').value,
+            title: cat === 'وقود' ? "تعبئة وقود" : document.getElementById('m_t').value
+        };
+        cars[activeIdx].logs.push(entry); updateStorage(); alert("تم الحفظ"); showTab('p5');
+    }
+
+    function deleteLog(idx) { if(confirm("متأكد من حذف هذا السجل؟")) { cars[activeIdx].logs.splice(idx, 1); updateStorage(); showTab('p5'); } }
+
+    function updateOdo() {
+        const v = document.getElementById('odo_val').value;
+        if(!v || !cars[activeIdx]) return;
+        cars[activeIdx].lastOdo = v + " كم"; updateStorage(); alert("تم التحديث"); showTab('p4');
+    }
+
+    function updateStorage() { localStorage.setItem('myGarage', JSON.stringify(cars)); localStorage.setItem('activeIdx', activeIdx); }
+
+    function exportExcel() {
+        const data = cars[activeIdx].logs.map(l => ({ "التاريخ": l.date, "النوع": l.cat, "التفاصيل": l.title, "المبلغ": l.price }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Sijill");
+        XLSX.writeFile(wb, `سجل_${cars[activeIdx].type}.xlsx`);
+    }
+
+    showTab('p1');
+</script>
 </body>
 </html>
