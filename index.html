@@ -25,6 +25,16 @@
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background-color: var(--bg-site); color: var(--text-main); direction: rtl; overflow-x: hidden; }
 
+        /* إخفاء الأيقونة البيضاء في حقول الأرقام */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
         #auth-area { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%); }
         .auth-card { background: var(--card-bg); padding: 40px 30px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; text-align: center; }
 
@@ -59,7 +69,7 @@
         .btn-excel { background: var(--success); color: white; margin-bottom: 15px; font-size: 14px; }
 
         .log-item { background: #1e293b; padding: 15px; border-radius: 18px; margin-bottom: 12px; border-right: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
-        .price-tag { background: rgba(251, 191, 36, 0.15); color: var(--primary); padding: 4px 10px; border-radius: 8px; font-weight: 900; }
+        .price-tag { background: rgba(251, 191, 36, 0.15); color: var(--primary); padding: 4px 10px; border-radius: 8px; font-weight: 900; margin-left: 10px; }
 
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .stat-card { background: #0f172a; border-radius: 20px; padding: 15px; border: 1px solid rgba(255,255,255,0.05); text-align: center; }
@@ -93,11 +103,11 @@
     </div>
     
     <nav class="top-nav" id="main-nav">
-        <div class="nav-item active" onclick="showTab('p1', this)"><span>🚗</span> المركبة</div>
+        <div class="nav-item active" onclick="showTab('p1', this)"><span>🚗</span> المركبات</div>
         <div class="nav-item" onclick="showTab('p2', this)"><span>🔧</span> صيانة</div>
         <div class="nav-item" onclick="showTab('p6', this)"><span>⛽</span> وقود</div>
         <div class="nav-item" onclick="showTab('p3', this)"><span>📍</span> العداد</div>
-        <div class="nav-item" onclick="showTab('p4', this)"><span>📊</span> تقارير</div>
+        <div class="nav-item" onclick="showTab('p4', this)"><span>📊</span> إحصائيات</div>
         <div class="nav-item" onclick="showTab('p5', this)"><span>📑</span> السجل</div>
     </nav>
 
@@ -153,7 +163,7 @@
     function syncData() {
         db.ref('users/' + userId + '/garage').on('value', snap => {
             const data = snap.val();
-            cars = data ? Object.values(data) : [];
+            cars = data ? Object.keys(data).map(key => ({...data[key], id: key})) : [];
             showTab('p1');
         });
     }
@@ -168,7 +178,7 @@
 
         if(tabId === 'p1') {
             area.innerHTML = `
-                <h3 style="text-align:center; margin:0 0 20px 0;">المرآب السحابي</h3>
+                <h3 style="text-align:center; margin:0 0 20px 0;">المركبات 🚗</h3>
                 <div class="input-group">
                     <label>اختر المركبة</label>
                     <div class="select-wrapper">
@@ -224,13 +234,13 @@
                 <button class="btn btn-primary" onclick="addLog('صيانة')">تأكيد الصيانة 🔨</button>`;
             document.getElementById('m_d').valueAsDate = new Date();
         } else if(tabId === 'p6') {
-            area.innerHTML = `<h3>محطة الوقود</h3>
+            area.innerHTML = `<h3>وقود ⛽</h3>
                 <div class="input-group"><label>قيمة التعبئة (ر.س)</label><input type="number" id="f_p"></div>
                 <div class="input-group"><label>التاريخ</label><input type="date" id="f_d"></div>
                 <button class="btn btn-primary" onclick="addLog('وقود')">تسجيل ⛽</button>`;
             document.getElementById('f_d').valueAsDate = new Date();
         } else if(tabId === 'p3') {
-            area.innerHTML = `<h3>موقع العداد</h3>
+            area.innerHTML = `<h3>عداد المسافات 📍</h3>
                 <div class="input-group"><label>القراءة الحالية (كم)</label><input type="number" id="odo_val" value="${car?parseInt(car.lastOdo):''}"></div>
                 <button class="btn btn-primary" onclick="updateOdo()">تحديث الممشى 📍</button>`;
         } else if(tabId === 'p4') {
@@ -238,7 +248,7 @@
             const logs = car.logs ? Object.values(car.logs) : [];
             const maint = logs.filter(l => l.cat === 'صيانة').reduce((a,b)=>a+Number(b.price), 0);
             const fuel = logs.filter(l => l.cat === 'وقود').reduce((a,b)=>a+Number(b.price), 0);
-            area.innerHTML = `<h3>تقرير: ${car.type}</h3>
+            area.innerHTML = `<h3>إحصائيات 📊</h3>
                 <div class="stats-grid">
                     <div class="stat-card"><span>صيانة</span><span class="stat-value">${maint}</span></div>
                     <div class="stat-card"><span>وقود</span><span class="stat-value">${fuel}</span></div>
@@ -252,23 +262,23 @@
         const car = cars[activeIdx];
         const container = document.getElementById('logs_container');
         const filterValue = document.getElementById('sijill_filter').value;
-        
-        if (filterValue === "none") {
-            container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted);"><div style="font-size:40px; margin-bottom:10px;">🔍</div><p>بانتظار اختيارك لعرض البيانات</p></div>`;
-            return;
-        }
-        
+        if (filterValue === "none") return;
         if(!car || !car.logs) { container.innerHTML = "<h3 style='text-align:center'>لا توجد سجلات</h3>"; return; }
-        
-        const logsArr = Object.values(car.logs);
-        const filtered = filterValue === "الكل" 
-            ? logsArr 
-            : logsArr.filter(l => l.title.includes(filterValue) || l.cat.includes(filterValue));
-        
-        container.innerHTML = filtered.reverse().map(l => `<div class="log-item">
-            <div><b>${l.title}</b><br><small style="color:var(--text-muted)">${l.date} | ${l.cat}</small></div>
-            <div class="price-tag">${l.price} ر.س</div>
-        </div>`).join('');
+        const logsArr = Object.keys(car.logs).map(key => ({...car.logs[key], key}));
+        const filtered = filterValue === "الكل" ? logsArr : logsArr.filter(l => l.title.includes(filterValue) || l.cat.includes(filterValue));
+        container.innerHTML = filtered.reverse().map(l => `
+            <div class="log-item">
+                <div style="flex-grow: 1;"><b>${l.title}</b><br><small style="color:var(--text-muted)">${l.date} | ${l.cat}</small></div>
+                <div class="price-tag">${l.price} ر.س</div>
+                <div onclick="deleteLog('${l.key}')" style="color:var(--danger); cursor:pointer; font-size:18px; padding-right:10px;">🗑️</div>
+            </div>`).join('');
+    }
+
+    function deleteLog(logKey) {
+        if(confirm("هل تريد حذف هذه العملية؟")) {
+            const carId = cars[activeIdx].id;
+            db.ref('users/' + userId + '/garage/' + carId + '/logs/' + logKey).remove().then(() => { renderFilteredLogs(); });
+        }
     }
 
     function saveCar() {
@@ -311,6 +321,12 @@
 
     function toggleManualMaint() {
         document.getElementById('manual_m_group').classList.toggle('hidden', document.getElementById('m_type_sel').value !== 'أخرى');
+    }
+
+    function deleteCar() {
+        if(confirm("حذف المركبة نهائياً؟")) {
+            db.ref('users/' + userId + '/garage/' + cars[activeIdx].id).remove().then(() => { activeIdx = 0; syncData(); });
+        }
     }
 </script>
 </body>
