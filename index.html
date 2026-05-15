@@ -3,119 +3,572 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة سياراتي - النسخة النهائية</title>
-    
+    <title>مركبتي السحابية</title>
+ 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+ 
     <style>
-        :root { 
-            --primary: #fbbf24; 
-            --bg-site: #0f172a; 
-            --card-bg: #1e293b; 
-            --text-main: #f8fafc; 
-            --text-muted: #94a3b8; 
-            --danger: #ef4444; 
-            --success: #10b981; 
+        :root {
+            --gold: #f59e0b;
+            --gold-light: #fcd34d;
+            --gold-dim: rgba(245,158,11,0.12);
+            --bg: #080d16;
+            --surface: #0e1623;
+            --card: #131e30;
+            --card2: #192538;
+            --border: rgba(255,255,255,0.07);
+            --border-gold: rgba(245,158,11,0.3);
+            --text: #f0f4ff;
+            --muted: #64748b;
+            --muted2: #94a3b8;
+            --danger: #f43f5e;
+            --danger-dim: rgba(244,63,94,0.12);
+            --success: #10b981;
+            --success-dim: rgba(16,185,129,0.12);
+            --blue: #3b82f6;
         }
-
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background-color: var(--bg-site); color: var(--text-main); direction: rtl; overflow-x: hidden; }
-
-        /* إخفاء الأيقونة البيضاء في حقول الأرقام */
+ 
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+ 
         input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        input::-webkit-inner-spin-button { -webkit-appearance: none; }
+        input[type=number] { -moz-appearance: textfield; }
+ 
+        body {
+            background: var(--bg);
+            color: var(--text);
+            direction: rtl;
+            overflow-x: hidden;
+            min-height: 100vh;
         }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-
-        #auth-area { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%); }
-        .auth-card { background: var(--card-bg); padding: 40px 30px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; text-align: center; }
-
-        .header-bar { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .top-nav { background: var(--card-bg); display: none; position: sticky; top: 0; z-index: 1000; overflow-x: auto; padding: 5px 0; border-bottom: 2px solid var(--primary); scrollbar-width: none; }
-        .nav-item { display: inline-flex; flex-direction: column; align-items: center; padding: 10px 15px; cursor: pointer; color: var(--text-muted); font-size: 12px; font-weight: 700; min-width: 75px; transition: 0.3s; }
-        .nav-item.active { color: var(--primary); background: rgba(251, 191, 36, 0.1); border-radius: 12px; }
-
-        .main-content { padding: 20px; max-width: 550px; margin: 0 auto; }
-        .glass-card { background: var(--card-bg); padding: 25px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.05); }
-
-        .input-group { margin-bottom: 20px; text-align: right; }
-        label { display: block; font-size: 13px; color: var(--primary); font-weight: 700; margin-bottom: 8px; }
-        
-        input, select { 
-            width: 100%; height: 55px; padding: 0 15px; 
-            border: 2px solid #334155; border-radius: 16px; 
-            background: #0f172a; color: white; font-size: 15px; outline: none; 
-            appearance: none; -webkit-appearance: none; transition: 0.3s;
-        }
-        input:focus, select:focus { border-color: var(--primary); background: #1e293b; }
-
-        .select-wrapper { position: relative; }
-        .select-wrapper::after {
-            content: '▼'; font-size: 10px; color: var(--primary);
-            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+ 
+        /* ─── BACKGROUND GRID ─── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0;
+            background-image:
+                linear-gradient(rgba(245,158,11,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(245,158,11,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
             pointer-events: none;
         }
-
-        .btn { padding: 16px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; width: 100%; font-size: 16px; transition: 0.3s; }
-        .btn-primary { background: linear-gradient(135deg, var(--primary), #d97706); color: #0b0f1a; }
-        .btn-excel { background: var(--success); color: white; margin-bottom: 15px; font-size: 14px; }
-
-        .log-item { background: #1e293b; padding: 15px; border-radius: 18px; margin-bottom: 12px; border-right: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
-        .price-tag { background: rgba(251, 191, 36, 0.15); color: var(--primary); padding: 4px 10px; border-radius: 8px; font-weight: 900; margin-left: 10px; }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .stat-card { background: #0f172a; border-radius: 20px; padding: 15px; border: 1px solid rgba(255,255,255,0.05); text-align: center; }
-        .stat-value { font-size: 20px; font-weight: 900; color: var(--primary); display: block; }
-        .hidden { display: none; }
+ 
+        /* ─── AUTH ─── */
+        #auth-area {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 20px; position: relative; z-index: 1;
+        }
+ 
+        .auth-glow {
+            position: absolute; width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(245,158,11,0.12), transparent 70%);
+            border-radius: 50%; pointer-events: none;
+        }
+ 
+        .auth-card {
+            position: relative; z-index: 2;
+            background: var(--card);
+            border: 1px solid var(--border-gold);
+            border-radius: 28px;
+            padding: 44px 36px;
+            width: 100%; max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(245,158,11,0.08), 0 30px 60px rgba(0,0,0,0.4);
+        }
+ 
+        .auth-icon {
+            width: 72px; height: 72px;
+            background: linear-gradient(135deg, var(--gold), #d97706);
+            border-radius: 20px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 34px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(245,158,11,0.35);
+        }
+ 
+        .auth-title { font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
+        .auth-sub { font-size: 13px; color: var(--muted2); margin-bottom: 32px; }
+ 
+        /* ─── HEADER ─── */
+        .header-bar {
+            background: rgba(13, 20, 35, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-gold);
+            padding: 0 20px;
+            height: 58px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+ 
+        .header-brand {
+            display: flex; align-items: center; gap: 10px;
+        }
+ 
+        .header-logo {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, var(--gold), #d97706);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+ 
+        .header-name { font-size: 15px; font-weight: 800; color: var(--gold); }
+ 
+        .header-user { font-size: 13px; color: var(--muted2); font-weight: 600; }
+ 
+        .logout-btn {
+            background: var(--danger-dim);
+            color: var(--danger);
+            border: 1px solid rgba(244,63,94,0.2);
+            border-radius: 10px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Cairo', sans-serif;
+        }
+        .logout-btn:hover { background: rgba(244,63,94,0.2); }
+ 
+        /* ─── NAV ─── */
+        .top-nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: none;
+            overflow-x: auto;
+            scrollbar-width: none;
+            gap: 4px;
+            padding: 8px 12px;
+        }
+ 
+        .nav-item {
+            display: inline-flex; flex-direction: column; align-items: center;
+            padding: 8px 14px; border-radius: 14px;
+            cursor: pointer; color: var(--muted2);
+            font-size: 11px; font-weight: 700;
+            min-width: 68px; transition: 0.2s;
+            white-space: nowrap; flex-shrink: 0;
+            gap: 4px;
+        }
+ 
+        .nav-item .nav-icon { font-size: 18px; line-height: 1; }
+ 
+        .nav-item.active {
+            background: var(--gold-dim);
+            color: var(--gold);
+            border: 1px solid var(--border-gold);
+        }
+ 
+        .nav-item:not(.active):hover { background: var(--card); color: var(--text); }
+ 
+        /* ─── MAIN ─── */
+        #app-area { position: relative; z-index: 1; }
+ 
+        .main-content {
+            padding: 20px 16px;
+            max-width: 540px;
+            margin: 0 auto;
+        }
+ 
+        /* ─── CARDS ─── */
+        .section-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px 20px;
+            margin-bottom: 16px;
+        }
+ 
+        .section-title {
+            font-size: 16px; font-weight: 800;
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 20px; padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+ 
+        .section-title span { font-size: 20px; }
+ 
+        /* ─── INPUTS ─── */
+        .input-group { margin-bottom: 16px; }
+ 
+        label {
+            display: block;
+            font-size: 12px; font-weight: 700;
+            color: var(--gold); margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+ 
+        input, select {
+            width: 100%; height: 52px;
+            padding: 0 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            background: var(--surface);
+            color: var(--text);
+            font-size: 14px;
+            font-family: 'Cairo', sans-serif;
+            outline: none;
+            appearance: none; -webkit-appearance: none;
+            transition: 0.2s;
+        }
+ 
+        input:focus, select:focus {
+            border-color: var(--gold);
+            background: var(--card2);
+            box-shadow: 0 0 0 3px rgba(245,158,11,0.08);
+        }
+ 
+        input::placeholder { color: var(--muted); }
+ 
+        .select-wrap { position: relative; }
+        .select-wrap::after {
+            content: '▾';
+            font-size: 13px; color: var(--gold);
+            position: absolute; left: 16px; top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+ 
+        /* ─── BUTTONS ─── */
+        .btn {
+            width: 100%; height: 52px;
+            border: none; border-radius: 14px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px; font-weight: 800;
+            cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+ 
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold), #d97706);
+            color: #07100a;
+            box-shadow: 0 4px 20px rgba(245,158,11,0.25);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(245,158,11,0.35); }
+        .btn-primary:active { transform: translateY(0); }
+ 
+        .btn-ghost {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--muted2);
+        }
+        .btn-ghost:hover { border-color: var(--muted2); color: var(--text); }
+ 
+        .btn-danger-ghost {
+            background: var(--danger-dim);
+            border: 1px solid rgba(244,63,94,0.2);
+            color: var(--danger);
+        }
+        .btn-danger-ghost:hover { background: rgba(244,63,94,0.2); }
+ 
+        .btn-success {
+            background: var(--success-dim);
+            border: 1px solid rgba(16,185,129,0.2);
+            color: var(--success);
+            margin-bottom: 16px;
+        }
+        .btn-success:hover { background: rgba(16,185,129,0.2); }
+ 
+        .btn-sm {
+            height: 38px; font-size: 13px; border-radius: 10px;
+        }
+ 
+        /* ─── STATS ─── */
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+ 
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 18px 14px;
+            text-align: center;
+            position: relative; overflow: hidden;
+            transition: 0.2s;
+        }
+ 
+        .stat-card:hover { border-color: var(--border-gold); }
+ 
+        .stat-card::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(245,158,11,0.04), transparent);
+        }
+ 
+        .stat-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+        .stat-label { font-size: 11px; color: var(--muted2); font-weight: 600; margin-bottom: 6px; display: block; }
+        .stat-value { font-size: 22px; font-weight: 900; color: var(--gold); display: block; }
+        .stat-unit { font-size: 11px; color: var(--muted); }
+ 
+        .stat-card.total { grid-column: span 2; }
+        .stat-card.total .stat-value { font-size: 28px; }
+ 
+        /* ─── LOG ITEMS ─── */
+        .log-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex; align-items: center; gap: 12px;
+            transition: 0.2s;
+        }
+ 
+        .log-item:hover { border-color: var(--border-gold); }
+ 
+        .log-dot {
+            width: 40px; height: 40px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+ 
+        .log-dot.fuel { background: rgba(59,130,246,0.15); }
+        .log-dot.maint { background: rgba(245,158,11,0.12); }
+        .log-dot.other { background: rgba(148,163,184,0.1); }
+ 
+        .log-info { flex: 1; min-width: 0; }
+        .log-title { font-size: 14px; font-weight: 700; color: var(--text); }
+        .log-meta { font-size: 11px; color: var(--muted2); margin-top: 2px; }
+ 
+        .log-price {
+            background: var(--gold-dim);
+            border: 1px solid var(--border-gold);
+            color: var(--gold);
+            padding: 4px 10px; border-radius: 8px;
+            font-size: 13px; font-weight: 800;
+            flex-shrink: 0; white-space: nowrap;
+        }
+ 
+        .log-del {
+            color: var(--muted);
+            cursor: pointer; font-size: 16px;
+            padding: 4px; border-radius: 8px;
+            transition: 0.2s; flex-shrink: 0;
+        }
+        .log-del:hover { color: var(--danger); background: var(--danger-dim); }
+ 
+        .log-edit {
+            color: var(--muted);
+            cursor: pointer; font-size: 16px;
+            padding: 4px; border-radius: 8px;
+            transition: 0.2s; flex-shrink: 0;
+        }
+        .log-edit:hover { color: var(--gold); background: var(--gold-dim); }
+ 
+        /* ─── MODAL ─── */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 500;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            display: flex; align-items: flex-end; justify-content: center;
+            padding: 0;
+            animation: fadeIn 0.2s ease;
+        }
+ 
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+ 
+        .modal-box {
+            background: var(--card);
+            border: 1px solid var(--border-gold);
+            border-radius: 28px 28px 0 0;
+            padding: 28px 20px 36px;
+            width: 100%; max-width: 540px;
+            animation: slideUp 0.3s cubic-bezier(0.34,1.2,0.64,1);
+        }
+ 
+        .modal-handle {
+            width: 40px; height: 4px;
+            background: var(--border);
+            border-radius: 4px;
+            margin: 0 auto 20px;
+        }
+ 
+        .modal-title {
+            font-size: 17px; font-weight: 900;
+            margin-bottom: 20px;
+            display: flex; align-items: center; gap: 8px;
+        }
+ 
+        .modal-actions {
+            display: flex; gap: 10px; margin-top: 20px;
+        }
+ 
+        /* ─── CAR SELECTOR ─── */
+        .car-header {
+            background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));
+            border: 1px solid var(--border-gold);
+            border-radius: 20px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+            display: flex; align-items: center; gap: 14px;
+        }
+ 
+        .car-avatar {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, var(--gold), #d97706);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; flex-shrink: 0;
+        }
+ 
+        .car-name { font-size: 17px; font-weight: 900; color: var(--text); }
+        .car-year { font-size: 12px; color: var(--muted2); margin-top: 2px; }
+ 
+        /* ─── FILTER PILLS ─── */
+        .filter-pills {
+            display: flex; gap: 8px; overflow-x: auto;
+            scrollbar-width: none; padding-bottom: 2px;
+            margin-bottom: 16px;
+        }
+ 
+        .pill {
+            padding: 7px 16px;
+            border-radius: 100px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--muted2);
+            font-size: 12px; font-weight: 700;
+            cursor: pointer; white-space: nowrap;
+            transition: 0.2s; flex-shrink: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+ 
+        .pill.active {
+            background: var(--gold-dim);
+            border-color: var(--border-gold);
+            color: var(--gold);
+        }
+ 
+        /* ─── TOAST ─── */
+        #toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+            background: var(--card2);
+            border: 1px solid var(--border-gold);
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-size: 14px; font-weight: 700;
+            z-index: 9999; pointer-events: none;
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+            opacity: 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            white-space: nowrap;
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+ 
+        /* ─── EMPTY STATE ─── */
+        .empty-state {
+            text-align: center; padding: 50px 20px;
+            color: var(--muted2);
+        }
+        .empty-state .ei { font-size: 48px; margin-bottom: 12px; display: block; opacity: 0.5; }
+        .empty-state p { font-size: 14px; }
+ 
+        /* ─── ODO DISPLAY ─── */
+        .odo-display {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .odo-num { font-size: 42px; font-weight: 900; color: var(--gold); letter-spacing: -1px; }
+        .odo-label { font-size: 12px; color: var(--muted2); margin-top: 4px; }
+ 
+        /* ─── DIVIDER ─── */
+        .divider { height: 1px; background: var(--border); margin: 16px 0; }
+ 
+        .hidden { display: none !important; }
+ 
+        /* ─── BADGE ─── */
+        .badge {
+            display: inline-flex; align-items: center;
+            padding: 2px 8px; border-radius: 6px;
+            font-size: 11px; font-weight: 700;
+        }
+        .badge-fuel { background: rgba(59,130,246,0.15); color: #93c5fd; }
+        .badge-maint { background: var(--gold-dim); color: var(--gold-light); }
+ 
+        /* ─── SCROLL ─── */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
     </style>
 </head>
 <body>
-
+ 
+<!-- ─── AUTH ─── -->
 <div id="auth-area">
+    <div class="auth-glow"></div>
     <div class="auth-card">
-        <div style="font-size: 50px;">⚡</div>
-        <h2 style="margin:10px 0 5px 0;">مركبتي السحابية</h2>
-        <p style="color: var(--text-muted); margin-bottom: 25px;">نظام إدارة ذكي</p>
+        <div class="auth-icon">🚗</div>
+        <div class="auth-title">مركبتي السحابية</div>
+        <div class="auth-sub">سجّل دخولك لإدارة مركباتك</div>
+ 
         <div class="input-group">
             <label>اسم المستخدم</label>
-            <input type="text" id="user_id" placeholder="اسم المستخدم">
+            <input type="text" id="user_id" placeholder="أدخل اسم المستخدم" autocomplete="username">
         </div>
         <div class="input-group">
             <label>كلمة المرور</label>
-            <input type="password" id="user_pass" placeholder="••••••••">
+            <input type="password" id="user_pass" placeholder="••••••••" autocomplete="current-password"
+                   onkeydown="if(event.key==='Enter') handleAuth()">
         </div>
         <button class="btn btn-primary" onclick="handleAuth()">دخول آمن 🔒</button>
+        <div id="auth-err" style="color:var(--danger);font-size:12px;margin-top:12px;display:none;"></div>
     </div>
 </div>
-
-<div id="app-area" style="display: none;">
+ 
+<!-- ─── APP ─── -->
+<div id="app-area" style="display:none;">
+ 
     <div class="header-bar">
-        <div id="display-user" style="font-weight: 700; color: var(--primary);"></div>
-        <div onclick="logout()" style="color: var(--danger); cursor: pointer; font-size: 14px; font-weight: 700;">خروج 🚪</div>
+        <div class="header-brand">
+            <div class="header-logo">🚗</div>
+            <span class="header-name">مركبتي</span>
+        </div>
+        <div id="display-user" class="header-user"></div>
+        <button class="logout-btn" onclick="logout()">خروج</button>
     </div>
-    
+ 
     <nav class="top-nav" id="main-nav">
-        <div class="nav-item active" onclick="showTab('p1', this)"><span>🚗</span> المركبات</div>
-        <div class="nav-item" onclick="showTab('p2', this)"><span>🔧</span> صيانة</div>
-        <div class="nav-item" onclick="showTab('p6', this)"><span>⛽</span> وقود</div>
-        <div class="nav-item" onclick="showTab('p3', this)"><span>📍</span> العداد</div>
-        <div class="nav-item" onclick="showTab('p4', this)"><span>📊</span> إحصائيات</div>
-        <div class="nav-item" onclick="showTab('p5', this)"><span>📑</span> السجل</div>
+        <div class="nav-item active" onclick="showTab('p1',this)">
+            <span class="nav-icon">🚗</span>المركبات
+        </div>
+        <div class="nav-item" onclick="showTab('p4',this)">
+            <span class="nav-icon">📊</span>إحصائيات
+        </div>
+        <div class="nav-item" onclick="showTab('p2',this)">
+            <span class="nav-icon">🔧</span>صيانة
+        </div>
+        <div class="nav-item" onclick="showTab('p6',this)">
+            <span class="nav-icon">⛽</span>وقود
+        </div>
+        <div class="nav-item" onclick="showTab('p3',this)">
+            <span class="nav-icon">📍</span>العداد
+        </div>
+        <div class="nav-item" onclick="showTab('p5',this)">
+            <span class="nav-icon">📑</span>السجل
+        </div>
     </nav>
-
-    <main class="main-content">
-        <div id="content-area" class="glass-card"></div>
-    </main>
+ 
+    <main class="main-content" id="content-area"></main>
 </div>
-
+ 
+<div id="toast"></div>
+ 
+<!-- ─── EDIT MODAL ─── -->
+<div id="edit-modal" style="display:none;"></div>
+ 
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyC7NtjHZCukPK6o1WUqqyYs8-xpX4ldHNc",
@@ -125,209 +578,432 @@
         storageBucket: "car-tracker-78f7b.firebasestorage.app",
         appId: "1:7295247933:web:3e88e9423c39c2edeeac54"
     };
-
+ 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
-
-    let cars = [];
-    let activeIdx = 0;
-    let userId = null;
-
+ 
+    let cars = [], activeIdx = 0, userId = null;
+    let currentFilter = 'الكل';
+ 
+    // ─── TOAST ───
+    function toast(msg, duration = 2500) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), duration);
+    }
+ 
+    // ─── AUTH ───
     auth.onAuthStateChanged(user => {
         if (user) {
             userId = user.uid;
             document.getElementById('auth-area').style.display = 'none';
             document.getElementById('app-area').style.display = 'block';
             document.getElementById('main-nav').style.display = 'flex';
-            document.getElementById('display-user').innerText = "أهلاً " + user.email.split('@')[0];
+            document.getElementById('display-user').textContent = user.email.split('@')[0];
             syncData();
         } else {
             document.getElementById('auth-area').style.display = 'flex';
             document.getElementById('app-area').style.display = 'none';
         }
     });
-
+ 
     function handleAuth() {
         const user = document.getElementById('user_id').value.trim().toLowerCase();
         const pass = document.getElementById('user_pass').value;
-        if(!user || !pass) return;
-        const fakeEmail = user + "@app.com";
-        auth.signInWithEmailAndPassword(fakeEmail, pass).catch(() => {
-            auth.createUserWithEmailAndPassword(fakeEmail, pass);
-        });
+        const errEl = document.getElementById('auth-err');
+        errEl.style.display = 'none';
+        if (!user || !pass) { errEl.textContent = 'يرجى إدخال اسم المستخدم وكلمة المرور'; errEl.style.display = 'block'; return; }
+        const email = user + "@app.com";
+        auth.signInWithEmailAndPassword(email, pass)
+            .catch(() => auth.createUserWithEmailAndPassword(email, pass))
+            .catch(e => { errEl.textContent = 'حدث خطأ، تحقق من البيانات'; errEl.style.display = 'block'; });
     }
-
+ 
     function logout() { auth.signOut(); }
-
+ 
     function syncData() {
         db.ref('users/' + userId + '/garage').on('value', snap => {
             const data = snap.val();
-            cars = data ? Object.keys(data).map(key => ({...data[key], id: key})) : [];
+            cars = data ? Object.keys(data).map(k => ({ ...data[k], id: k })) : [];
+            if (activeIdx >= cars.length) activeIdx = 0;
             showTab('p1');
         });
     }
-
+ 
+    // ─── CAR HEADER SNIPPET ───
+    function carHeaderHTML() {
+        const car = cars[activeIdx];
+        if (!car) return '';
+        return `
+            <div class="car-header">
+                <div class="car-avatar">🚗</div>
+                <div>
+                    <div class="car-name">${car.type}</div>
+                    <div class="car-year">${car.model ? car.model + ' ·' : ''} ${car.lastOdo || '0 كم'}</div>
+                </div>
+            </div>`;
+    }
+ 
+    // ─── CAR SELECTOR ───
+    function carSelectorHTML() {
+        if (cars.length === 0) return '';
+        return `
+            <div class="input-group">
+                <label>المركبة النشطة</label>
+                <div class="select-wrap">
+                    <select onchange="activeIdx=parseInt(this.value); showTab(currentTabId)">
+                        ${cars.map((c, i) => `<option value="${i}" ${i == activeIdx ? 'selected' : ''}>🚗 ${c.type}</option>`).join('')}
+                    </select>
+                </div>
+            </div>`;
+    }
+ 
+    let currentTabId = 'p1';
+ 
+    // ─── SHOW TAB ───
     function showTab(tabId, el) {
-        if(el) {
+        currentTabId = tabId;
+        if (el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
         }
+ 
         const area = document.getElementById('content-area');
-        let car = cars[activeIdx];
-
-        if(tabId === 'p1') {
+        const car = cars[activeIdx];
+ 
+        // ── VEHICLES ──
+        if (tabId === 'p1') {
             area.innerHTML = `
-                <h3 style="text-align:center; margin:0 0 20px 0;">المركبات 🚗</h3>
-                <div class="input-group">
-                    <label>اختر المركبة</label>
-                    <div class="select-wrapper">
-                        <select id="carSel" onchange="activeIdx=this.value; showTab('p1')">
-                            ${cars.map((c, i) => `<option value="${i}" ${i==activeIdx?'selected':''}>🚗 ${c.type}</option>`).join('')}
-                            <option value="new">+ إضافة مركبة جديدة</option>
-                        </select>
+                <div class="section-card">
+                    <div class="section-title"><span>🚗</span> المركبات</div>
+                    ${carSelectorHTML()}
+                    <div class="input-group">
+                        <label>الماركة / الطراز</label>
+                        <input type="text" id="v_type" value="${car ? car.type : ''}" placeholder="مثال: نيسان التيما 2026">
                     </div>
-                </div>
-                <div class="input-group"><label>الماركة / الطراز</label><input type="text" id="v_type" value="${car?car.type:''}" placeholder="مثلاً: نيسان التيما"></div>
-                <div class="input-group"><label>سنة الصنع</label><input type="text" id="v_model" value="${car?car.model||'':''}" placeholder="مثلاً: 2026"></div>
-                <button class="btn btn-primary" onclick="saveCar()">حفظ البيانات ✨</button>
-                ${car ? `<button onclick="deleteCar()" style="width:100%; background:none; border:none; color:var(--danger); margin-top:15px; cursor:pointer; font-weight:bold;">× حذف المركبة</button>` : ''}`;
-        } else if(tabId === 'p5') {
-            area.innerHTML = `<h3>سجل العمليات</h3>
-                <button class="btn btn-excel" onclick="exportFilteredExcel()">تصدير Excel 📊</button>
-                <div class="input-group">
-                    <label>تصفية النتائج</label>
-                    <div class="select-wrapper">
-                        <select id="sijill_filter" onchange="renderFilteredLogs()">
-                            <option value="none" selected>— اختر نوع التصفية —</option>
-                            <option value="الكل">كل العمليات</option>
-                            <option value="وقود">وقود</option>
-                            <option value="زيت المحرك">زيت المحرك</option>
-                            <option value="زيت القير">زيت القير</option>
-                            <option value="أخرى">أخرى</option>
-                        </select>
+                    <div class="input-group">
+                        <label>سنة الصنع</label>
+                        <input type="text" id="v_model" value="${car ? car.model || '' : ''}" placeholder="مثال: 2026">
                     </div>
-                </div>
-                <div id="logs_container">
-                    <div style="text-align:center; padding:40px; color:var(--text-muted);">
-                        <div style="font-size:40px; margin-bottom:10px;">🔍</div>
-                        <p>بانتظار اختيارك لعرض البيانات</p>
+                    <button class="btn btn-primary" onclick="saveCar()">حفظ ✓</button>
+                    <div style="margin-top:10px; display:flex; gap:10px;">
+                        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="addNewCar()">+ إضافة مركبة</button>
+                        ${car ? `<button class="btn btn-danger-ghost btn-sm" style="flex:1" onclick="deleteCar()">حذف المركبة</button>` : ''}
                     </div>
-                </div>`;
-        } else if(tabId === 'p2') {
-            area.innerHTML = `<h3>تسجيل صيانة</h3>
-                <div class="input-group">
-                    <label>نوع الصيانة</label>
-                    <div class="select-wrapper">
-                        <select id="m_type_sel" onchange="toggleManualMaint()">
-                            <option value="زيت المحرك">زيت المحرك</option>
-                            <option value="زيت القير">زيت القير</option>
-                            <option value="تغيير كفرات">تغيير كفرات</option>
-                            <option value="فلتر مكينة">فلتر مكينة</option>
-                            <option value="أخرى">أخرى</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="manual_m_group" class="input-group hidden"><label>وصف الصيانة</label><input type="text" id="m_t_manual"></div>
-                <div class="input-group"><label>التكلفة (ر.س)</label><input type="number" id="m_p"></div>
-                <div class="input-group"><label>التاريخ</label><input type="date" id="m_d"></div>
-                <button class="btn btn-primary" onclick="addLog('صيانة')">تأكيد الصيانة 🔨</button>`;
-            document.getElementById('m_d').valueAsDate = new Date();
-        } else if(tabId === 'p6') {
-            area.innerHTML = `<h3>وقود ⛽</h3>
-                <div class="input-group"><label>قيمة التعبئة (ر.س)</label><input type="number" id="f_p"></div>
-                <div class="input-group"><label>التاريخ</label><input type="date" id="f_d"></div>
-                <button class="btn btn-primary" onclick="addLog('وقود')">تسجيل ⛽</button>`;
-            document.getElementById('f_d').valueAsDate = new Date();
-        } else if(tabId === 'p3') {
-            area.innerHTML = `<h3>عداد المسافات 📍</h3>
-                <div class="input-group"><label>القراءة الحالية (كم)</label><input type="number" id="odo_val" value="${car?parseInt(car.lastOdo):''}"></div>
-                <button class="btn btn-primary" onclick="updateOdo()">تحديث الممشى 📍</button>`;
-        } else if(tabId === 'p4') {
-            if(!car) return;
-            const logs = car.logs ? Object.values(car.logs) : [];
-            const maint = logs.filter(l => l.cat === 'صيانة').reduce((a,b)=>a+Number(b.price), 0);
-            const fuel = logs.filter(l => l.cat === 'وقود').reduce((a,b)=>a+Number(b.price), 0);
-            area.innerHTML = `<h3>إحصائيات 📊</h3>
-                <div class="stats-grid">
-                    <div class="stat-card"><span>صيانة</span><span class="stat-value">${maint}</span></div>
-                    <div class="stat-card"><span>وقود</span><span class="stat-value">${fuel}</span></div>
-                    <div class="stat-card"><span>الممشى</span><span class="stat-value">${car.lastOdo || 0}</span></div>
-                    <div class="stat-card"><span>الإجمالي</span><span class="stat-value">${maint + fuel}</span></div>
                 </div>`;
         }
+ 
+        // ── STATS ──
+        else if (tabId === 'p4') {
+            if (!car) { area.innerHTML = `<div class="section-card"><div class="empty-state"><span class="ei">📊</span><p>لا توجد مركبات مضافة</p></div></div>`; return; }
+            const logs = car.logs ? Object.values(car.logs) : [];
+            const maint = logs.filter(l => l.cat === 'صيانة').reduce((a, b) => a + Number(b.price), 0);
+            const fuel = logs.filter(l => l.cat === 'وقود').reduce((a, b) => a + Number(b.price), 0);
+            const total = maint + fuel;
+            area.innerHTML = `
+                ${carHeaderHTML()}
+                <div class="section-card">
+                    <div class="section-title"><span>📊</span> الإحصائيات</div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-icon">🔧</span>
+                            <span class="stat-label">إجمالي الصيانة</span>
+                            <span class="stat-value">${maint.toLocaleString()}</span>
+                            <span class="stat-unit">ريال</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon">⛽</span>
+                            <span class="stat-label">إجمالي الوقود</span>
+                            <span class="stat-value">${fuel.toLocaleString()}</span>
+                            <span class="stat-unit">ريال</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon">📍</span>
+                            <span class="stat-label">قراءة العداد</span>
+                            <span class="stat-value">${parseInt(car.lastOdo) || 0}</span>
+                            <span class="stat-unit">كيلومتر</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon">📝</span>
+                            <span class="stat-label">عدد السجلات</span>
+                            <span class="stat-value">${logs.length}</span>
+                            <span class="stat-unit">عملية</span>
+                        </div>
+                        <div class="stat-card total">
+                            <span class="stat-icon">💰</span>
+                            <span class="stat-label">الإجمالي الكلي</span>
+                            <span class="stat-value">${total.toLocaleString()}</span>
+                            <span class="stat-unit">ريال سعودي</span>
+                        </div>
+                    </div>
+                </div>`;
+        }
+ 
+        // ── MAINTENANCE ──
+        else if (tabId === 'p2') {
+            area.innerHTML = `
+                ${carHeaderHTML()}
+                <div class="section-card">
+                    <div class="section-title"><span>🔧</span> تسجيل صيانة</div>
+                    ${carSelectorHTML()}
+                    <div class="input-group">
+                        <label>نوع الصيانة</label>
+                        <div class="select-wrap">
+                            <select id="m_type_sel" onchange="toggleManualMaint()">
+                                <option value="زيت المحرك">🛢️ زيت المحرك</option>
+                                <option value="زيت القير">⚙️ زيت القير</option>
+                                <option value="تغيير كفرات">🔄 تغيير كفرات</option>
+                                <option value="فلتر مكينة">🌬️ فلتر مكينة</option>
+                                <option value="أخرى">✏️ أخرى</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="manual_m_group" class="input-group hidden">
+                        <label>وصف الصيانة</label>
+                        <input type="text" id="m_t_manual" placeholder="اكتب نوع الصيانة">
+                    </div>
+                    <div class="input-group">
+                        <label>التكلفة (ر.س)</label>
+                        <input type="number" id="m_p" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label>التاريخ</label>
+                        <input type="date" id="m_d">
+                    </div>
+                    <button class="btn btn-primary" onclick="addLog('صيانة')">تسجيل الصيانة 🔧</button>
+                </div>`;
+            document.getElementById('m_d').valueAsDate = new Date();
+        }
+ 
+        // ── FUEL ──
+        else if (tabId === 'p6') {
+            area.innerHTML = `
+                ${carHeaderHTML()}
+                <div class="section-card">
+                    <div class="section-title"><span>⛽</span> تعبئة وقود</div>
+                    ${carSelectorHTML()}
+                    <div class="input-group">
+                        <label>قيمة التعبئة (ر.س)</label>
+                        <input type="number" id="f_p" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label>التاريخ</label>
+                        <input type="date" id="f_d">
+                    </div>
+                    <button class="btn btn-primary" onclick="addLog('وقود')">تسجيل الوقود ⛽</button>
+                </div>`;
+            document.getElementById('f_d').valueAsDate = new Date();
+        }
+ 
+        // ── ODO ──
+        else if (tabId === 'p3') {
+            const odoVal = car ? parseInt(car.lastOdo) || 0 : 0;
+            area.innerHTML = `
+                ${carHeaderHTML()}
+                <div class="section-card">
+                    <div class="section-title"><span>📍</span> عداد المسافات</div>
+                    ${carSelectorHTML()}
+                    <div class="odo-display">
+                        <div class="odo-num">${odoVal.toLocaleString()}</div>
+                        <div class="odo-label">القراءة الحالية بالكيلومتر</div>
+                    </div>
+                    <div class="input-group">
+                        <label>القراءة الجديدة (كم)</label>
+                        <input type="number" id="odo_val" placeholder="${odoVal}">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateOdo()">تحديث العداد 📍</button>
+                </div>`;
+        }
+ 
+        // ── LOG ──
+        else if (tabId === 'p5') {
+            area.innerHTML = `
+                ${carHeaderHTML()}
+                <div class="section-card">
+                    <div class="section-title"><span>📑</span> سجل العمليات</div>
+                    ${carSelectorHTML()}
+                    <button class="btn btn-success btn-sm" onclick="exportFilteredExcel()">تصدير Excel 📊</button>
+                    <div class="filter-pills" id="filter-pills">
+                        ${['الكل','وقود','زيت المحرك','زيت القير','أخرى'].map(f =>
+                            `<button class="pill ${currentFilter===f?'active':''}" onclick="setFilter('${f}')">${f}</button>`
+                        ).join('')}
+                    </div>
+                    <div id="logs_container"></div>
+                </div>`;
+            renderLogs();
+        }
     }
-
-    function renderFilteredLogs() {
+ 
+    // ─── FILTER ───
+    function setFilter(f) {
+        currentFilter = f;
+        document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.textContent === f));
+        renderLogs();
+    }
+ 
+    // ─── RENDER LOGS ───
+    function renderLogs() {
         const car = cars[activeIdx];
         const container = document.getElementById('logs_container');
-        const filterValue = document.getElementById('sijill_filter').value;
-        if (filterValue === "none") return;
-        if(!car || !car.logs) { container.innerHTML = "<h3 style='text-align:center'>لا توجد سجلات</h3>"; return; }
-        const logsArr = Object.keys(car.logs).map(key => ({...car.logs[key], key}));
-        const filtered = filterValue === "الكل" ? logsArr : logsArr.filter(l => l.title.includes(filterValue) || l.cat.includes(filterValue));
-        container.innerHTML = filtered.reverse().map(l => `
-            <div class="log-item">
-                <div style="flex-grow: 1;"><b>${l.title}</b><br><small style="color:var(--text-muted)">${l.date} | ${l.cat}</small></div>
-                <div class="price-tag">${l.price} ر.س</div>
-                <div onclick="deleteLog('${l.key}')" style="color:var(--danger); cursor:pointer; font-size:18px; padding-right:10px;">🗑️</div>
-            </div>`).join('');
-    }
-
-    function deleteLog(logKey) {
-        if(confirm("هل تريد حذف هذه العملية؟")) {
-            const carId = cars[activeIdx].id;
-            db.ref('users/' + userId + '/garage/' + carId + '/logs/' + logKey).remove().then(() => { renderFilteredLogs(); });
+        if (!car || !car.logs) {
+            container.innerHTML = `<div class="empty-state"><span class="ei">📋</span><p>لا توجد سجلات بعد</p></div>`;
+            return;
         }
+        const arr = Object.keys(car.logs).map(k => ({ ...car.logs[k], key: k }));
+        const filtered = currentFilter === 'الكل' ? arr : arr.filter(l => l.title.includes(currentFilter) || l.cat.includes(currentFilter));
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="empty-state"><span class="ei">🔍</span><p>لا توجد نتائج</p></div>`;
+            return;
+        }
+        container.innerHTML = filtered.reverse().map(l => {
+            const isFuel = l.cat === 'وقود';
+            return `
+                <div class="log-item">
+                    <div class="log-dot ${isFuel ? 'fuel' : 'maint'}">${isFuel ? '⛽' : '🔧'}</div>
+                    <div class="log-info">
+                        <div class="log-title">${l.title}</div>
+                        <div class="log-meta">${l.date} · <span class="badge ${isFuel ? 'badge-fuel' : 'badge-maint'}">${l.cat}</span></div>
+                    </div>
+                    <div class="log-price">${Number(l.price).toLocaleString()} ر.س</div>
+                    <div class="log-edit" onclick="openEditModal('${l.key}')">✏️</div>
+                    <div class="log-del" onclick="deleteLog('${l.key}')">🗑</div>
+                </div>`;
+        }).join('');
     }
-
+ 
+    // ─── DELETE LOG ───
+    function deleteLog(key) {
+        if (!confirm('حذف هذه العملية؟')) return;
+        db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs/${key}`).remove()
+            .then(() => { toast('تم الحذف ✓'); renderLogs(); });
+    }
+ 
+    // ─── EDIT MODAL ───
+    function openEditModal(key) {
+        const car = cars[activeIdx];
+        if (!car || !car.logs || !car.logs[key]) return;
+        const l = car.logs[key];
+        const modal = document.getElementById('edit-modal');
+ 
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.inset = '0';
+        modal.style.zIndex = '500';
+        modal.style.alignItems = 'flex-end';
+        modal.style.justifyContent = 'center';
+        modal.style.background = 'rgba(0,0,0,0.7)';
+        modal.style.backdropFilter = 'blur(6px)';
+        modal.style.animation = 'fadeIn 0.2s ease';
+ 
+        modal.innerHTML = `
+            <div class="modal-box">
+                <div class="modal-handle"></div>
+                <div class="modal-title">✏️ تعديل العملية</div>
+ 
+                <div class="input-group">
+                    <label>التفاصيل</label>
+                    <input type="text" id="edit_title" value="${l.title}">
+                </div>
+                <div class="input-group">
+                    <label>المبلغ (ر.س)</label>
+                    <input type="number" id="edit_price" value="${l.price}">
+                </div>
+                <div class="input-group">
+                    <label>التاريخ</label>
+                    <input type="date" id="edit_date" value="${l.date}">
+                </div>
+ 
+                <div class="modal-actions">
+                    <button class="btn btn-ghost" style="flex:1" onclick="closeEditModal()">إلغاء</button>
+                    <button class="btn btn-primary" style="flex:2" onclick="saveEdit('${key}')">حفظ التعديلات ✓</button>
+                </div>
+            </div>`;
+ 
+        modal.onclick = function(e) { if (e.target === modal) closeEditModal(); };
+    }
+ 
+    function closeEditModal() {
+        const modal = document.getElementById('edit-modal');
+        modal.style.display = 'none';
+        modal.innerHTML = '';
+    }
+ 
+    function saveEdit(key) {
+        const title = document.getElementById('edit_title').value.trim();
+        const price = document.getElementById('edit_price').value;
+        const date = document.getElementById('edit_date').value;
+        if (!title) { toast('أدخل التفاصيل'); return; }
+        db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs/${key}`).update({ title, price, date })
+            .then(() => { closeEditModal(); toast('تم التعديل ✓'); renderLogs(); });
+    }
+ 
+    // ─── SAVE CAR ───
     function saveCar() {
-        const type = document.getElementById('v_type').value;
-        if(!type) return;
-        const carId = (cars[activeIdx] && cars[activeIdx].id) ? cars[activeIdx].id : db.ref('users/'+userId+'/garage').push().key;
-        db.ref('users/' + userId + '/garage/' + carId).update({
-            id: carId, type: type, model: document.getElementById('v_model').value,
+        const type = document.getElementById('v_type').value.trim();
+        if (!type) { toast('أدخل اسم المركبة'); return; }
+        const isNew = !cars[activeIdx] || !cars[activeIdx].id;
+        const carId = isNew ? db.ref('users/' + userId + '/garage').push().key : cars[activeIdx].id;
+        db.ref(`users/${userId}/garage/${carId}`).update({
+            id: carId, type,
+            model: document.getElementById('v_model').value,
             lastOdo: cars[activeIdx] ? (cars[activeIdx].lastOdo || '0 كم') : '0 كم'
-        }).then(() => alert("تم الحفظ"));
+        }).then(() => toast('تم الحفظ ✓'));
     }
-
+ 
+    function addNewCar() {
+        activeIdx = cars.length;
+        document.getElementById('v_type').value = '';
+        document.getElementById('v_model').value = '';
+        toast('أضف بيانات المركبة الجديدة');
+    }
+ 
+    function deleteCar() {
+        if (!confirm('حذف المركبة نهائياً؟')) return;
+        db.ref(`users/${userId}/garage/${cars[activeIdx].id}`).remove()
+            .then(() => { activeIdx = 0; toast('تم الحذف ✓'); });
+    }
+ 
+    // ─── ADD LOG ───
     function addLog(cat) {
-        if(!cars[activeIdx]) return;
-        let p = (cat === 'وقود' ? document.getElementById('f_p').value : document.getElementById('m_p').value) || 0;
-        let t = (cat === 'وقود') ? "تعبئة وقود" : document.getElementById('m_type_sel').value;
-        if(t === 'أخرى') t = document.getElementById('m_t_manual').value;
-        let d = (cat === 'وقود') ? document.getElementById('f_d').value : document.getElementById('m_d').value;
-        db.ref('users/' + userId + '/garage/' + cars[activeIdx].id + '/logs').push({ cat, price: p, title: t, date: d })
-        .then(() => { alert("تم التسجيل"); showTab('p5'); });
+        if (!cars[activeIdx]) { toast('اختر مركبة أولاً'); return; }
+        const isFuel = cat === 'وقود';
+        const price = isFuel ? document.getElementById('f_p').value : document.getElementById('m_p').value || 0;
+        let title = isFuel ? 'تعبئة وقود' : document.getElementById('m_type_sel').value;
+        if (title === 'أخرى') title = document.getElementById('m_t_manual').value || 'صيانة أخرى';
+        const date = isFuel ? document.getElementById('f_d').value : document.getElementById('m_d').value;
+        db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs`).push({ cat, price, title, date })
+            .then(() => { toast('تم التسجيل ✓'); currentFilter = 'الكل'; showTab('p5'); });
     }
-
+ 
+    // ─── UPDATE ODO ───
     function updateOdo() {
         const v = document.getElementById('odo_val').value;
-        if(v && cars[activeIdx]) db.ref('users/'+userId+'/garage/'+cars[activeIdx].id).update({ lastOdo: v + " كم" }).then(() => alert("تم التحديث"));
+        if (!v || !cars[activeIdx]) return;
+        db.ref(`users/${userId}/garage/${cars[activeIdx].id}`).update({ lastOdo: v + ' كم' })
+            .then(() => toast('تم التحديث ✓'));
     }
-
+ 
+    // ─── EXPORT ───
     function exportFilteredExcel() {
         const car = cars[activeIdx];
-        const filterValue = document.getElementById('sijill_filter').value;
-        if(!car || !car.logs || filterValue === "none") return;
-        const logsArr = Object.values(car.logs);
-        const filtered = filterValue === "الكل" ? logsArr : logsArr.filter(l => l.title.includes(filterValue));
-        const data = filtered.map(l => ({ "التاريخ": l.date, "النوع": l.cat, "التفاصيل": l.title, "المبلغ": l.price }));
+        if (!car || !car.logs) { toast('لا توجد بيانات'); return; }
+        const arr = Object.values(car.logs);
+        const filtered = currentFilter === 'الكل' ? arr : arr.filter(l => l.title.includes(currentFilter) || l.cat.includes(currentFilter));
+        const data = filtered.map(l => ({ 'التاريخ': l.date, 'النوع': l.cat, 'التفاصيل': l.title, 'المبلغ': l.price }));
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Sijill");
+        XLSX.utils.book_append_sheet(wb, ws, 'Sijill');
         XLSX.writeFile(wb, `سجل_${car.type}.xlsx`);
     }
-
+ 
+    // ─── TOGGLE MANUAL MAINT ───
     function toggleManualMaint() {
-        document.getElementById('manual_m_group').classList.toggle('hidden', document.getElementById('m_type_sel').value !== 'أخرى');
-    }
-
-    function deleteCar() {
-        if(confirm("حذف المركبة نهائياً؟")) {
-            db.ref('users/' + userId + '/garage/' + cars[activeIdx].id).remove().then(() => { activeIdx = 0; syncData(); });
-        }
+        const v = document.getElementById('m_type_sel').value;
+        document.getElementById('manual_m_group').classList.toggle('hidden', v !== 'أخرى');
     }
 </script>
 </body>
 </html>
+ 
