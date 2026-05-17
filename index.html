@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مركبتي السحابية</title>
+    
+    <!-- ⭐ PWA: رابط ملف البيان -->
+    <link rel="manifest" href="/car-maintenance-tracker/manifest.json">
+    
+    <!-- ⭐ PWA: تحديد لون الشريط العلوي -->
+    <meta name="theme-color" content="#e94560">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="مركبتي">
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -876,6 +885,15 @@
     let sessionTimer = null;
     let sessionWarningTimer = null;
 
+    // ⭐ PWA: تسجيل Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/car-maintenance-tracker/sw.js')
+                .then(() => console.log('Service Worker مسجل ✅'))
+                .catch(() => console.log('Service Worker يعمل بوضع التطوير'));
+        });
+    }
+
     // ─── LUCIDE INIT ───
     function initIcons() {
         if (window.lucide) lucide.createIcons();
@@ -945,13 +963,11 @@
     auth.onAuthStateChanged(user => {
         if (user) {
             const loginTime = parseInt(localStorage.getItem('loginTime') || '0');
-            // If loginTime exists and session expired → sign out
             if (loginTime && !checkSession()) {
                 auth.signOut();
                 hideSplash();
                 return;
             }
-            // If no loginTime (fresh login just happened), set it now
             if (!loginTime) startSession();
 
             userId = user.uid;
@@ -1012,7 +1028,6 @@
             const data = snap.val();
             const newCars = data ? Object.keys(data).map(k => ({ ...data[k], id: k })) : [];
 
-            // Preserve activeIdx smartly
             if (cars.length > 0 && activeIdx < cars.length) {
                 const currentCarId = cars[activeIdx]?.id;
                 const newIdx = newCars.findIndex(c => c.id === currentCarId);
@@ -1027,7 +1042,6 @@
         });
     }
 
-    // ─── UPDATE HEADER CAR NAME ───
     function updateHeaderCar() {
         const nameEl = document.getElementById('header-car-name');
         if (nameEl) {
@@ -1035,7 +1049,6 @@
         }
     }
 
-    // ─── CAR SWITCH MODAL ───
     function openCarSwitchModal() {
         const modal = document.getElementById('car-switch-modal');
         modal.style.display = 'flex';
@@ -1089,7 +1102,6 @@
         modal.innerHTML = '';
     }
 
-    // ─── CAR HEADER SNIPPET ───
     function carHeaderHTML() {
         const car = cars[activeIdx];
         if (!car) return '';
@@ -1103,14 +1115,12 @@
             </div>`;
     }
 
-    // ─── SHOW TAB ───
     function showTab(tabId, el) {
         currentTabId = tabId;
         if (el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
         } else {
-            // Update nav highlight without element
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             const navEl = document.getElementById('nav-' + tabId);
             if (navEl) navEl.classList.add('active');
@@ -1119,7 +1129,6 @@
         const area = document.getElementById('content-area');
         const car = cars[activeIdx];
 
-        // ── VEHICLES ──
         if (tabId === 'p1') {
             area.innerHTML = `
                 <div class="section-card">
@@ -1146,15 +1155,12 @@
                 </div>`;
         }
 
-        // ── STATS ──
         else if (tabId === 'p4') {
             if (!car) { area.innerHTML = `<div class="section-card"><div class="empty-state"><div class="ei"><i data-lucide="bar-chart-2" width="48" height="48"></i></div><p>لا توجد مركبات مضافة</p></div></div>`; initIcons(); return; }
             const logs = car.logs ? Object.values(car.logs) : [];
             const maint = logs.filter(l => l.cat === 'صيانة').reduce((a, b) => a + Number(b.price), 0);
             const fuel = logs.filter(l => l.cat === 'وقود').reduce((a, b) => a + Number(b.price), 0);
             const total = maint + fuel;
-
-            // Build monthly chart data (last 6 months)
             const monthlyData = buildMonthlyChart(logs);
 
             area.innerHTML = `
@@ -1197,7 +1203,6 @@
                 </div>`;
         }
 
-        // ── MAINTENANCE ──
         else if (tabId === 'p2') {
             if (!car) { area.innerHTML = noCar('wrench'); initIcons(); return; }
             area.innerHTML = `
@@ -1235,7 +1240,6 @@
             document.getElementById('m_d').valueAsDate = new Date();
         }
 
-        // ── FUEL ──
         else if (tabId === 'p6') {
             if (!car) { area.innerHTML = noCar('fuel'); initIcons(); return; }
             area.innerHTML = `
@@ -1257,7 +1261,6 @@
             document.getElementById('f_d').valueAsDate = new Date();
         }
 
-        // ── ODO ──
         else if (tabId === 'p3') {
             if (!car) { area.innerHTML = noCar('gauge'); initIcons(); return; }
             const odoVal = parseInt(car.lastOdo) || 0;
@@ -1284,7 +1287,6 @@
                 </div>`;
         }
 
-        // ── LOG ──
         else if (tabId === 'p5') {
             if (!car) { area.innerHTML = noCar('scroll-text'); initIcons(); return; }
             area.innerHTML = `
@@ -1307,7 +1309,6 @@
         initIcons();
     }
 
-    // ─── NO CAR STATE ───
     function noCar(icon) {
         return `<div class="section-card"><div class="empty-state">
             <div class="ei"><i data-lucide="${icon}" width="48" height="48"></i></div>
@@ -1318,7 +1319,6 @@
         </div></div>`;
     }
 
-    // ─── ODO WARNING ───
     function checkOdoWarn(currentOdo) {
         const val = parseInt(document.getElementById('odo_val').value);
         const warn = document.getElementById('odo-warn');
@@ -1331,7 +1331,6 @@
         }
     }
 
-    // ─── MONTHLY CHART DATA ───
     function buildMonthlyChart(logs) {
         if (!logs.length) return { hasData: false };
         const months = {};
@@ -1385,14 +1384,12 @@
             </div>`;
     }
 
-    // ─── FILTER ───
     function setFilter(f) {
         currentFilter = f;
         document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.textContent === f));
         renderLogs();
     }
 
-    // ─── RENDER LOGS ───
     function renderLogs() {
         const car = cars[activeIdx];
         const container = document.getElementById('logs_container');
@@ -1448,7 +1445,6 @@
         initIcons();
     }
 
-    // ─── CONFIRM MODAL ───
     function showConfirm(title, sub, onConfirm) {
         const modal = document.getElementById('confirm-modal');
         modal.style.display = 'flex';
@@ -1494,7 +1490,6 @@
         window._confirmCallback = null;
     }
 
-    // ─── DELETE LOG ───
     function confirmDeleteLog(key) {
         showConfirm('حذف العملية', 'هل أنت متأكد من حذف هذه العملية؟ لا يمكن التراجع.', () => {
             db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs/${key}`).remove()
@@ -1502,7 +1497,6 @@
         });
     }
 
-    // ─── EDIT MODAL ───
     function openEditModal(key) {
         const car = cars[activeIdx];
         if (!car || !car.logs || !car.logs[key]) return;
@@ -1567,7 +1561,6 @@
             .then(() => { closeEditModal(); toast('تم التعديل ✓'); renderLogs(); });
     }
 
-    // ─── SAVE CAR ───
     function saveCar() {
         const type = document.getElementById('v_type').value.trim();
         if (!type) { toast('أدخل اسم المركبة'); return; }
@@ -1587,7 +1580,6 @@
     }
 
     function addNewCar() {
-        // Create a temporary placeholder
         const tempCar = { type: '', model: '', lastOdo: '0 كم', _isNew: true };
         cars.push(tempCar);
         activeIdx = cars.length - 1;
@@ -1604,7 +1596,6 @@
         });
     }
 
-    // ─── ADD LOG ───
     function addLog(cat) {
         if (!cars[activeIdx] || cars[activeIdx]._isNew) { toast('احفظ بيانات المركبة أولاً'); return; }
         const isFuel = cat === 'وقود';
@@ -1621,7 +1612,6 @@
             .then(() => { toast('تم التسجيل ✓'); currentFilter = 'الكل'; showTab('p5'); });
     }
 
-    // ─── UPDATE ODO ───
     function updateOdo(currentOdo) {
         const v = document.getElementById('odo_val').value;
         if (!v || !cars[activeIdx]) return;
@@ -1634,7 +1624,6 @@
             .then(() => toast('تم التحديث ✓'));
     }
 
-    // ─── EXPORT ───
     function exportFilteredExcel() {
         const car = cars[activeIdx];
         if (!car || !car.logs) { toast('لا توجد بيانات'); return; }
@@ -1653,7 +1642,6 @@
         toast('تم التصدير ✓');
     }
 
-    // ─── TOGGLE MANUAL MAINT ───
     function toggleManualMaint() {
         const v = document.getElementById('m_type_sel').value;
         document.getElementById('manual_m_group').classList.toggle('hidden', v !== 'أخرى');
