@@ -4,23 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مركبتي السحابية</title>
-    
-    <!-- ⭐ PWA: رابط ملف البيان -->
-    <link rel="manifest" href="/car-maintenance-tracker/manifest.json">
-    
-    <!-- ⭐ PWA: تحديد لون الشريط العلوي -->
-    <meta name="theme-color" content="#e94560">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="مركبتي">
-
+ 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-
+ 
     <style>
         :root {
             --gold: #f59e0b;
@@ -42,13 +33,13 @@
             --blue: #3b82f6;
             --bottom-nav-h: 68px;
         }
-
+ 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
-
+ 
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; }
         input[type=number] { -moz-appearance: textfield; }
-
+ 
         body {
             background: var(--bg);
             color: var(--text);
@@ -57,7 +48,7 @@
             min-height: 100vh;
             padding-bottom: var(--bottom-nav-h);
         }
-
+ 
         body::before {
             content: '';
             position: fixed; inset: 0; z-index: 0;
@@ -67,7 +58,7 @@
             background-size: 40px 40px;
             pointer-events: none;
         }
-
+ 
         /* ─── SPLASH ─── */
         #splash {
             position: fixed; inset: 0; z-index: 9999;
@@ -77,9 +68,9 @@
             gap: 20px;
             transition: opacity 0.4s ease;
         }
-
+ 
         #splash.hide { opacity: 0; pointer-events: none; }
-
+ 
         .splash-logo {
             width: 80px; height: 80px;
             background: linear-gradient(135deg, var(--gold), #d97706);
@@ -88,16 +79,16 @@
             box-shadow: 0 0 60px rgba(245,158,11,0.3);
             animation: splashPulse 1.5s ease infinite;
         }
-
+ 
         .splash-logo i { color: #000; }
-
+ 
         @keyframes splashPulse {
             0%, 100% { box-shadow: 0 0 40px rgba(245,158,11,0.3); }
             50% { box-shadow: 0 0 80px rgba(245,158,11,0.5); }
         }
-
+ 
         .splash-title { font-size: 24px; font-weight: 900; color: var(--gold); }
-
+ 
         .splash-spinner {
             width: 32px; height: 32px;
             border: 3px solid var(--border);
@@ -105,21 +96,21 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-
+ 
         @keyframes spin { to { transform: rotate(360deg); } }
-
+ 
         /* ─── AUTH ─── */
         #auth-area {
             display: flex; align-items: center; justify-content: center;
             min-height: 100vh; padding: 20px; position: relative; z-index: 1;
         }
-
+ 
         .auth-glow {
             position: absolute; width: 400px; height: 400px;
             background: radial-gradient(circle, rgba(245,158,11,0.12), transparent 70%);
             border-radius: 50%; pointer-events: none;
         }
-
+ 
         .auth-card {
             position: relative; z-index: 2;
             background: var(--card);
@@ -130,7 +121,7 @@
             text-align: center;
             box-shadow: 0 0 60px rgba(245,158,11,0.08), 0 30px 60px rgba(0,0,0,0.4);
         }
-
+ 
         .auth-icon {
             width: 72px; height: 72px;
             background: linear-gradient(135deg, var(--gold), #d97706);
@@ -139,12 +130,12 @@
             margin-bottom: 20px;
             box-shadow: 0 8px 32px rgba(245,158,11,0.35);
         }
-
+ 
         .auth-icon i { color: #000; }
-
+ 
         .auth-title { font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
         .auth-sub { font-size: 13px; color: var(--muted2); margin-bottom: 32px; }
-
+ 
         /* ─── HEADER ─── */
         .header-bar {
             background: rgba(13, 20, 35, 0.95);
@@ -156,28 +147,28 @@
             position: sticky; top: 0; z-index: 100;
             gap: 10px;
         }
-
+ 
         .header-brand {
             display: flex; align-items: center; gap: 10px;
             flex-shrink: 0;
         }
-
+ 
         .header-logo {
             width: 34px; height: 34px;
             background: linear-gradient(135deg, var(--gold), #d97706);
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
         }
-
+ 
         .header-logo i { color: #000; }
         .header-name { font-size: 15px; font-weight: 800; color: var(--gold); }
-
+ 
         /* ─── CAR SWITCHER IN HEADER ─── */
         .header-car-switch {
             flex: 1;
             display: flex; align-items: center; justify-content: center;
         }
-
+ 
         .car-switch-btn {
             display: flex; align-items: center; gap: 6px;
             background: var(--gold-dim);
@@ -189,9 +180,9 @@
             max-width: 180px;
             overflow: hidden;
         }
-
+ 
         .car-switch-btn:hover { background: rgba(245,158,11,0.2); }
-
+ 
         .car-switch-name {
             font-size: 12px; font-weight: 800;
             color: var(--gold);
@@ -199,9 +190,9 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
+ 
         .car-switch-btn i { color: var(--gold); flex-shrink: 0; }
-
+ 
         .logout-btn {
             background: var(--danger-dim);
             color: var(--danger);
@@ -218,7 +209,7 @@
         }
         .logout-btn:hover { background: rgba(244,63,94,0.2); }
         .logout-btn i { flex-shrink: 0; }
-
+ 
         /* ─── BOTTOM NAV ─── */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
@@ -231,7 +222,7 @@
             padding: 0 4px;
             z-index: 100;
         }
-
+ 
         .nav-item {
             display: flex; flex-direction: column; align-items: center;
             padding: 8px 10px; border-radius: 14px;
@@ -241,13 +232,13 @@
             white-space: nowrap; flex-shrink: 0;
             gap: 4px; position: relative;
         }
-
+ 
         .nav-item i { transition: 0.2s; }
-
+ 
         .nav-item.active {
             color: var(--gold);
         }
-
+ 
         .nav-item.active::before {
             content: '';
             position: absolute; top: 0; left: 50%; transform: translateX(-50%);
@@ -255,18 +246,18 @@
             background: var(--gold);
             border-radius: 0 0 4px 4px;
         }
-
+ 
         .nav-item:not(.active):hover { color: var(--text); }
-
+ 
         /* ─── MAIN ─── */
         #app-area { position: relative; z-index: 1; }
-
+ 
         .main-content {
             padding: 16px;
             max-width: 540px;
             margin: 0 auto;
         }
-
+ 
         /* ─── CARDS ─── */
         .section-card {
             background: var(--card);
@@ -275,7 +266,7 @@
             padding: 24px 20px;
             margin-bottom: 16px;
         }
-
+ 
         .section-title {
             font-size: 16px; font-weight: 800;
             display: flex; align-items: center; gap: 8px;
@@ -283,19 +274,19 @@
             border-bottom: 1px solid var(--border);
             color: var(--text);
         }
-
+ 
         .section-title i { color: var(--gold); }
-
+ 
         /* ─── INPUTS ─── */
         .input-group { margin-bottom: 16px; }
-
+ 
         label {
             display: block;
             font-size: 12px; font-weight: 700;
             color: var(--gold); margin-bottom: 8px;
             letter-spacing: 0.3px;
         }
-
+ 
         input, select {
             width: 100%; height: 52px;
             padding: 0 16px;
@@ -309,15 +300,15 @@
             appearance: none; -webkit-appearance: none;
             transition: 0.2s;
         }
-
+ 
         input:focus, select:focus {
             border-color: var(--gold);
             background: var(--card2);
             box-shadow: 0 0 0 3px rgba(245,158,11,0.08);
         }
-
+ 
         input::placeholder { color: var(--muted); }
-
+ 
         .select-wrap { position: relative; }
         .select-wrap::after {
             content: '▾';
@@ -326,7 +317,7 @@
             transform: translateY(-50%);
             pointer-events: none;
         }
-
+ 
         /* ─── BUTTONS ─── */
         .btn {
             width: 100%; height: 52px;
@@ -336,9 +327,9 @@
             cursor: pointer; transition: 0.2s;
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-
+ 
         .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
-
+ 
         .btn-primary {
             background: linear-gradient(135deg, var(--gold), #d97706);
             color: #000;
@@ -346,21 +337,21 @@
         }
         .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(245,158,11,0.35); }
         .btn-primary:active:not(:disabled) { transform: translateY(0); }
-
+ 
         .btn-ghost {
             background: transparent;
             border: 1.5px solid var(--border);
             color: var(--muted2);
         }
         .btn-ghost:hover { border-color: var(--muted2); color: var(--text); }
-
+ 
         .btn-danger-ghost {
             background: var(--danger-dim);
             border: 1px solid rgba(244,63,94,0.2);
             color: var(--danger);
         }
         .btn-danger-ghost:hover { background: rgba(244,63,94,0.2); }
-
+ 
         .btn-success {
             background: var(--success-dim);
             border: 1px solid rgba(16,185,129,0.2);
@@ -368,11 +359,11 @@
             margin-bottom: 16px;
         }
         .btn-success:hover { background: rgba(16,185,129,0.2); }
-
+ 
         .btn-sm {
             height: 38px; font-size: 13px; border-radius: 10px;
         }
-
+ 
         .btn-spinner {
             width: 16px; height: 16px;
             border: 2px solid rgba(0,0,0,0.3);
@@ -380,13 +371,13 @@
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
         }
-
+ 
         /* ─── STATS ─── */
         .stats-grid {
             display: grid; grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
-
+ 
         .stat-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -396,24 +387,24 @@
             position: relative; overflow: hidden;
             transition: 0.2s;
         }
-
+ 
         .stat-card:hover { border-color: var(--border-gold); }
-
+ 
         .stat-card::before {
             content: '';
             position: absolute; inset: 0;
             background: linear-gradient(135deg, rgba(245,158,11,0.04), transparent);
         }
-
+ 
         .stat-icon { margin-bottom: 6px; display: flex; justify-content: center; }
         .stat-icon i { color: var(--gold); }
         .stat-label { font-size: 11px; color: var(--muted2); font-weight: 600; margin-bottom: 6px; display: block; }
         .stat-value { font-size: 22px; font-weight: 900; color: var(--gold); display: block; }
         .stat-unit { font-size: 11px; color: var(--muted); }
-
+ 
         .stat-card.total { grid-column: span 2; }
         .stat-card.total .stat-value { font-size: 28px; }
-
+ 
         /* ─── CHART ─── */
         .chart-wrap {
             background: var(--surface);
@@ -422,43 +413,43 @@
             padding: 20px;
             margin-top: 10px;
         }
-
+ 
         .chart-title { font-size: 13px; font-weight: 700; color: var(--muted2); margin-bottom: 16px; }
-
+ 
         .chart-bars {
             display: flex; align-items: flex-end;
             gap: 6px; height: 100px;
         }
-
+ 
         .chart-bar-wrap {
             flex: 1; display: flex; flex-direction: column;
             align-items: center; gap: 4px;
         }
-
+ 
         .chart-bar {
             width: 100%; border-radius: 6px 6px 0 0;
             min-height: 4px; transition: height 0.5s ease;
             position: relative;
         }
-
+ 
         .chart-bar.fuel-bar { background: linear-gradient(to top, #1d4ed8, #3b82f6); }
         .chart-bar.maint-bar { background: linear-gradient(to top, #d97706, var(--gold)); }
-
+ 
         .chart-label { font-size: 9px; color: var(--muted); font-weight: 600; }
-
+ 
         .chart-legend {
             display: flex; gap: 16px; margin-top: 12px; justify-content: center;
         }
-
+ 
         .legend-item {
             display: flex; align-items: center; gap: 6px;
             font-size: 11px; color: var(--muted2); font-weight: 600;
         }
-
+ 
         .legend-dot {
             width: 10px; height: 10px; border-radius: 3px;
         }
-
+ 
         /* ─── LOG ITEMS ─── */
         .log-item {
             background: var(--surface);
@@ -469,24 +460,24 @@
             display: flex; align-items: center; gap: 12px;
             transition: 0.2s;
         }
-
+ 
         .log-item:hover { border-color: var(--border-gold); }
-
+ 
         .log-dot {
             width: 40px; height: 40px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
-
+ 
         .log-dot.fuel { background: rgba(59,130,246,0.15); }
         .log-dot.fuel i { color: #3b82f6; }
         .log-dot.maint { background: rgba(245,158,11,0.12); }
         .log-dot.maint i { color: var(--gold); }
-
+ 
         .log-info { flex: 1; min-width: 0; }
         .log-title { font-size: 14px; font-weight: 700; color: var(--text); }
         .log-meta { font-size: 11px; color: var(--muted2); margin-top: 2px; }
-
+ 
         .log-price {
             background: var(--gold-dim);
             border: 1px solid var(--border-gold);
@@ -495,7 +486,7 @@
             font-size: 13px; font-weight: 800;
             flex-shrink: 0; white-space: nowrap;
         }
-
+ 
         .log-del {
             color: var(--muted);
             cursor: pointer;
@@ -504,7 +495,7 @@
             display: flex; align-items: center;
         }
         .log-del:hover { color: var(--danger); background: var(--danger-dim); }
-
+ 
         .log-edit {
             color: var(--muted);
             cursor: pointer;
@@ -513,7 +504,7 @@
             display: flex; align-items: center;
         }
         .log-edit:hover { color: var(--gold); background: var(--gold-dim); }
-
+ 
         /* ─── LOG TOTAL ─── */
         .log-total {
             background: var(--gold-dim);
@@ -523,10 +514,10 @@
             display: flex; align-items: center; justify-content: space-between;
             margin-top: 4px;
         }
-
+ 
         .log-total-label { font-size: 13px; font-weight: 700; color: var(--muted2); }
         .log-total-value { font-size: 18px; font-weight: 900; color: var(--gold); }
-
+ 
         /* ─── MODAL ─── */
         .modal-overlay {
             position: fixed; inset: 0; z-index: 500;
@@ -536,10 +527,10 @@
             padding: 0;
             animation: fadeIn 0.2s ease;
         }
-
+ 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
+ 
         .modal-box {
             background: var(--card);
             border: 1px solid var(--border-gold);
@@ -548,26 +539,26 @@
             width: 100%; max-width: 540px;
             animation: slideUp 0.3s cubic-bezier(0.34,1.2,0.64,1);
         }
-
+ 
         .modal-handle {
             width: 40px; height: 4px;
             background: var(--border);
             border-radius: 4px;
             margin: 0 auto 20px;
         }
-
+ 
         .modal-title {
             font-size: 17px; font-weight: 900;
             margin-bottom: 20px;
             display: flex; align-items: center; gap: 8px;
         }
-
+ 
         .modal-title i { color: var(--gold); }
-
+ 
         .modal-actions {
             display: flex; gap: 10px; margin-top: 20px;
         }
-
+ 
         /* ─── CONFIRM MODAL ─── */
         .confirm-modal-overlay {
             position: fixed; inset: 0; z-index: 600;
@@ -577,7 +568,7 @@
             padding: 20px;
             animation: fadeIn 0.2s ease;
         }
-
+ 
         .confirm-modal-box {
             background: var(--card);
             border: 1px solid var(--border);
@@ -587,9 +578,9 @@
             text-align: center;
             animation: scaleIn 0.25s cubic-bezier(0.34,1.2,0.64,1);
         }
-
+ 
         @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
+ 
         .confirm-icon {
             width: 60px; height: 60px;
             background: var(--danger-dim);
@@ -597,14 +588,14 @@
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 16px;
         }
-
+ 
         .confirm-icon i { color: var(--danger); }
-
+ 
         .confirm-title { font-size: 17px; font-weight: 900; color: var(--text); margin-bottom: 8px; }
         .confirm-sub { font-size: 13px; color: var(--muted2); margin-bottom: 24px; line-height: 1.6; }
-
+ 
         .confirm-actions { display: flex; gap: 10px; }
-
+ 
         /* ─── CAR SWITCH MODAL ─── */
         .car-list-item {
             background: var(--surface);
@@ -616,10 +607,10 @@
             cursor: pointer;
             transition: 0.2s;
         }
-
+ 
         .car-list-item:hover { border-color: var(--border-gold); }
         .car-list-item.selected { border-color: var(--gold); background: var(--gold-dim); }
-
+ 
         .car-list-avatar {
             width: 44px; height: 44px;
             background: linear-gradient(135deg, var(--gold), #d97706);
@@ -627,12 +618,12 @@
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
-
+ 
         .car-list-avatar i { color: #000; }
-
+ 
         .car-list-name { font-size: 15px; font-weight: 800; color: var(--text); }
         .car-list-year { font-size: 12px; color: var(--muted2); margin-top: 2px; }
-
+ 
         /* ─── CAR HEADER ─── */
         .car-header {
             background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));
@@ -642,7 +633,7 @@
             margin-bottom: 16px;
             display: flex; align-items: center; gap: 14px;
         }
-
+ 
         .car-avatar {
             width: 52px; height: 52px;
             background: linear-gradient(135deg, var(--gold), #d97706);
@@ -650,18 +641,18 @@
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
-
+ 
         .car-avatar i { color: #000; }
         .car-name { font-size: 17px; font-weight: 900; color: var(--text); }
         .car-year { font-size: 12px; color: var(--muted2); margin-top: 2px; }
-
+ 
         /* ─── FILTER PILLS ─── */
         .filter-pills {
             display: flex; gap: 8px; overflow-x: auto;
             scrollbar-width: none; padding-bottom: 2px;
             margin-bottom: 16px;
         }
-
+ 
         .pill {
             padding: 7px 16px;
             border-radius: 100px;
@@ -673,13 +664,13 @@
             transition: 0.2s; flex-shrink: 0;
             font-family: 'Cairo', sans-serif;
         }
-
+ 
         .pill.active {
             background: var(--gold-dim);
             border-color: var(--border-gold);
             color: var(--gold);
         }
-
+ 
         /* ─── TOAST ─── */
         #toast {
             position: fixed; bottom: calc(var(--bottom-nav-h) + 12px); left: 50%;
@@ -697,7 +688,7 @@
             white-space: nowrap;
         }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
+ 
         /* ─── EMPTY STATE ─── */
         .empty-state {
             text-align: center; padding: 40px 20px;
@@ -706,7 +697,7 @@
         .empty-state .ei { margin-bottom: 12px; display: flex; justify-content: center; opacity: 0.4; }
         .empty-state .ei i { color: var(--muted2); }
         .empty-state p { font-size: 14px; margin-bottom: 16px; }
-
+ 
         /* ─── ODO ─── */
         .odo-display {
             background: var(--surface);
@@ -718,7 +709,7 @@
         }
         .odo-num { font-size: 42px; font-weight: 900; color: var(--gold); letter-spacing: -1px; }
         .odo-label { font-size: 12px; color: var(--muted2); margin-top: 4px; }
-
+ 
         .odo-warn {
             background: var(--danger-dim);
             border: 1px solid rgba(244,63,94,0.2);
@@ -730,12 +721,12 @@
             display: none;
             align-items: center; gap: 6px;
         }
-
+ 
         /* ─── DIVIDER ─── */
         .divider { height: 1px; background: var(--border); margin: 16px 0; }
-
+ 
         .hidden { display: none !important; }
-
+ 
         /* ─── BADGE ─── */
         .badge {
             display: inline-flex; align-items: center;
@@ -744,12 +735,12 @@
         }
         .badge-fuel { background: rgba(59,130,246,0.15); color: #93c5fd; }
         .badge-maint { background: var(--gold-dim); color: var(--gold-light); }
-
+ 
         /* ─── SCROLL ─── */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
+ 
         /* ─── SESSION WARN ─── */
         .session-banner {
             background: rgba(245,158,11,0.08);
@@ -764,7 +755,7 @@
     </style>
 </head>
 <body>
-
+ 
 <!-- ─── SPLASH ─── -->
 <div id="splash">
     <div class="splash-logo">
@@ -773,7 +764,7 @@
     <div class="splash-title">مركبتي السحابية</div>
     <div class="splash-spinner"></div>
 </div>
-
+ 
 <!-- ─── AUTH ─── -->
 <div id="auth-area" style="display:none;">
     <div class="auth-glow"></div>
@@ -783,7 +774,7 @@
         </div>
         <div class="auth-title">مركبتي السحابية</div>
         <div class="auth-sub">سجّل دخولك لإدارة مركباتك</div>
-
+ 
         <div class="input-group">
             <label>اسم المستخدم</label>
             <input type="text" id="user_id" placeholder="أدخل اسم المستخدم" autocomplete="username">
@@ -799,15 +790,15 @@
         <div id="auth-err" style="color:var(--danger);font-size:12px;margin-top:12px;display:none;"></div>
     </div>
 </div>
-
+ 
 <!-- ─── APP ─── -->
 <div id="app-area" style="display:none;">
-
+ 
     <div class="session-banner" id="session-banner">
         <i data-lucide="clock" width="14" height="14"></i>
         <span id="session-text"></span>
     </div>
-
+ 
     <div class="header-bar">
         <div class="header-brand">
             <div class="header-logo">
@@ -815,19 +806,19 @@
             </div>
             <span class="header-name">مركبتي</span>
         </div>
-
+ 
         <div class="header-car-switch">
             <div class="car-switch-btn" id="car-switch-btn" onclick="openCarSwitchModal()">
                 <i data-lucide="chevrons-up-down" width="14" height="14"></i>
                 <span class="car-switch-name" id="header-car-name">—</span>
             </div>
         </div>
-
+ 
         <button class="logout-btn" onclick="logout()">
             <i data-lucide="log-out" width="13" height="13"></i> خروج
         </button>
     </div>
-
+ 
     <nav class="bottom-nav" id="main-nav">
         <div class="nav-item active" id="nav-p1" onclick="showTab('p1',this)">
             <i data-lucide="car" width="20" height="20"></i>
@@ -854,15 +845,15 @@
             <span>إحصائيات</span>
         </div>
     </nav>
-
+ 
     <main class="main-content" id="content-area"></main>
 </div>
-
+ 
 <div id="toast"></div>
 <div id="edit-modal" style="display:none;"></div>
 <div id="confirm-modal" style="display:none;"></div>
 <div id="car-switch-modal" style="display:none;"></div>
-
+ 
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyC7NtjHZCukPK6o1WUqqyYs8-xpX4ldHNc",
@@ -872,40 +863,31 @@
         storageBucket: "car-tracker-78f7b.firebasestorage.app",
         appId: "1:7295247933:web:3e88e9423c39c2edeeac54"
     };
-
+ 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
-
+ 
     let cars = [], activeIdx = 0, userId = null;
     let currentFilter = 'الكل';
     let currentTabId = 'p1';
-
+ 
     const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours
     let sessionTimer = null;
     let sessionWarningTimer = null;
-
-    // ⭐ PWA: تسجيل Service Worker
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/car-maintenance-tracker/sw.js')
-                .then(() => console.log('Service Worker مسجل ✅'))
-                .catch(() => console.log('Service Worker يعمل بوضع التطوير'));
-        });
-    }
-
+ 
     // ─── LUCIDE INIT ───
     function initIcons() {
         if (window.lucide) lucide.createIcons();
     }
-
+ 
     // ─── SPLASH ───
     function hideSplash() {
         const splash = document.getElementById('splash');
         splash.classList.add('hide');
         setTimeout(() => splash.style.display = 'none', 400);
     }
-
+ 
     // ─── TOAST ───
     function toast(msg, duration = 2500) {
         const t = document.getElementById('toast');
@@ -913,26 +895,26 @@
         t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), duration);
     }
-
+ 
     // ─── SESSION MANAGEMENT ───
     function startSession() {
         localStorage.setItem('loginTime', Date.now());
         scheduleSessionCheck();
     }
-
+ 
     function scheduleSessionCheck() {
         clearTimeout(sessionTimer);
         clearTimeout(sessionWarningTimer);
-
+ 
         const loginTime = parseInt(localStorage.getItem('loginTime') || '0');
         const elapsed = Date.now() - loginTime;
         const remaining = SESSION_DURATION - elapsed;
-
+ 
         if (remaining <= 0) {
             auth.signOut();
             return;
         }
-
+ 
         // Warning 15 min before expiry
         const warnAt = remaining - 15 * 60 * 1000;
         if (warnAt > 0) {
@@ -946,33 +928,35 @@
                 }
             }, warnAt);
         }
-
+ 
         sessionTimer = setTimeout(() => {
             auth.signOut();
             toast('انتهت الجلسة، يرجى تسجيل الدخول مجدداً');
         }, remaining);
     }
-
+ 
     function checkSession() {
         const loginTime = parseInt(localStorage.getItem('loginTime') || '0');
         if (!loginTime) return false;
         return (Date.now() - loginTime) < SESSION_DURATION;
     }
-
+ 
     // ─── AUTH ───
     auth.onAuthStateChanged(user => {
         if (user) {
             const loginTime = parseInt(localStorage.getItem('loginTime') || '0');
+            // If loginTime exists and session expired → sign out
             if (loginTime && !checkSession()) {
                 auth.signOut();
                 hideSplash();
                 return;
             }
+            // If no loginTime (fresh login just happened), set it now
             if (!loginTime) startSession();
-
+ 
             userId = user.uid;
             scheduleSessionCheck();
-
+ 
             setTimeout(() => {
                 hideSplash();
                 document.getElementById('auth-area').style.display = 'none';
@@ -993,7 +977,7 @@
             }, 1500);
         }
     });
-
+ 
     function handleAuth() {
         const user = document.getElementById('user_id').value.trim().toLowerCase();
         const pass = document.getElementById('user_pass').value;
@@ -1001,10 +985,10 @@
         const btn = document.getElementById('auth-btn');
         errEl.style.display = 'none';
         if (!user || !pass) { errEl.textContent = 'يرجى إدخال اسم المستخدم وكلمة المرور'; errEl.style.display = 'block'; return; }
-
+ 
         btn.disabled = true;
         btn.innerHTML = '<div class="btn-spinner"></div> جاري الدخول...';
-
+ 
         const email = user + "@app.com";
         auth.signInWithEmailAndPassword(email, pass)
             .catch(() => auth.createUserWithEmailAndPassword(email, pass))
@@ -1017,17 +1001,18 @@
                 initIcons();
             });
     }
-
+ 
     function logout() {
         localStorage.removeItem('loginTime');
         auth.signOut();
     }
-
+ 
     function syncData() {
         db.ref('users/' + userId + '/garage').on('value', snap => {
             const data = snap.val();
             const newCars = data ? Object.keys(data).map(k => ({ ...data[k], id: k })) : [];
-
+ 
+            // Preserve activeIdx smartly
             if (cars.length > 0 && activeIdx < cars.length) {
                 const currentCarId = cars[activeIdx]?.id;
                 const newIdx = newCars.findIndex(c => c.id === currentCarId);
@@ -1035,20 +1020,22 @@
             } else {
                 if (activeIdx >= newCars.length) activeIdx = Math.max(0, newCars.length - 1);
             }
-
+ 
             cars = newCars;
             updateHeaderCar();
             showTab(currentTabId);
         });
     }
-
+ 
+    // ─── UPDATE HEADER CAR NAME ───
     function updateHeaderCar() {
         const nameEl = document.getElementById('header-car-name');
         if (nameEl) {
             nameEl.textContent = cars[activeIdx] ? cars[activeIdx].type : 'لا توجد مركبة';
         }
     }
-
+ 
+    // ─── CAR SWITCH MODAL ───
     function openCarSwitchModal() {
         const modal = document.getElementById('car-switch-modal');
         modal.style.display = 'flex';
@@ -1060,7 +1047,7 @@
         modal.style.background = 'rgba(0,0,0,0.7)';
         modal.style.backdropFilter = 'blur(6px)';
         modal.style.animation = 'fadeIn 0.2s ease';
-
+ 
         const carItems = cars.map((c, i) => `
             <div class="car-list-item ${i === activeIdx ? 'selected' : ''}" onclick="switchCar(${i})">
                 <div class="car-list-avatar">
@@ -1072,7 +1059,7 @@
                 </div>
                 ${i === activeIdx ? '<i data-lucide="check" width="18" height="18" style="color:var(--gold);margin-right:auto"></i>' : ''}
             </div>`).join('');
-
+ 
         modal.innerHTML = `
             <div class="modal-box">
                 <div class="modal-handle"></div>
@@ -1083,11 +1070,11 @@
                 }
                 <button class="btn btn-ghost" style="margin-top:10px" onclick="closeCarSwitchModal()">إغلاق</button>
             </div>`;
-
+ 
         modal.onclick = e => { if (e.target === modal) closeCarSwitchModal(); };
         initIcons();
     }
-
+ 
     function switchCar(idx) {
         activeIdx = idx;
         updateHeaderCar();
@@ -1095,13 +1082,14 @@
         showTab(currentTabId);
         toast('تم التبديل إلى ' + cars[idx].type + ' ✓');
     }
-
+ 
     function closeCarSwitchModal() {
         const modal = document.getElementById('car-switch-modal');
         modal.style.display = 'none';
         modal.innerHTML = '';
     }
-
+ 
+    // ─── CAR HEADER SNIPPET ───
     function carHeaderHTML() {
         const car = cars[activeIdx];
         if (!car) return '';
@@ -1114,21 +1102,24 @@
                 </div>
             </div>`;
     }
-
+ 
+    // ─── SHOW TAB ───
     function showTab(tabId, el) {
         currentTabId = tabId;
         if (el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
         } else {
+            // Update nav highlight without element
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             const navEl = document.getElementById('nav-' + tabId);
             if (navEl) navEl.classList.add('active');
         }
-
+ 
         const area = document.getElementById('content-area');
         const car = cars[activeIdx];
-
+ 
+        // ── VEHICLES ──
         if (tabId === 'p1') {
             area.innerHTML = `
                 <div class="section-card">
@@ -1154,15 +1145,18 @@
                     </div>
                 </div>`;
         }
-
+ 
+        // ── STATS ──
         else if (tabId === 'p4') {
             if (!car) { area.innerHTML = `<div class="section-card"><div class="empty-state"><div class="ei"><i data-lucide="bar-chart-2" width="48" height="48"></i></div><p>لا توجد مركبات مضافة</p></div></div>`; initIcons(); return; }
             const logs = car.logs ? Object.values(car.logs) : [];
             const maint = logs.filter(l => l.cat === 'صيانة').reduce((a, b) => a + Number(b.price), 0);
             const fuel = logs.filter(l => l.cat === 'وقود').reduce((a, b) => a + Number(b.price), 0);
             const total = maint + fuel;
+ 
+            // Build monthly chart data (last 6 months)
             const monthlyData = buildMonthlyChart(logs);
-
+ 
             area.innerHTML = `
                 ${carHeaderHTML()}
                 <div class="section-card">
@@ -1202,7 +1196,8 @@
                     ${monthlyData.hasData ? renderChart(monthlyData) : ''}
                 </div>`;
         }
-
+ 
+        // ── MAINTENANCE ──
         else if (tabId === 'p2') {
             if (!car) { area.innerHTML = noCar('wrench'); initIcons(); return; }
             area.innerHTML = `
@@ -1239,7 +1234,8 @@
                 </div>`;
             document.getElementById('m_d').valueAsDate = new Date();
         }
-
+ 
+        // ── FUEL ──
         else if (tabId === 'p6') {
             if (!car) { area.innerHTML = noCar('fuel'); initIcons(); return; }
             area.innerHTML = `
@@ -1260,7 +1256,8 @@
                 </div>`;
             document.getElementById('f_d').valueAsDate = new Date();
         }
-
+ 
+        // ── ODO ──
         else if (tabId === 'p3') {
             if (!car) { area.innerHTML = noCar('gauge'); initIcons(); return; }
             const odoVal = parseInt(car.lastOdo) || 0;
@@ -1286,7 +1283,8 @@
                     </button>
                 </div>`;
         }
-
+ 
+        // ── LOG ──
         else if (tabId === 'p5') {
             if (!car) { area.innerHTML = noCar('scroll-text'); initIcons(); return; }
             area.innerHTML = `
@@ -1305,10 +1303,11 @@
                 </div>`;
             renderLogs();
         }
-
+ 
         initIcons();
     }
-
+ 
+    // ─── NO CAR STATE ───
     function noCar(icon) {
         return `<div class="section-card"><div class="empty-state">
             <div class="ei"><i data-lucide="${icon}" width="48" height="48"></i></div>
@@ -1318,7 +1317,8 @@
             </button>
         </div></div>`;
     }
-
+ 
+    // ─── ODO WARNING ───
     function checkOdoWarn(currentOdo) {
         const val = parseInt(document.getElementById('odo_val').value);
         const warn = document.getElementById('odo-warn');
@@ -1330,19 +1330,20 @@
             warn.style.display = 'none';
         }
     }
-
+ 
+    // ─── MONTHLY CHART DATA ───
     function buildMonthlyChart(logs) {
         if (!logs.length) return { hasData: false };
         const months = {};
         const now = new Date();
-
+ 
         for (let i = 5; i >= 0; i--) {
             const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
             const label = d.toLocaleDateString('ar-SA', { month: 'short' });
             months[key] = { label, fuel: 0, maint: 0 };
         }
-
+ 
         logs.forEach(l => {
             if (!l.date) return;
             const key = l.date.substring(0, 7);
@@ -1351,14 +1352,14 @@
                 else months[key].maint += Number(l.price);
             }
         });
-
+ 
         const data = Object.values(months);
         const maxVal = Math.max(...data.map(d => Math.max(d.fuel, d.maint)), 1);
         const hasData = data.some(d => d.fuel > 0 || d.maint > 0);
-
+ 
         return { data, maxVal, hasData };
     }
-
+ 
     function renderChart({ data, maxVal }) {
         const bars = data.map(d => {
             const fh = Math.max((d.fuel / maxVal) * 80, d.fuel > 0 ? 4 : 0);
@@ -1372,7 +1373,7 @@
                     <div class="chart-label">${d.label}</div>
                 </div>`;
         }).join('');
-
+ 
         return `
             <div class="chart-wrap">
                 <div class="chart-title">المصروفات الشهرية (آخر 6 أشهر)</div>
@@ -1383,13 +1384,15 @@
                 </div>
             </div>`;
     }
-
+ 
+    // ─── FILTER ───
     function setFilter(f) {
         currentFilter = f;
         document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.textContent === f));
         renderLogs();
     }
-
+ 
+    // ─── RENDER LOGS ───
     function renderLogs() {
         const car = cars[activeIdx];
         const container = document.getElementById('logs_container');
@@ -1405,18 +1408,18 @@
             initIcons();
             return;
         }
-
+ 
         const arr = Object.keys(car.logs).map(k => ({ ...car.logs[k], key: k }));
         const filtered = currentFilter === 'الكل' ? arr : arr.filter(l => l.title.includes(currentFilter) || l.cat.includes(currentFilter));
-
+ 
         if (filtered.length === 0) {
             container.innerHTML = `<div class="empty-state"><div class="ei"><i data-lucide="search-x" width="48" height="48"></i></div><p>لا توجد نتائج</p></div>`;
             initIcons();
             return;
         }
-
+ 
         const total = filtered.reduce((a, b) => a + Number(b.price), 0);
-
+ 
         container.innerHTML = filtered.slice().reverse().map(l => {
             const isFuel = l.cat === 'وقود';
             return `
@@ -1441,10 +1444,11 @@
                 <span class="log-total-label">الإجمالي (${filtered.length} عملية)</span>
                 <span class="log-total-value">${total.toLocaleString()} ر.س</span>
             </div>`;
-
+ 
         initIcons();
     }
-
+ 
+    // ─── CONFIRM MODAL ───
     function showConfirm(title, sub, onConfirm) {
         const modal = document.getElementById('confirm-modal');
         modal.style.display = 'flex';
@@ -1457,7 +1461,7 @@
         modal.style.background = 'rgba(0,0,0,0.75)';
         modal.style.backdropFilter = 'blur(8px)';
         modal.style.animation = 'fadeIn 0.2s ease';
-
+ 
         modal.innerHTML = `
             <div class="confirm-modal-box">
                 <div class="confirm-icon">
@@ -1472,37 +1476,39 @@
                     </button>
                 </div>
             </div>`;
-
+ 
         window._confirmCallback = onConfirm;
         modal.onclick = e => { if (e.target === modal) closeConfirm(); };
         initIcons();
     }
-
+ 
     function confirmAction() {
         closeConfirm();
         if (window._confirmCallback) window._confirmCallback();
     }
-
+ 
     function closeConfirm() {
         const modal = document.getElementById('confirm-modal');
         modal.style.display = 'none';
         modal.innerHTML = '';
         window._confirmCallback = null;
     }
-
+ 
+    // ─── DELETE LOG ───
     function confirmDeleteLog(key) {
         showConfirm('حذف العملية', 'هل أنت متأكد من حذف هذه العملية؟ لا يمكن التراجع.', () => {
             db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs/${key}`).remove()
                 .then(() => { toast('تم الحذف ✓'); renderLogs(); });
         });
     }
-
+ 
+    // ─── EDIT MODAL ───
     function openEditModal(key) {
         const car = cars[activeIdx];
         if (!car || !car.logs || !car.logs[key]) return;
         const l = car.logs[key];
         const modal = document.getElementById('edit-modal');
-
+ 
         modal.style.display = 'flex';
         modal.style.position = 'fixed';
         modal.style.inset = '0';
@@ -1512,7 +1518,7 @@
         modal.style.background = 'rgba(0,0,0,0.7)';
         modal.style.backdropFilter = 'blur(6px)';
         modal.style.animation = 'fadeIn 0.2s ease';
-
+ 
         modal.innerHTML = `
             <div class="modal-box">
                 <div class="modal-handle"></div>
@@ -1536,50 +1542,52 @@
                     </button>
                 </div>
             </div>`;
-
+ 
         modal.onclick = e => { if (e.target === modal) closeEditModal(); };
         initIcons();
     }
-
+ 
     function closeEditModal() {
         const modal = document.getElementById('edit-modal');
         modal.style.display = 'none';
         modal.innerHTML = '';
     }
-
+ 
     function saveEdit(key) {
         const title = document.getElementById('edit_title').value.trim();
         const price = document.getElementById('edit_price').value;
         const date = document.getElementById('edit_date').value;
         if (!title) { toast('أدخل التفاصيل'); return; }
-
+ 
         const btn = document.getElementById('save-edit-btn');
         btn.disabled = true;
         btn.innerHTML = '<div class="btn-spinner"></div>';
-
+ 
         db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs/${key}`).update({ title, price, date })
             .then(() => { closeEditModal(); toast('تم التعديل ✓'); renderLogs(); });
     }
-
+ 
+    // ─── SAVE CAR ───
     function saveCar() {
         const type = document.getElementById('v_type').value.trim();
         if (!type) { toast('أدخل اسم المركبة'); return; }
-
+ 
         const btn = document.getElementById('save-car-btn');
         btn.disabled = true;
         btn.innerHTML = '<div class="btn-spinner"></div> جاري الحفظ...';
-
+ 
         const isNew = !cars[activeIdx] || cars[activeIdx]._isNew;
         const carId = isNew ? db.ref('users/' + userId + '/garage').push().key : cars[activeIdx].id;
-
+ 
         db.ref(`users/${userId}/garage/${carId}`).update({
             id: carId, type,
             model: document.getElementById('v_model').value,
             lastOdo: (isNew ? '0 كم' : cars[activeIdx].lastOdo) || '0 كم'
         }).then(() => toast('تم الحفظ ✓'));
     }
-
+ 
     function addNewCar() {
+        // Create a temporary placeholder
         const tempCar = { type: '', model: '', lastOdo: '0 كم', _isNew: true };
         cars.push(tempCar);
         activeIdx = cars.length - 1;
@@ -1588,14 +1596,15 @@
         document.getElementById('v_type')?.focus();
         toast('أضف بيانات المركبة الجديدة');
     }
-
+ 
     function confirmDeleteCar() {
         showConfirm('حذف المركبة', `هل أنت متأكد من حذف "${cars[activeIdx].type}"؟ ستُحذف جميع البيانات نهائياً.`, () => {
             db.ref(`users/${userId}/garage/${cars[activeIdx].id}`).remove()
                 .then(() => { activeIdx = 0; toast('تم الحذف ✓'); });
         });
     }
-
+ 
+    // ─── ADD LOG ───
     function addLog(cat) {
         if (!cars[activeIdx] || cars[activeIdx]._isNew) { toast('احفظ بيانات المركبة أولاً'); return; }
         const isFuel = cat === 'وقود';
@@ -1603,27 +1612,29 @@
         let title = isFuel ? 'تعبئة وقود' : document.getElementById('m_type_sel').value;
         if (title === 'أخرى') title = document.getElementById('m_t_manual').value || 'صيانة أخرى';
         const date = isFuel ? document.getElementById('f_d').value : document.getElementById('m_d').value;
-
+ 
         const btnId = isFuel ? 'fuel-btn' : 'maint-btn';
         const btn = document.getElementById(btnId);
         if (btn) { btn.disabled = true; btn.innerHTML = '<div class="btn-spinner"></div> جاري الحفظ...'; }
-
+ 
         db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs`).push({ cat, price, title, date })
             .then(() => { toast('تم التسجيل ✓'); currentFilter = 'الكل'; showTab('p5'); });
     }
-
+ 
+    // ─── UPDATE ODO ───
     function updateOdo(currentOdo) {
         const v = document.getElementById('odo_val').value;
         if (!v || !cars[activeIdx]) return;
         if (parseInt(v) < currentOdo) { toast('القراءة الجديدة أقل من الحالية!'); return; }
-
+ 
         const btn = document.getElementById('odo-btn');
         if (btn) { btn.disabled = true; btn.innerHTML = '<div class="btn-spinner"></div> جاري التحديث...'; }
-
+ 
         db.ref(`users/${userId}/garage/${cars[activeIdx].id}`).update({ lastOdo: v + ' كم' })
             .then(() => toast('تم التحديث ✓'));
     }
-
+ 
+    // ─── EXPORT ───
     function exportFilteredExcel() {
         const car = cars[activeIdx];
         if (!car || !car.logs) { toast('لا توجد بيانات'); return; }
@@ -1641,7 +1652,8 @@
         XLSX.writeFile(wb, `سجل_${car.type}.xlsx`);
         toast('تم التصدير ✓');
     }
-
+ 
+    // ─── TOGGLE MANUAL MAINT ───
     function toggleManualMaint() {
         const v = document.getElementById('m_type_sel').value;
         document.getElementById('manual_m_group').classList.toggle('hidden', v !== 'أخرى');
@@ -1649,3 +1661,4 @@
 </script>
 </body>
 </html>
+ 
