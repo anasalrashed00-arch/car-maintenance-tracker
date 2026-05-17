@@ -944,11 +944,16 @@
     // ─── AUTH ───
     auth.onAuthStateChanged(user => {
         if (user) {
-            if (!checkSession()) {
+            const loginTime = parseInt(localStorage.getItem('loginTime') || '0');
+            // If loginTime exists and session expired → sign out
+            if (loginTime && !checkSession()) {
                 auth.signOut();
                 hideSplash();
                 return;
             }
+            // If no loginTime (fresh login just happened), set it now
+            if (!loginTime) startSession();
+
             userId = user.uid;
             scheduleSessionCheck();
 
@@ -1656,4 +1661,3 @@
 </script>
 </body>
 </html>
-
