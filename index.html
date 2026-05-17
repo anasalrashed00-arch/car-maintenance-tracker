@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مركبتي السحابية</title>
- 
+
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
- 
+
     <style>
         :root {
             --gold: #f59e0b;
@@ -30,23 +31,24 @@
             --success: #10b981;
             --success-dim: rgba(16,185,129,0.12);
             --blue: #3b82f6;
+            --bottom-nav-h: 68px;
         }
- 
+
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
- 
+
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; }
         input[type=number] { -moz-appearance: textfield; }
- 
+
         body {
             background: var(--bg);
             color: var(--text);
             direction: rtl;
             overflow-x: hidden;
             min-height: 100vh;
+            padding-bottom: var(--bottom-nav-h);
         }
- 
-        /* ─── BACKGROUND GRID ─── */
+
         body::before {
             content: '';
             position: fixed; inset: 0; z-index: 0;
@@ -56,19 +58,59 @@
             background-size: 40px 40px;
             pointer-events: none;
         }
- 
+
+        /* ─── SPLASH ─── */
+        #splash {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--bg);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 20px;
+            transition: opacity 0.4s ease;
+        }
+
+        #splash.hide { opacity: 0; pointer-events: none; }
+
+        .splash-logo {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, var(--gold), #d97706);
+            border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 60px rgba(245,158,11,0.3);
+            animation: splashPulse 1.5s ease infinite;
+        }
+
+        .splash-logo i { color: #000; }
+
+        @keyframes splashPulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(245,158,11,0.3); }
+            50% { box-shadow: 0 0 80px rgba(245,158,11,0.5); }
+        }
+
+        .splash-title { font-size: 24px; font-weight: 900; color: var(--gold); }
+
+        .splash-spinner {
+            width: 32px; height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         /* ─── AUTH ─── */
         #auth-area {
             display: flex; align-items: center; justify-content: center;
             min-height: 100vh; padding: 20px; position: relative; z-index: 1;
         }
- 
+
         .auth-glow {
             position: absolute; width: 400px; height: 400px;
             background: radial-gradient(circle, rgba(245,158,11,0.12), transparent 70%);
             border-radius: 50%; pointer-events: none;
         }
- 
+
         .auth-card {
             position: relative; z-index: 2;
             background: var(--card);
@@ -79,101 +121,143 @@
             text-align: center;
             box-shadow: 0 0 60px rgba(245,158,11,0.08), 0 30px 60px rgba(0,0,0,0.4);
         }
- 
+
         .auth-icon {
             width: 72px; height: 72px;
             background: linear-gradient(135deg, var(--gold), #d97706);
             border-radius: 20px;
             display: inline-flex; align-items: center; justify-content: center;
-            font-size: 34px;
             margin-bottom: 20px;
             box-shadow: 0 8px 32px rgba(245,158,11,0.35);
         }
- 
+
+        .auth-icon i { color: #000; }
+
         .auth-title { font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
         .auth-sub { font-size: 13px; color: var(--muted2); margin-bottom: 32px; }
- 
+
         /* ─── HEADER ─── */
         .header-bar {
-            background: rgba(13, 20, 35, 0.9);
+            background: rgba(13, 20, 35, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border-gold);
-            padding: 0 20px;
+            padding: 0 16px;
             height: 58px;
             display: flex; justify-content: space-between; align-items: center;
             position: sticky; top: 0; z-index: 100;
+            gap: 10px;
         }
- 
+
         .header-brand {
             display: flex; align-items: center; gap: 10px;
+            flex-shrink: 0;
         }
- 
+
         .header-logo {
             width: 34px; height: 34px;
             background: linear-gradient(135deg, var(--gold), #d97706);
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
         }
- 
+
+        .header-logo i { color: #000; }
         .header-name { font-size: 15px; font-weight: 800; color: var(--gold); }
- 
-        .header-user { font-size: 13px; color: var(--muted2); font-weight: 600; }
- 
+
+        /* ─── CAR SWITCHER IN HEADER ─── */
+        .header-car-switch {
+            flex: 1;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .car-switch-btn {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--gold-dim);
+            border: 1px solid var(--border-gold);
+            border-radius: 12px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            max-width: 180px;
+            overflow: hidden;
+        }
+
+        .car-switch-btn:hover { background: rgba(245,158,11,0.2); }
+
+        .car-switch-name {
+            font-size: 12px; font-weight: 800;
+            color: var(--gold);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .car-switch-btn i { color: var(--gold); flex-shrink: 0; }
+
         .logout-btn {
             background: var(--danger-dim);
             color: var(--danger);
             border: 1px solid rgba(244,63,94,0.2);
             border-radius: 10px;
-            padding: 6px 14px;
+            padding: 6px 12px;
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             transition: 0.2s;
             font-family: 'Cairo', sans-serif;
+            display: flex; align-items: center; gap: 4px;
+            flex-shrink: 0;
         }
         .logout-btn:hover { background: rgba(244,63,94,0.2); }
- 
-        /* ─── NAV ─── */
-        .top-nav {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
+        .logout-btn i { flex-shrink: 0; }
+
+        /* ─── BOTTOM NAV ─── */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            height: var(--bottom-nav-h);
+            background: rgba(13, 20, 35, 0.97);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-gold);
             display: none;
-            overflow-x: auto;
-            scrollbar-width: none;
-            gap: 4px;
-            padding: 8px 12px;
+            align-items: center; justify-content: space-around;
+            padding: 0 4px;
+            z-index: 100;
         }
- 
+
         .nav-item {
-            display: inline-flex; flex-direction: column; align-items: center;
-            padding: 8px 14px; border-radius: 14px;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 8px 10px; border-radius: 14px;
             cursor: pointer; color: var(--muted2);
-            font-size: 11px; font-weight: 700;
-            min-width: 68px; transition: 0.2s;
+            font-size: 10px; font-weight: 700;
+            min-width: 52px; transition: 0.2s;
             white-space: nowrap; flex-shrink: 0;
-            gap: 4px;
+            gap: 4px; position: relative;
         }
- 
-        .nav-item .nav-icon { font-size: 18px; line-height: 1; }
- 
+
+        .nav-item i { transition: 0.2s; }
+
         .nav-item.active {
-            background: var(--gold-dim);
             color: var(--gold);
-            border: 1px solid var(--border-gold);
         }
- 
-        .nav-item:not(.active):hover { background: var(--card); color: var(--text); }
- 
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 24px; height: 3px;
+            background: var(--gold);
+            border-radius: 0 0 4px 4px;
+        }
+
+        .nav-item:not(.active):hover { color: var(--text); }
+
         /* ─── MAIN ─── */
         #app-area { position: relative; z-index: 1; }
- 
+
         .main-content {
-            padding: 20px 16px;
+            padding: 16px;
             max-width: 540px;
             margin: 0 auto;
         }
- 
+
         /* ─── CARDS ─── */
         .section-card {
             background: var(--card);
@@ -182,7 +266,7 @@
             padding: 24px 20px;
             margin-bottom: 16px;
         }
- 
+
         .section-title {
             font-size: 16px; font-weight: 800;
             display: flex; align-items: center; gap: 8px;
@@ -190,19 +274,19 @@
             border-bottom: 1px solid var(--border);
             color: var(--text);
         }
- 
-        .section-title span { font-size: 20px; }
- 
+
+        .section-title i { color: var(--gold); }
+
         /* ─── INPUTS ─── */
         .input-group { margin-bottom: 16px; }
- 
+
         label {
             display: block;
             font-size: 12px; font-weight: 700;
             color: var(--gold); margin-bottom: 8px;
             letter-spacing: 0.3px;
         }
- 
+
         input, select {
             width: 100%; height: 52px;
             padding: 0 16px;
@@ -216,15 +300,15 @@
             appearance: none; -webkit-appearance: none;
             transition: 0.2s;
         }
- 
+
         input:focus, select:focus {
             border-color: var(--gold);
             background: var(--card2);
             box-shadow: 0 0 0 3px rgba(245,158,11,0.08);
         }
- 
+
         input::placeholder { color: var(--muted); }
- 
+
         .select-wrap { position: relative; }
         .select-wrap::after {
             content: '▾';
@@ -233,7 +317,7 @@
             transform: translateY(-50%);
             pointer-events: none;
         }
- 
+
         /* ─── BUTTONS ─── */
         .btn {
             width: 100%; height: 52px;
@@ -243,29 +327,31 @@
             cursor: pointer; transition: 0.2s;
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
- 
+
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
         .btn-primary {
             background: linear-gradient(135deg, var(--gold), #d97706);
-            color: #07100a;
+            color: #000;
             box-shadow: 0 4px 20px rgba(245,158,11,0.25);
         }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(245,158,11,0.35); }
-        .btn-primary:active { transform: translateY(0); }
- 
+        .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(245,158,11,0.35); }
+        .btn-primary:active:not(:disabled) { transform: translateY(0); }
+
         .btn-ghost {
             background: transparent;
             border: 1.5px solid var(--border);
             color: var(--muted2);
         }
         .btn-ghost:hover { border-color: var(--muted2); color: var(--text); }
- 
+
         .btn-danger-ghost {
             background: var(--danger-dim);
             border: 1px solid rgba(244,63,94,0.2);
             color: var(--danger);
         }
         .btn-danger-ghost:hover { background: rgba(244,63,94,0.2); }
- 
+
         .btn-success {
             background: var(--success-dim);
             border: 1px solid rgba(16,185,129,0.2);
@@ -273,17 +359,25 @@
             margin-bottom: 16px;
         }
         .btn-success:hover { background: rgba(16,185,129,0.2); }
- 
+
         .btn-sm {
             height: 38px; font-size: 13px; border-radius: 10px;
         }
- 
+
+        .btn-spinner {
+            width: 16px; height: 16px;
+            border: 2px solid rgba(0,0,0,0.3);
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
         /* ─── STATS ─── */
         .stats-grid {
             display: grid; grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
- 
+
         .stat-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -293,23 +387,69 @@
             position: relative; overflow: hidden;
             transition: 0.2s;
         }
- 
+
         .stat-card:hover { border-color: var(--border-gold); }
- 
+
         .stat-card::before {
             content: '';
             position: absolute; inset: 0;
             background: linear-gradient(135deg, rgba(245,158,11,0.04), transparent);
         }
- 
-        .stat-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+
+        .stat-icon { margin-bottom: 6px; display: flex; justify-content: center; }
+        .stat-icon i { color: var(--gold); }
         .stat-label { font-size: 11px; color: var(--muted2); font-weight: 600; margin-bottom: 6px; display: block; }
         .stat-value { font-size: 22px; font-weight: 900; color: var(--gold); display: block; }
         .stat-unit { font-size: 11px; color: var(--muted); }
- 
+
         .stat-card.total { grid-column: span 2; }
         .stat-card.total .stat-value { font-size: 28px; }
- 
+
+        /* ─── CHART ─── */
+        .chart-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .chart-title { font-size: 13px; font-weight: 700; color: var(--muted2); margin-bottom: 16px; }
+
+        .chart-bars {
+            display: flex; align-items: flex-end;
+            gap: 6px; height: 100px;
+        }
+
+        .chart-bar-wrap {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; gap: 4px;
+        }
+
+        .chart-bar {
+            width: 100%; border-radius: 6px 6px 0 0;
+            min-height: 4px; transition: height 0.5s ease;
+            position: relative;
+        }
+
+        .chart-bar.fuel-bar { background: linear-gradient(to top, #1d4ed8, #3b82f6); }
+        .chart-bar.maint-bar { background: linear-gradient(to top, #d97706, var(--gold)); }
+
+        .chart-label { font-size: 9px; color: var(--muted); font-weight: 600; }
+
+        .chart-legend {
+            display: flex; gap: 16px; margin-top: 12px; justify-content: center;
+        }
+
+        .legend-item {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 11px; color: var(--muted2); font-weight: 600;
+        }
+
+        .legend-dot {
+            width: 10px; height: 10px; border-radius: 3px;
+        }
+
         /* ─── LOG ITEMS ─── */
         .log-item {
             background: var(--surface);
@@ -320,23 +460,24 @@
             display: flex; align-items: center; gap: 12px;
             transition: 0.2s;
         }
- 
+
         .log-item:hover { border-color: var(--border-gold); }
- 
+
         .log-dot {
             width: 40px; height: 40px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; flex-shrink: 0;
+            flex-shrink: 0;
         }
- 
+
         .log-dot.fuel { background: rgba(59,130,246,0.15); }
+        .log-dot.fuel i { color: #3b82f6; }
         .log-dot.maint { background: rgba(245,158,11,0.12); }
-        .log-dot.other { background: rgba(148,163,184,0.1); }
- 
+        .log-dot.maint i { color: var(--gold); }
+
         .log-info { flex: 1; min-width: 0; }
         .log-title { font-size: 14px; font-weight: 700; color: var(--text); }
         .log-meta { font-size: 11px; color: var(--muted2); margin-top: 2px; }
- 
+
         .log-price {
             background: var(--gold-dim);
             border: 1px solid var(--border-gold);
@@ -345,23 +486,38 @@
             font-size: 13px; font-weight: 800;
             flex-shrink: 0; white-space: nowrap;
         }
- 
+
         .log-del {
             color: var(--muted);
-            cursor: pointer; font-size: 16px;
-            padding: 4px; border-radius: 8px;
+            cursor: pointer;
+            padding: 6px; border-radius: 8px;
             transition: 0.2s; flex-shrink: 0;
+            display: flex; align-items: center;
         }
         .log-del:hover { color: var(--danger); background: var(--danger-dim); }
- 
+
         .log-edit {
             color: var(--muted);
-            cursor: pointer; font-size: 16px;
-            padding: 4px; border-radius: 8px;
+            cursor: pointer;
+            padding: 6px; border-radius: 8px;
             transition: 0.2s; flex-shrink: 0;
+            display: flex; align-items: center;
         }
         .log-edit:hover { color: var(--gold); background: var(--gold-dim); }
- 
+
+        /* ─── LOG TOTAL ─── */
+        .log-total {
+            background: var(--gold-dim);
+            border: 1px solid var(--border-gold);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 4px;
+        }
+
+        .log-total-label { font-size: 13px; font-weight: 700; color: var(--muted2); }
+        .log-total-value { font-size: 18px; font-weight: 900; color: var(--gold); }
+
         /* ─── MODAL ─── */
         .modal-overlay {
             position: fixed; inset: 0; z-index: 500;
@@ -371,10 +527,10 @@
             padding: 0;
             animation: fadeIn 0.2s ease;
         }
- 
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
- 
+
         .modal-box {
             background: var(--card);
             border: 1px solid var(--border-gold);
@@ -383,25 +539,92 @@
             width: 100%; max-width: 540px;
             animation: slideUp 0.3s cubic-bezier(0.34,1.2,0.64,1);
         }
- 
+
         .modal-handle {
             width: 40px; height: 4px;
             background: var(--border);
             border-radius: 4px;
             margin: 0 auto 20px;
         }
- 
+
         .modal-title {
             font-size: 17px; font-weight: 900;
             margin-bottom: 20px;
             display: flex; align-items: center; gap: 8px;
         }
- 
+
+        .modal-title i { color: var(--gold); }
+
         .modal-actions {
             display: flex; gap: 10px; margin-top: 20px;
         }
- 
-        /* ─── CAR SELECTOR ─── */
+
+        /* ─── CONFIRM MODAL ─── */
+        .confirm-modal-overlay {
+            position: fixed; inset: 0; z-index: 600;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .confirm-modal-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 28px 24px;
+            width: 100%; max-width: 320px;
+            text-align: center;
+            animation: scaleIn 0.25s cubic-bezier(0.34,1.2,0.64,1);
+        }
+
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .confirm-icon {
+            width: 60px; height: 60px;
+            background: var(--danger-dim);
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .confirm-icon i { color: var(--danger); }
+
+        .confirm-title { font-size: 17px; font-weight: 900; color: var(--text); margin-bottom: 8px; }
+        .confirm-sub { font-size: 13px; color: var(--muted2); margin-bottom: 24px; line-height: 1.6; }
+
+        .confirm-actions { display: flex; gap: 10px; }
+
+        /* ─── CAR SWITCH MODAL ─── */
+        .car-list-item {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex; align-items: center; gap: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .car-list-item:hover { border-color: var(--border-gold); }
+        .car-list-item.selected { border-color: var(--gold); background: var(--gold-dim); }
+
+        .car-list-avatar {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, var(--gold), #d97706);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .car-list-avatar i { color: #000; }
+
+        .car-list-name { font-size: 15px; font-weight: 800; color: var(--text); }
+        .car-list-year { font-size: 12px; color: var(--muted2); margin-top: 2px; }
+
+        /* ─── CAR HEADER ─── */
         .car-header {
             background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));
             border: 1px solid var(--border-gold);
@@ -410,25 +633,26 @@
             margin-bottom: 16px;
             display: flex; align-items: center; gap: 14px;
         }
- 
+
         .car-avatar {
             width: 52px; height: 52px;
             background: linear-gradient(135deg, var(--gold), #d97706);
             border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px; flex-shrink: 0;
+            flex-shrink: 0;
         }
- 
+
+        .car-avatar i { color: #000; }
         .car-name { font-size: 17px; font-weight: 900; color: var(--text); }
         .car-year { font-size: 12px; color: var(--muted2); margin-top: 2px; }
- 
+
         /* ─── FILTER PILLS ─── */
         .filter-pills {
             display: flex; gap: 8px; overflow-x: auto;
             scrollbar-width: none; padding-bottom: 2px;
             margin-bottom: 16px;
         }
- 
+
         .pill {
             padding: 7px 16px;
             border-radius: 100px;
@@ -440,16 +664,17 @@
             transition: 0.2s; flex-shrink: 0;
             font-family: 'Cairo', sans-serif;
         }
- 
+
         .pill.active {
             background: var(--gold-dim);
             border-color: var(--border-gold);
             color: var(--gold);
         }
- 
+
         /* ─── TOAST ─── */
         #toast {
-            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+            position: fixed; bottom: calc(var(--bottom-nav-h) + 12px); left: 50%;
+            transform: translateX(-50%) translateY(80px);
             background: var(--card2);
             border: 1px solid var(--border-gold);
             color: var(--text);
@@ -463,16 +688,17 @@
             white-space: nowrap;
         }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
- 
+
         /* ─── EMPTY STATE ─── */
         .empty-state {
-            text-align: center; padding: 50px 20px;
+            text-align: center; padding: 40px 20px;
             color: var(--muted2);
         }
-        .empty-state .ei { font-size: 48px; margin-bottom: 12px; display: block; opacity: 0.5; }
-        .empty-state p { font-size: 14px; }
- 
-        /* ─── ODO DISPLAY ─── */
+        .empty-state .ei { margin-bottom: 12px; display: flex; justify-content: center; opacity: 0.4; }
+        .empty-state .ei i { color: var(--muted2); }
+        .empty-state p { font-size: 14px; margin-bottom: 16px; }
+
+        /* ─── ODO ─── */
         .odo-display {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -483,12 +709,24 @@
         }
         .odo-num { font-size: 42px; font-weight: 900; color: var(--gold); letter-spacing: -1px; }
         .odo-label { font-size: 12px; color: var(--muted2); margin-top: 4px; }
- 
+
+        .odo-warn {
+            background: var(--danger-dim);
+            border: 1px solid rgba(244,63,94,0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 12px; font-weight: 700;
+            color: var(--danger);
+            margin-top: 8px;
+            display: none;
+            align-items: center; gap: 6px;
+        }
+
         /* ─── DIVIDER ─── */
         .divider { height: 1px; background: var(--border); margin: 16px 0; }
- 
+
         .hidden { display: none !important; }
- 
+
         /* ─── BADGE ─── */
         .badge {
             display: inline-flex; align-items: center;
@@ -497,23 +735,46 @@
         }
         .badge-fuel { background: rgba(59,130,246,0.15); color: #93c5fd; }
         .badge-maint { background: var(--gold-dim); color: var(--gold-light); }
- 
+
         /* ─── SCROLL ─── */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        /* ─── SESSION WARN ─── */
+        .session-banner {
+            background: rgba(245,158,11,0.08);
+            border-bottom: 1px solid var(--border-gold);
+            padding: 8px 16px;
+            font-size: 12px; font-weight: 700;
+            color: var(--gold);
+            text-align: center;
+            display: none;
+            align-items: center; justify-content: center; gap: 6px;
+        }
     </style>
 </head>
 <body>
- 
+
+<!-- ─── SPLASH ─── -->
+<div id="splash">
+    <div class="splash-logo">
+        <i data-lucide="car" width="36" height="36"></i>
+    </div>
+    <div class="splash-title">مركبتي السحابية</div>
+    <div class="splash-spinner"></div>
+</div>
+
 <!-- ─── AUTH ─── -->
-<div id="auth-area">
+<div id="auth-area" style="display:none;">
     <div class="auth-glow"></div>
     <div class="auth-card">
-        <div class="auth-icon">🚗</div>
+        <div class="auth-icon">
+            <i data-lucide="car" width="34" height="34"></i>
+        </div>
         <div class="auth-title">مركبتي السحابية</div>
         <div class="auth-sub">سجّل دخولك لإدارة مركباتك</div>
- 
+
         <div class="input-group">
             <label>اسم المستخدم</label>
             <input type="text" id="user_id" placeholder="أدخل اسم المستخدم" autocomplete="username">
@@ -523,52 +784,76 @@
             <input type="password" id="user_pass" placeholder="••••••••" autocomplete="current-password"
                    onkeydown="if(event.key==='Enter') handleAuth()">
         </div>
-        <button class="btn btn-primary" onclick="handleAuth()">دخول آمن 🔒</button>
+        <button class="btn btn-primary" id="auth-btn" onclick="handleAuth()">
+            <i data-lucide="lock" width="16" height="16"></i> دخول آمن
+        </button>
         <div id="auth-err" style="color:var(--danger);font-size:12px;margin-top:12px;display:none;"></div>
     </div>
 </div>
- 
+
 <!-- ─── APP ─── -->
 <div id="app-area" style="display:none;">
- 
+
+    <div class="session-banner" id="session-banner">
+        <i data-lucide="clock" width="14" height="14"></i>
+        <span id="session-text"></span>
+    </div>
+
     <div class="header-bar">
         <div class="header-brand">
-            <div class="header-logo">🚗</div>
+            <div class="header-logo">
+                <i data-lucide="car" width="18" height="18"></i>
+            </div>
             <span class="header-name">مركبتي</span>
         </div>
-        <div id="display-user" class="header-user"></div>
-        <button class="logout-btn" onclick="logout()">خروج</button>
+
+        <div class="header-car-switch">
+            <div class="car-switch-btn" id="car-switch-btn" onclick="openCarSwitchModal()">
+                <i data-lucide="chevrons-up-down" width="14" height="14"></i>
+                <span class="car-switch-name" id="header-car-name">—</span>
+            </div>
+        </div>
+
+        <button class="logout-btn" onclick="logout()">
+            <i data-lucide="log-out" width="13" height="13"></i> خروج
+        </button>
     </div>
- 
-    <nav class="top-nav" id="main-nav">
-        <div class="nav-item active" onclick="showTab('p1',this)">
-            <span class="nav-icon">🚗</span>المركبات
+
+    <nav class="bottom-nav" id="main-nav">
+        <div class="nav-item active" id="nav-p1" onclick="showTab('p1',this)">
+            <i data-lucide="car" width="20" height="20"></i>
+            <span>مركبات</span>
         </div>
-        <div class="nav-item" onclick="showTab('p4',this)">
-            <span class="nav-icon">📊</span>إحصائيات
+        <div class="nav-item" id="nav-p6" onclick="showTab('p6',this)">
+            <i data-lucide="fuel" width="20" height="20"></i>
+            <span>وقود</span>
         </div>
-        <div class="nav-item" onclick="showTab('p2',this)">
-            <span class="nav-icon">🔧</span>صيانة
+        <div class="nav-item" id="nav-p2" onclick="showTab('p2',this)">
+            <i data-lucide="wrench" width="20" height="20"></i>
+            <span>صيانة</span>
         </div>
-        <div class="nav-item" onclick="showTab('p6',this)">
-            <span class="nav-icon">⛽</span>وقود
+        <div class="nav-item" id="nav-p3" onclick="showTab('p3',this)">
+            <i data-lucide="gauge" width="20" height="20"></i>
+            <span>العداد</span>
         </div>
-        <div class="nav-item" onclick="showTab('p3',this)">
-            <span class="nav-icon">📍</span>العداد
+        <div class="nav-item" id="nav-p5" onclick="showTab('p5',this)">
+            <i data-lucide="scroll-text" width="20" height="20"></i>
+            <span>السجل</span>
         </div>
-        <div class="nav-item" onclick="showTab('p5',this)">
-            <span class="nav-icon">📑</span>السجل
+        <div class="nav-item" id="nav-p4" onclick="showTab('p4',this)">
+            <i data-lucide="bar-chart-2" width="20" height="20"></i>
+            <span>إحصائيات</span>
         </div>
     </nav>
- 
+
     <main class="main-content" id="content-area"></main>
 </div>
- 
+
 <div id="toast"></div>
- 
-<!-- ─── EDIT MODAL ─── -->
 <div id="edit-modal" style="display:none;"></div>
- 
+<div id="confirm-modal" style="display:none;"></div>
+<div id="car-switch-modal" style="display:none;"></div>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyC7NtjHZCukPK6o1WUqqyYs8-xpX4ldHNc",
@@ -578,14 +863,31 @@
         storageBucket: "car-tracker-78f7b.firebasestorage.app",
         appId: "1:7295247933:web:3e88e9423c39c2edeeac54"
     };
- 
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
- 
+
     let cars = [], activeIdx = 0, userId = null;
     let currentFilter = 'الكل';
- 
+    let currentTabId = 'p1';
+
+    const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours
+    let sessionTimer = null;
+    let sessionWarningTimer = null;
+
+    // ─── LUCIDE INIT ───
+    function initIcons() {
+        if (window.lucide) lucide.createIcons();
+    }
+
+    // ─── SPLASH ───
+    function hideSplash() {
+        const splash = document.getElementById('splash');
+        splash.classList.add('hide');
+        setTimeout(() => splash.style.display = 'none', 400);
+    }
+
     // ─── TOAST ───
     function toast(msg, duration = 2500) {
         const t = document.getElementById('toast');
@@ -593,92 +895,230 @@
         t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), duration);
     }
- 
+
+    // ─── SESSION MANAGEMENT ───
+    function startSession() {
+        localStorage.setItem('loginTime', Date.now());
+        scheduleSessionCheck();
+    }
+
+    function scheduleSessionCheck() {
+        clearTimeout(sessionTimer);
+        clearTimeout(sessionWarningTimer);
+
+        const loginTime = parseInt(localStorage.getItem('loginTime') || '0');
+        const elapsed = Date.now() - loginTime;
+        const remaining = SESSION_DURATION - elapsed;
+
+        if (remaining <= 0) {
+            auth.signOut();
+            return;
+        }
+
+        // Warning 15 min before expiry
+        const warnAt = remaining - 15 * 60 * 1000;
+        if (warnAt > 0) {
+            sessionWarningTimer = setTimeout(() => {
+                const banner = document.getElementById('session-banner');
+                const text = document.getElementById('session-text');
+                if (banner && text) {
+                    text.textContent = 'ستنتهي جلستك خلال 15 دقيقة';
+                    banner.style.display = 'flex';
+                    initIcons();
+                }
+            }, warnAt);
+        }
+
+        sessionTimer = setTimeout(() => {
+            auth.signOut();
+            toast('انتهت الجلسة، يرجى تسجيل الدخول مجدداً');
+        }, remaining);
+    }
+
+    function checkSession() {
+        const loginTime = parseInt(localStorage.getItem('loginTime') || '0');
+        if (!loginTime) return false;
+        return (Date.now() - loginTime) < SESSION_DURATION;
+    }
+
     // ─── AUTH ───
     auth.onAuthStateChanged(user => {
         if (user) {
+            if (!checkSession()) {
+                auth.signOut();
+                hideSplash();
+                return;
+            }
             userId = user.uid;
-            document.getElementById('auth-area').style.display = 'none';
-            document.getElementById('app-area').style.display = 'block';
-            document.getElementById('main-nav').style.display = 'flex';
-            document.getElementById('display-user').textContent = user.email.split('@')[0];
-            syncData();
+            scheduleSessionCheck();
+
+            setTimeout(() => {
+                hideSplash();
+                document.getElementById('auth-area').style.display = 'none';
+                document.getElementById('app-area').style.display = 'block';
+                document.getElementById('main-nav').style.display = 'flex';
+                syncData();
+                initIcons();
+            }, 1500);
         } else {
-            document.getElementById('auth-area').style.display = 'flex';
-            document.getElementById('app-area').style.display = 'none';
+            localStorage.removeItem('loginTime');
+            clearTimeout(sessionTimer);
+            clearTimeout(sessionWarningTimer);
+            setTimeout(() => {
+                hideSplash();
+                document.getElementById('auth-area').style.display = 'flex';
+                document.getElementById('app-area').style.display = 'none';
+                initIcons();
+            }, 1500);
         }
     });
- 
+
     function handleAuth() {
         const user = document.getElementById('user_id').value.trim().toLowerCase();
         const pass = document.getElementById('user_pass').value;
         const errEl = document.getElementById('auth-err');
+        const btn = document.getElementById('auth-btn');
         errEl.style.display = 'none';
         if (!user || !pass) { errEl.textContent = 'يرجى إدخال اسم المستخدم وكلمة المرور'; errEl.style.display = 'block'; return; }
+
+        btn.disabled = true;
+        btn.innerHTML = '<div class="btn-spinner"></div> جاري الدخول...';
+
         const email = user + "@app.com";
         auth.signInWithEmailAndPassword(email, pass)
             .catch(() => auth.createUserWithEmailAndPassword(email, pass))
-            .catch(e => { errEl.textContent = 'حدث خطأ، تحقق من البيانات'; errEl.style.display = 'block'; });
+            .then(() => startSession())
+            .catch(() => {
+                errEl.textContent = 'حدث خطأ، تحقق من البيانات';
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="lock" width="16" height="16"></i> دخول آمن';
+                initIcons();
+            });
     }
- 
-    function logout() { auth.signOut(); }
- 
+
+    function logout() {
+        localStorage.removeItem('loginTime');
+        auth.signOut();
+    }
+
     function syncData() {
         db.ref('users/' + userId + '/garage').on('value', snap => {
             const data = snap.val();
-            cars = data ? Object.keys(data).map(k => ({ ...data[k], id: k })) : [];
-            if (activeIdx >= cars.length) activeIdx = 0;
-            showTab('p1');
+            const newCars = data ? Object.keys(data).map(k => ({ ...data[k], id: k })) : [];
+
+            // Preserve activeIdx smartly
+            if (cars.length > 0 && activeIdx < cars.length) {
+                const currentCarId = cars[activeIdx]?.id;
+                const newIdx = newCars.findIndex(c => c.id === currentCarId);
+                activeIdx = newIdx >= 0 ? newIdx : 0;
+            } else {
+                if (activeIdx >= newCars.length) activeIdx = Math.max(0, newCars.length - 1);
+            }
+
+            cars = newCars;
+            updateHeaderCar();
+            showTab(currentTabId);
         });
     }
- 
+
+    // ─── UPDATE HEADER CAR NAME ───
+    function updateHeaderCar() {
+        const nameEl = document.getElementById('header-car-name');
+        if (nameEl) {
+            nameEl.textContent = cars[activeIdx] ? cars[activeIdx].type : 'لا توجد مركبة';
+        }
+    }
+
+    // ─── CAR SWITCH MODAL ───
+    function openCarSwitchModal() {
+        const modal = document.getElementById('car-switch-modal');
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.inset = '0';
+        modal.style.zIndex = '500';
+        modal.style.alignItems = 'flex-end';
+        modal.style.justifyContent = 'center';
+        modal.style.background = 'rgba(0,0,0,0.7)';
+        modal.style.backdropFilter = 'blur(6px)';
+        modal.style.animation = 'fadeIn 0.2s ease';
+
+        const carItems = cars.map((c, i) => `
+            <div class="car-list-item ${i === activeIdx ? 'selected' : ''}" onclick="switchCar(${i})">
+                <div class="car-list-avatar">
+                    <i data-lucide="car" width="22" height="22"></i>
+                </div>
+                <div>
+                    <div class="car-list-name">${c.type}</div>
+                    <div class="car-list-year">${c.model ? c.model + ' · ' : ''}${c.lastOdo || '0 كم'}</div>
+                </div>
+                ${i === activeIdx ? '<i data-lucide="check" width="18" height="18" style="color:var(--gold);margin-right:auto"></i>' : ''}
+            </div>`).join('');
+
+        modal.innerHTML = `
+            <div class="modal-box">
+                <div class="modal-handle"></div>
+                <div class="modal-title"><i data-lucide="car" width="20" height="20"></i> اختر المركبة</div>
+                ${cars.length === 0
+                    ? `<div class="empty-state"><div class="ei"><i data-lucide="car" width="48" height="48"></i></div><p>لا توجد مركبات مضافة</p></div>`
+                    : carItems
+                }
+                <button class="btn btn-ghost" style="margin-top:10px" onclick="closeCarSwitchModal()">إغلاق</button>
+            </div>`;
+
+        modal.onclick = e => { if (e.target === modal) closeCarSwitchModal(); };
+        initIcons();
+    }
+
+    function switchCar(idx) {
+        activeIdx = idx;
+        updateHeaderCar();
+        closeCarSwitchModal();
+        showTab(currentTabId);
+        toast('تم التبديل إلى ' + cars[idx].type + ' ✓');
+    }
+
+    function closeCarSwitchModal() {
+        const modal = document.getElementById('car-switch-modal');
+        modal.style.display = 'none';
+        modal.innerHTML = '';
+    }
+
     // ─── CAR HEADER SNIPPET ───
     function carHeaderHTML() {
         const car = cars[activeIdx];
         if (!car) return '';
         return `
             <div class="car-header">
-                <div class="car-avatar">🚗</div>
+                <div class="car-avatar"><i data-lucide="car" width="26" height="26"></i></div>
                 <div>
                     <div class="car-name">${car.type}</div>
-                    <div class="car-year">${car.model ? car.model + ' ·' : ''} ${car.lastOdo || '0 كم'}</div>
+                    <div class="car-year">${car.model ? car.model + ' · ' : ''}${car.lastOdo || '0 كم'}</div>
                 </div>
             </div>`;
     }
- 
-    // ─── CAR SELECTOR ───
-    function carSelectorHTML() {
-        if (cars.length === 0) return '';
-        return `
-            <div class="input-group">
-                <label>المركبة النشطة</label>
-                <div class="select-wrap">
-                    <select onchange="activeIdx=parseInt(this.value); showTab(currentTabId)">
-                        ${cars.map((c, i) => `<option value="${i}" ${i == activeIdx ? 'selected' : ''}>🚗 ${c.type}</option>`).join('')}
-                    </select>
-                </div>
-            </div>`;
-    }
- 
-    let currentTabId = 'p1';
- 
+
     // ─── SHOW TAB ───
     function showTab(tabId, el) {
         currentTabId = tabId;
         if (el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
+        } else {
+            // Update nav highlight without element
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            const navEl = document.getElementById('nav-' + tabId);
+            if (navEl) navEl.classList.add('active');
         }
- 
+
         const area = document.getElementById('content-area');
         const car = cars[activeIdx];
- 
+
         // ── VEHICLES ──
         if (tabId === 'p1') {
             area.innerHTML = `
                 <div class="section-card">
-                    <div class="section-title"><span>🚗</span> المركبات</div>
-                    ${carSelectorHTML()}
+                    <div class="section-title"><i data-lucide="car" width="18" height="18"></i> المركبات</div>
                     <div class="input-group">
                         <label>الماركة / الطراز</label>
                         <input type="text" id="v_type" value="${car ? car.type : ''}" placeholder="مثال: نيسان التيما 2026">
@@ -687,76 +1127,87 @@
                         <label>سنة الصنع</label>
                         <input type="text" id="v_model" value="${car ? car.model || '' : ''}" placeholder="مثال: 2026">
                     </div>
-                    <button class="btn btn-primary" onclick="saveCar()">حفظ ✓</button>
+                    <button class="btn btn-primary" id="save-car-btn" onclick="saveCar()">
+                        <i data-lucide="check" width="16" height="16"></i> حفظ
+                    </button>
                     <div style="margin-top:10px; display:flex; gap:10px;">
-                        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="addNewCar()">+ إضافة مركبة</button>
-                        ${car ? `<button class="btn btn-danger-ghost btn-sm" style="flex:1" onclick="deleteCar()">حذف المركبة</button>` : ''}
+                        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="addNewCar()">
+                            <i data-lucide="plus" width="14" height="14"></i> إضافة مركبة
+                        </button>
+                        ${car ? `<button class="btn btn-danger-ghost btn-sm" style="flex:1" onclick="confirmDeleteCar()">
+                            <i data-lucide="trash-2" width="14" height="14"></i> حذف المركبة
+                        </button>` : ''}
                     </div>
                 </div>`;
         }
- 
+
         // ── STATS ──
         else if (tabId === 'p4') {
-            if (!car) { area.innerHTML = `<div class="section-card"><div class="empty-state"><span class="ei">📊</span><p>لا توجد مركبات مضافة</p></div></div>`; return; }
+            if (!car) { area.innerHTML = `<div class="section-card"><div class="empty-state"><div class="ei"><i data-lucide="bar-chart-2" width="48" height="48"></i></div><p>لا توجد مركبات مضافة</p></div></div>`; initIcons(); return; }
             const logs = car.logs ? Object.values(car.logs) : [];
             const maint = logs.filter(l => l.cat === 'صيانة').reduce((a, b) => a + Number(b.price), 0);
             const fuel = logs.filter(l => l.cat === 'وقود').reduce((a, b) => a + Number(b.price), 0);
             const total = maint + fuel;
+
+            // Build monthly chart data (last 6 months)
+            const monthlyData = buildMonthlyChart(logs);
+
             area.innerHTML = `
                 ${carHeaderHTML()}
                 <div class="section-card">
-                    <div class="section-title"><span>📊</span> الإحصائيات</div>
+                    <div class="section-title"><i data-lucide="bar-chart-2" width="18" height="18"></i> الإحصائيات</div>
                     <div class="stats-grid">
                         <div class="stat-card">
-                            <span class="stat-icon">🔧</span>
+                            <div class="stat-icon"><i data-lucide="wrench" width="22" height="22"></i></div>
                             <span class="stat-label">إجمالي الصيانة</span>
                             <span class="stat-value">${maint.toLocaleString()}</span>
                             <span class="stat-unit">ريال</span>
                         </div>
                         <div class="stat-card">
-                            <span class="stat-icon">⛽</span>
+                            <div class="stat-icon"><i data-lucide="fuel" width="22" height="22"></i></div>
                             <span class="stat-label">إجمالي الوقود</span>
                             <span class="stat-value">${fuel.toLocaleString()}</span>
                             <span class="stat-unit">ريال</span>
                         </div>
                         <div class="stat-card">
-                            <span class="stat-icon">📍</span>
+                            <div class="stat-icon"><i data-lucide="gauge" width="22" height="22"></i></div>
                             <span class="stat-label">قراءة العداد</span>
                             <span class="stat-value">${parseInt(car.lastOdo) || 0}</span>
                             <span class="stat-unit">كيلومتر</span>
                         </div>
                         <div class="stat-card">
-                            <span class="stat-icon">📝</span>
+                            <div class="stat-icon"><i data-lucide="file-text" width="22" height="22"></i></div>
                             <span class="stat-label">عدد السجلات</span>
                             <span class="stat-value">${logs.length}</span>
                             <span class="stat-unit">عملية</span>
                         </div>
                         <div class="stat-card total">
-                            <span class="stat-icon">💰</span>
+                            <div class="stat-icon"><i data-lucide="wallet" width="22" height="22"></i></div>
                             <span class="stat-label">الإجمالي الكلي</span>
                             <span class="stat-value">${total.toLocaleString()}</span>
                             <span class="stat-unit">ريال سعودي</span>
                         </div>
                     </div>
+                    ${monthlyData.hasData ? renderChart(monthlyData) : ''}
                 </div>`;
         }
- 
+
         // ── MAINTENANCE ──
         else if (tabId === 'p2') {
+            if (!car) { area.innerHTML = noCar('wrench'); initIcons(); return; }
             area.innerHTML = `
                 ${carHeaderHTML()}
                 <div class="section-card">
-                    <div class="section-title"><span>🔧</span> تسجيل صيانة</div>
-                    ${carSelectorHTML()}
+                    <div class="section-title"><i data-lucide="wrench" width="18" height="18"></i> تسجيل صيانة</div>
                     <div class="input-group">
                         <label>نوع الصيانة</label>
                         <div class="select-wrap">
                             <select id="m_type_sel" onchange="toggleManualMaint()">
-                                <option value="زيت المحرك">🛢️ زيت المحرك</option>
-                                <option value="زيت القير">⚙️ زيت القير</option>
-                                <option value="تغيير كفرات">🔄 تغيير كفرات</option>
-                                <option value="فلتر مكينة">🌬️ فلتر مكينة</option>
-                                <option value="أخرى">✏️ أخرى</option>
+                                <option value="زيت المحرك">زيت المحرك</option>
+                                <option value="زيت القير">زيت القير</option>
+                                <option value="تغيير كفرات">تغيير كفرات</option>
+                                <option value="فلتر مكينة">فلتر مكينة</option>
+                                <option value="أخرى">أخرى</option>
                             </select>
                         </div>
                     </div>
@@ -772,18 +1223,20 @@
                         <label>التاريخ</label>
                         <input type="date" id="m_d">
                     </div>
-                    <button class="btn btn-primary" onclick="addLog('صيانة')">تسجيل الصيانة 🔧</button>
+                    <button class="btn btn-primary" id="maint-btn" onclick="addLog('صيانة')">
+                        <i data-lucide="wrench" width="16" height="16"></i> تسجيل الصيانة
+                    </button>
                 </div>`;
             document.getElementById('m_d').valueAsDate = new Date();
         }
- 
+
         // ── FUEL ──
         else if (tabId === 'p6') {
+            if (!car) { area.innerHTML = noCar('fuel'); initIcons(); return; }
             area.innerHTML = `
                 ${carHeaderHTML()}
                 <div class="section-card">
-                    <div class="section-title"><span>⛽</span> تعبئة وقود</div>
-                    ${carSelectorHTML()}
+                    <div class="section-title"><i data-lucide="fuel" width="18" height="18"></i> تعبئة وقود</div>
                     <div class="input-group">
                         <label>قيمة التعبئة (ر.س)</label>
                         <input type="number" id="f_p" placeholder="0">
@@ -792,39 +1245,50 @@
                         <label>التاريخ</label>
                         <input type="date" id="f_d">
                     </div>
-                    <button class="btn btn-primary" onclick="addLog('وقود')">تسجيل الوقود ⛽</button>
+                    <button class="btn btn-primary" id="fuel-btn" onclick="addLog('وقود')">
+                        <i data-lucide="fuel" width="16" height="16"></i> تسجيل الوقود
+                    </button>
                 </div>`;
             document.getElementById('f_d').valueAsDate = new Date();
         }
- 
+
         // ── ODO ──
         else if (tabId === 'p3') {
-            const odoVal = car ? parseInt(car.lastOdo) || 0 : 0;
+            if (!car) { area.innerHTML = noCar('gauge'); initIcons(); return; }
+            const odoVal = parseInt(car.lastOdo) || 0;
             area.innerHTML = `
                 ${carHeaderHTML()}
                 <div class="section-card">
-                    <div class="section-title"><span>📍</span> عداد المسافات</div>
-                    ${carSelectorHTML()}
+                    <div class="section-title"><i data-lucide="gauge" width="18" height="18"></i> عداد المسافات</div>
                     <div class="odo-display">
                         <div class="odo-num">${odoVal.toLocaleString()}</div>
                         <div class="odo-label">القراءة الحالية بالكيلومتر</div>
                     </div>
                     <div class="input-group">
                         <label>القراءة الجديدة (كم)</label>
-                        <input type="number" id="odo_val" placeholder="${odoVal}">
+                        <input type="number" id="odo_val" placeholder="${odoVal}"
+                               oninput="checkOdoWarn(${odoVal})">
                     </div>
-                    <button class="btn btn-primary" onclick="updateOdo()">تحديث العداد 📍</button>
+                    <div class="odo-warn" id="odo-warn">
+                        <i data-lucide="alert-triangle" width="14" height="14"></i>
+                        القراءة الجديدة أقل من الحالية!
+                    </div>
+                    <button class="btn btn-primary" id="odo-btn" onclick="updateOdo(${odoVal})">
+                        <i data-lucide="gauge" width="16" height="16"></i> تحديث العداد
+                    </button>
                 </div>`;
         }
- 
+
         // ── LOG ──
         else if (tabId === 'p5') {
+            if (!car) { area.innerHTML = noCar('scroll-text'); initIcons(); return; }
             area.innerHTML = `
                 ${carHeaderHTML()}
                 <div class="section-card">
-                    <div class="section-title"><span>📑</span> سجل العمليات</div>
-                    ${carSelectorHTML()}
-                    <button class="btn btn-success btn-sm" onclick="exportFilteredExcel()">تصدير Excel 📊</button>
+                    <div class="section-title"><i data-lucide="scroll-text" width="18" height="18"></i> سجل العمليات</div>
+                    <button class="btn btn-success btn-sm" onclick="exportFilteredExcel()">
+                        <i data-lucide="download" width="14" height="14"></i> تصدير Excel
+                    </button>
                     <div class="filter-pills" id="filter-pills">
                         ${['الكل','وقود','زيت المحرك','زيت القير','أخرى'].map(f =>
                             `<button class="pill ${currentFilter===f?'active':''}" onclick="setFilter('${f}')">${f}</button>`
@@ -834,59 +1298,212 @@
                 </div>`;
             renderLogs();
         }
+
+        initIcons();
     }
- 
+
+    // ─── NO CAR STATE ───
+    function noCar(icon) {
+        return `<div class="section-card"><div class="empty-state">
+            <div class="ei"><i data-lucide="${icon}" width="48" height="48"></i></div>
+            <p>اختر مركبة أولاً</p>
+            <button class="btn btn-primary btn-sm" style="width:auto;padding:0 24px;" onclick="openCarSwitchModal()">
+                <i data-lucide="car" width="14" height="14"></i> اختر مركبة
+            </button>
+        </div></div>`;
+    }
+
+    // ─── ODO WARNING ───
+    function checkOdoWarn(currentOdo) {
+        const val = parseInt(document.getElementById('odo_val').value);
+        const warn = document.getElementById('odo-warn');
+        if (!warn) return;
+        if (val && val < currentOdo) {
+            warn.style.display = 'flex';
+            initIcons();
+        } else {
+            warn.style.display = 'none';
+        }
+    }
+
+    // ─── MONTHLY CHART DATA ───
+    function buildMonthlyChart(logs) {
+        if (!logs.length) return { hasData: false };
+        const months = {};
+        const now = new Date();
+
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+            const label = d.toLocaleDateString('ar-SA', { month: 'short' });
+            months[key] = { label, fuel: 0, maint: 0 };
+        }
+
+        logs.forEach(l => {
+            if (!l.date) return;
+            const key = l.date.substring(0, 7);
+            if (months[key]) {
+                if (l.cat === 'وقود') months[key].fuel += Number(l.price);
+                else months[key].maint += Number(l.price);
+            }
+        });
+
+        const data = Object.values(months);
+        const maxVal = Math.max(...data.map(d => Math.max(d.fuel, d.maint)), 1);
+        const hasData = data.some(d => d.fuel > 0 || d.maint > 0);
+
+        return { data, maxVal, hasData };
+    }
+
+    function renderChart({ data, maxVal }) {
+        const bars = data.map(d => {
+            const fh = Math.max((d.fuel / maxVal) * 80, d.fuel > 0 ? 4 : 0);
+            const mh = Math.max((d.maint / maxVal) * 80, d.maint > 0 ? 4 : 0);
+            return `
+                <div class="chart-bar-wrap">
+                    <div style="display:flex;gap:2px;align-items:flex-end;height:80px;">
+                        <div class="chart-bar fuel-bar" style="height:${fh}px;flex:1;"></div>
+                        <div class="chart-bar maint-bar" style="height:${mh}px;flex:1;"></div>
+                    </div>
+                    <div class="chart-label">${d.label}</div>
+                </div>`;
+        }).join('');
+
+        return `
+            <div class="chart-wrap">
+                <div class="chart-title">المصروفات الشهرية (آخر 6 أشهر)</div>
+                <div class="chart-bars">${bars}</div>
+                <div class="chart-legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>وقود</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>صيانة</div>
+                </div>
+            </div>`;
+    }
+
     // ─── FILTER ───
     function setFilter(f) {
         currentFilter = f;
         document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.textContent === f));
         renderLogs();
     }
- 
+
     // ─── RENDER LOGS ───
     function renderLogs() {
         const car = cars[activeIdx];
         const container = document.getElementById('logs_container');
         if (!car || !car.logs) {
-            container.innerHTML = `<div class="empty-state"><span class="ei">📋</span><p>لا توجد سجلات بعد</p></div>`;
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="ei"><i data-lucide="clipboard-list" width="48" height="48"></i></div>
+                    <p>لا توجد سجلات بعد</p>
+                    <button class="btn btn-primary btn-sm" style="width:auto;padding:0 24px;" onclick="showTab('p6')">
+                        <i data-lucide="fuel" width="14" height="14"></i> سجّل أول عملية
+                    </button>
+                </div>`;
+            initIcons();
             return;
         }
+
         const arr = Object.keys(car.logs).map(k => ({ ...car.logs[k], key: k }));
         const filtered = currentFilter === 'الكل' ? arr : arr.filter(l => l.title.includes(currentFilter) || l.cat.includes(currentFilter));
+
         if (filtered.length === 0) {
-            container.innerHTML = `<div class="empty-state"><span class="ei">🔍</span><p>لا توجد نتائج</p></div>`;
+            container.innerHTML = `<div class="empty-state"><div class="ei"><i data-lucide="search-x" width="48" height="48"></i></div><p>لا توجد نتائج</p></div>`;
+            initIcons();
             return;
         }
-        container.innerHTML = filtered.reverse().map(l => {
+
+        const total = filtered.reduce((a, b) => a + Number(b.price), 0);
+
+        container.innerHTML = filtered.slice().reverse().map(l => {
             const isFuel = l.cat === 'وقود';
             return `
                 <div class="log-item">
-                    <div class="log-dot ${isFuel ? 'fuel' : 'maint'}">${isFuel ? '⛽' : '🔧'}</div>
+                    <div class="log-dot ${isFuel ? 'fuel' : 'maint'}">
+                        <i data-lucide="${isFuel ? 'fuel' : 'wrench'}" width="18" height="18"></i>
+                    </div>
                     <div class="log-info">
                         <div class="log-title">${l.title}</div>
                         <div class="log-meta">${l.date} · <span class="badge ${isFuel ? 'badge-fuel' : 'badge-maint'}">${l.cat}</span></div>
                     </div>
                     <div class="log-price">${Number(l.price).toLocaleString()} ر.س</div>
-                    <div class="log-edit" onclick="openEditModal('${l.key}')">✏️</div>
-                    <div class="log-del" onclick="deleteLog('${l.key}')">🗑</div>
+                    <div class="log-edit" onclick="openEditModal('${l.key}')">
+                        <i data-lucide="pencil" width="15" height="15"></i>
+                    </div>
+                    <div class="log-del" onclick="confirmDeleteLog('${l.key}')">
+                        <i data-lucide="trash-2" width="15" height="15"></i>
+                    </div>
                 </div>`;
-        }).join('');
+        }).join('') + `
+            <div class="log-total">
+                <span class="log-total-label">الإجمالي (${filtered.length} عملية)</span>
+                <span class="log-total-value">${total.toLocaleString()} ر.س</span>
+            </div>`;
+
+        initIcons();
     }
- 
+
+    // ─── CONFIRM MODAL ───
+    function showConfirm(title, sub, onConfirm) {
+        const modal = document.getElementById('confirm-modal');
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.inset = '0';
+        modal.style.zIndex = '600';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.padding = '20px';
+        modal.style.background = 'rgba(0,0,0,0.75)';
+        modal.style.backdropFilter = 'blur(8px)';
+        modal.style.animation = 'fadeIn 0.2s ease';
+
+        modal.innerHTML = `
+            <div class="confirm-modal-box">
+                <div class="confirm-icon">
+                    <i data-lucide="trash-2" width="28" height="28"></i>
+                </div>
+                <div class="confirm-title">${title}</div>
+                <div class="confirm-sub">${sub}</div>
+                <div class="confirm-actions">
+                    <button class="btn btn-ghost" style="flex:1" onclick="closeConfirm()">إلغاء</button>
+                    <button class="btn btn-danger-ghost" style="flex:1" onclick="confirmAction()">
+                        <i data-lucide="trash-2" width="14" height="14"></i> حذف
+                    </button>
+                </div>
+            </div>`;
+
+        window._confirmCallback = onConfirm;
+        modal.onclick = e => { if (e.target === modal) closeConfirm(); };
+        initIcons();
+    }
+
+    function confirmAction() {
+        closeConfirm();
+        if (window._confirmCallback) window._confirmCallback();
+    }
+
+    function closeConfirm() {
+        const modal = document.getElementById('confirm-modal');
+        modal.style.display = 'none';
+        modal.innerHTML = '';
+        window._confirmCallback = null;
+    }
+
     // ─── DELETE LOG ───
-    function deleteLog(key) {
-        if (!confirm('حذف هذه العملية؟')) return;
-        db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs/${key}`).remove()
-            .then(() => { toast('تم الحذف ✓'); renderLogs(); });
+    function confirmDeleteLog(key) {
+        showConfirm('حذف العملية', 'هل أنت متأكد من حذف هذه العملية؟ لا يمكن التراجع.', () => {
+            db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs/${key}`).remove()
+                .then(() => { toast('تم الحذف ✓'); renderLogs(); });
+        });
     }
- 
+
     // ─── EDIT MODAL ───
     function openEditModal(key) {
         const car = cars[activeIdx];
         if (!car || !car.logs || !car.logs[key]) return;
         const l = car.logs[key];
         const modal = document.getElementById('edit-modal');
- 
+
         modal.style.display = 'flex';
         modal.style.position = 'fixed';
         modal.style.inset = '0';
@@ -896,12 +1513,11 @@
         modal.style.background = 'rgba(0,0,0,0.7)';
         modal.style.backdropFilter = 'blur(6px)';
         modal.style.animation = 'fadeIn 0.2s ease';
- 
+
         modal.innerHTML = `
             <div class="modal-box">
                 <div class="modal-handle"></div>
-                <div class="modal-title">✏️ تعديل العملية</div>
- 
+                <div class="modal-title"><i data-lucide="pencil" width="18" height="18"></i> تعديل العملية</div>
                 <div class="input-group">
                     <label>التفاصيل</label>
                     <input type="text" id="edit_title" value="${l.title}">
@@ -914,90 +1530,124 @@
                     <label>التاريخ</label>
                     <input type="date" id="edit_date" value="${l.date}">
                 </div>
- 
                 <div class="modal-actions">
                     <button class="btn btn-ghost" style="flex:1" onclick="closeEditModal()">إلغاء</button>
-                    <button class="btn btn-primary" style="flex:2" onclick="saveEdit('${key}')">حفظ التعديلات ✓</button>
+                    <button class="btn btn-primary" style="flex:2" id="save-edit-btn" onclick="saveEdit('${key}')">
+                        <i data-lucide="check" width="16" height="16"></i> حفظ التعديلات
+                    </button>
                 </div>
             </div>`;
- 
-        modal.onclick = function(e) { if (e.target === modal) closeEditModal(); };
+
+        modal.onclick = e => { if (e.target === modal) closeEditModal(); };
+        initIcons();
     }
- 
+
     function closeEditModal() {
         const modal = document.getElementById('edit-modal');
         modal.style.display = 'none';
         modal.innerHTML = '';
     }
- 
+
     function saveEdit(key) {
         const title = document.getElementById('edit_title').value.trim();
         const price = document.getElementById('edit_price').value;
         const date = document.getElementById('edit_date').value;
         if (!title) { toast('أدخل التفاصيل'); return; }
+
+        const btn = document.getElementById('save-edit-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="btn-spinner"></div>';
+
         db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs/${key}`).update({ title, price, date })
             .then(() => { closeEditModal(); toast('تم التعديل ✓'); renderLogs(); });
     }
- 
+
     // ─── SAVE CAR ───
     function saveCar() {
         const type = document.getElementById('v_type').value.trim();
         if (!type) { toast('أدخل اسم المركبة'); return; }
-        const isNew = !cars[activeIdx] || !cars[activeIdx].id;
+
+        const btn = document.getElementById('save-car-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="btn-spinner"></div> جاري الحفظ...';
+
+        const isNew = !cars[activeIdx] || cars[activeIdx]._isNew;
         const carId = isNew ? db.ref('users/' + userId + '/garage').push().key : cars[activeIdx].id;
+
         db.ref(`users/${userId}/garage/${carId}`).update({
             id: carId, type,
             model: document.getElementById('v_model').value,
-            lastOdo: cars[activeIdx] ? (cars[activeIdx].lastOdo || '0 كم') : '0 كم'
+            lastOdo: (isNew ? '0 كم' : cars[activeIdx].lastOdo) || '0 كم'
         }).then(() => toast('تم الحفظ ✓'));
     }
- 
+
     function addNewCar() {
-        activeIdx = cars.length;
-        document.getElementById('v_type').value = '';
-        document.getElementById('v_model').value = '';
+        // Create a temporary placeholder
+        const tempCar = { type: '', model: '', lastOdo: '0 كم', _isNew: true };
+        cars.push(tempCar);
+        activeIdx = cars.length - 1;
+        updateHeaderCar();
+        showTab('p1');
+        document.getElementById('v_type')?.focus();
         toast('أضف بيانات المركبة الجديدة');
     }
- 
-    function deleteCar() {
-        if (!confirm('حذف المركبة نهائياً؟')) return;
-        db.ref(`users/${userId}/garage/${cars[activeIdx].id}`).remove()
-            .then(() => { activeIdx = 0; toast('تم الحذف ✓'); });
+
+    function confirmDeleteCar() {
+        showConfirm('حذف المركبة', `هل أنت متأكد من حذف "${cars[activeIdx].type}"؟ ستُحذف جميع البيانات نهائياً.`, () => {
+            db.ref(`users/${userId}/garage/${cars[activeIdx].id}`).remove()
+                .then(() => { activeIdx = 0; toast('تم الحذف ✓'); });
+        });
     }
- 
+
     // ─── ADD LOG ───
     function addLog(cat) {
-        if (!cars[activeIdx]) { toast('اختر مركبة أولاً'); return; }
+        if (!cars[activeIdx] || cars[activeIdx]._isNew) { toast('احفظ بيانات المركبة أولاً'); return; }
         const isFuel = cat === 'وقود';
         const price = isFuel ? document.getElementById('f_p').value : document.getElementById('m_p').value || 0;
         let title = isFuel ? 'تعبئة وقود' : document.getElementById('m_type_sel').value;
         if (title === 'أخرى') title = document.getElementById('m_t_manual').value || 'صيانة أخرى';
         const date = isFuel ? document.getElementById('f_d').value : document.getElementById('m_d').value;
+
+        const btnId = isFuel ? 'fuel-btn' : 'maint-btn';
+        const btn = document.getElementById(btnId);
+        if (btn) { btn.disabled = true; btn.innerHTML = '<div class="btn-spinner"></div> جاري الحفظ...'; }
+
         db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs`).push({ cat, price, title, date })
             .then(() => { toast('تم التسجيل ✓'); currentFilter = 'الكل'; showTab('p5'); });
     }
- 
+
     // ─── UPDATE ODO ───
-    function updateOdo() {
+    function updateOdo(currentOdo) {
         const v = document.getElementById('odo_val').value;
         if (!v || !cars[activeIdx]) return;
+        if (parseInt(v) < currentOdo) { toast('القراءة الجديدة أقل من الحالية!'); return; }
+
+        const btn = document.getElementById('odo-btn');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<div class="btn-spinner"></div> جاري التحديث...'; }
+
         db.ref(`users/${userId}/garage/${cars[activeIdx].id}`).update({ lastOdo: v + ' كم' })
             .then(() => toast('تم التحديث ✓'));
     }
- 
+
     // ─── EXPORT ───
     function exportFilteredExcel() {
         const car = cars[activeIdx];
         if (!car || !car.logs) { toast('لا توجد بيانات'); return; }
         const arr = Object.values(car.logs);
         const filtered = currentFilter === 'الكل' ? arr : arr.filter(l => l.title.includes(currentFilter) || l.cat.includes(currentFilter));
-        const data = filtered.map(l => ({ 'التاريخ': l.date, 'النوع': l.cat, 'التفاصيل': l.title, 'المبلغ': l.price }));
+        const total = filtered.reduce((a, b) => a + Number(b.price), 0);
+        const data = [
+            { 'المركبة': car.type, 'العداد': car.lastOdo, 'تاريخ التصدير': new Date().toLocaleDateString('ar-SA'), 'التاريخ': '', 'النوع': '', 'التفاصيل': '', 'المبلغ': '' },
+            ...filtered.map(l => ({ 'المركبة': '', 'العداد': '', 'تاريخ التصدير': '', 'التاريخ': l.date, 'النوع': l.cat, 'التفاصيل': l.title, 'المبلغ': l.price })),
+            { 'المركبة': '', 'العداد': '', 'تاريخ التصدير': '', 'التاريخ': '', 'النوع': '', 'التفاصيل': 'الإجمالي', 'المبلغ': total }
+        ];
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Sijill');
         XLSX.writeFile(wb, `سجل_${car.type}.xlsx`);
+        toast('تم التصدير ✓');
     }
- 
+
     // ─── TOGGLE MANUAL MAINT ───
     function toggleManualMaint() {
         const v = document.getElementById('m_type_sel').value;
@@ -1006,4 +1656,3 @@
 </script>
 </body>
 </html>
- 
