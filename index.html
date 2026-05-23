@@ -873,7 +873,12 @@ function renderInsItem(ins){
             </div>
         </div>`:''}
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-            <div class="log-price" style="font-size:15px">${Number(ins.price).toLocaleString()} ر.س</div>
+            <div>
+                <div class="log-price" style="font-size:15px">${Number(ins.price).toLocaleString()} ر.س</div>
+                ${ins.payMethod?`<div style="font-size:11px;color:var(--muted2);margin-top:4px">
+                    ${ins.payMethod==='أقساط'?`📆 أقساط · ${ins.instalments} قسط · ${Math.round(ins.price/ins.instalments).toLocaleString()} ر.س/قسط`:'💵 كاش'}
+                </div>`:""}
+            </div>
             <div style="display:flex;gap:6px">
                 <div class="log-edit" onclick="openInsEditModal('${ins.key}')"><i data-lucide="pencil" width="15" height="15"></i></div>
                 <div class="log-del"  onclick="confirmDeleteExtra('ins','${ins.key}')"><i data-lucide="trash-2" width="15" height="15"></i></div>
@@ -974,6 +979,15 @@ function openInsModal(existingKey){
             <input type="date" id="ins_start" value="${existing?existing.startDate:''}"></div>
         <div class="input-group"><label>تاريخ الانتهاء</label>
             <input type="date" id="ins_end" value="${existing?existing.endDate:''}"></div>
+        <div class="input-group"><label>طريقة الدفع</label>
+            <div class="select-wrap"><select id="ins_pay_method" onchange="toggleInstalments()">
+                <option value="كاش"    ${(!existing||existing.payMethod==='كاش')?'selected':''}>💵 كاش (دفعة واحدة)</option>
+                <option value="أقساط"  ${existing?.payMethod==='أقساط'?'selected':''}>📆 أقساط</option>
+            </select></div></div>
+        <div id="ins_install_group" class="${existing?.payMethod==='أقساط'?'input-group':'input-group hidden'}">
+            <label>عدد الأقساط</label>
+            <input type="number" id="ins_instalments" value="${existing?.instalments||''}" placeholder="مثال: 12" min="2" max="60">
+        </div>
         <div class="modal-actions">
             <button class="btn btn-ghost" style="flex:1" onclick="closeExtraModal()">إلغاء</button>
             <button class="btn btn-primary" style="flex:2;background:linear-gradient(135deg,var(--purple),#6d28d9);box-shadow:none"
@@ -998,14 +1012,19 @@ function saveIns(existingKey){
     if(!priceRaw||isNaN(price)||price<0){toast('أدخل مبلغاً صحيحاً');return;}
     if(!startDate||!endDate){toast('أدخل تواريخ البداية والانتهاء');return;}
     if(endDate<=startDate){toast('تاريخ الانتهاء يجب أن يكون بعد البداية');return;}
+    const payMethod   =document.getElementById('ins_pay_method').value;
+    const instalmentsRaw=document.getElementById('ins_instalments')?.value;
+    const instalments =payMethod==='أقساط'?(parseInt(instalmentsRaw)||0):0;
+    if(payMethod==='أقساط'&&instalments<2){toast('أدخل عدد أقساط صحيح (2 أو أكثر)');return;}
     const btn=document.getElementById('save-ins-btn');
     btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div>';
  
-    // تذكير: إضافة إشعار قرب الانتهاء — نحفظ daysAlert في البيانات
     const ref=existingKey
         ?db.ref(`users/${userId}/garage/${car.id}/insurance/${existingKey}`)
         :db.ref(`users/${userId}/garage/${car.id}/insurance`).push();
-    ref.set({insType,company,price,startDate,endDate})
+    const payload={insType,company,price,startDate,endDate,payMethod};
+    if(payMethod==='أقساط') payload.instalments=instalments;
+    ref.set(payload)
         .then(()=>{
             closeExtraModal();
             toast(existingKey?'تم التعديل ✓':'تمت إضافة التأمين ✓');
@@ -1023,11 +1042,28 @@ function closeExtraModal(){const m=document.getElementById('extra-modal');m.styl
 // DELETE EXTRA
 // ══════════════════════════════════════════
 function confirmDeleteExtra(type,key){
+    const car=cars[activeIdx];
+    if(!car?.id)return;
+    // نحفظ carId مسبقاً
+    const carId=car.id;
     const label=type==='fine'?'المخالفة':'وثيقة التأمين';
+    const path=type==='fine'?'fines':'insurance';
     showConfirm(`حذف ${label}`,`هل أنت متأكد من الحذف؟ لا يمكن التراجع.`,()=>{
-        const path=type==='fine'?`fines`:`insurance`;
-        db.ref(`users/${userId}/garage/${cars[activeIdx].id}/${path}/${key}`).remove()
-            .then(()=>{toast('تم الحذف ✓');renderExtra();});
+        db.ref(`users/${userId}/garage/${carId}/${path}/${key}`).remove()
+            .then(()=>{
+                toast('تم الحذف ✓');
+                // نعيد رسم القائمة من البيانات المحدّثة
+                const updatedCar=cars[activeIdx];
+                if(updatedCar){
+                    if(type==='fine'&&updatedCar.fines) delete updatedCar.fines[key];
+                    if(type==='ins'&&updatedCar.insurance) delete updatedCar.insurance[key];
+                }
+                renderExtra();
+            })
+            .catch(e=>{
+                console.error('delete extra',e);
+                toast('فشل الحذف — تحقق من الاتصال');
+            });
     });
 }
  
@@ -1167,10 +1203,23 @@ function closeConfirm(){const m=document.getElementById('confirm-modal');m.style
 // DELETE LOG
 // ══════════════════════════════════════════
 function confirmDeleteLog(key){
+    const car=cars[activeIdx];
+    if(!car?.id)return;
+    // نحفظ carId مسبقاً
+    const carId=car.id;
     showConfirm('حذف العملية','هل أنت متأكد من حذف هذه العملية؟ لا يمكن التراجع.',()=>{
-        db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs/${key}`).remove()
-            .then(()=>{toast('تم الحذف ✓');renderLogs();})
-            .catch(()=>toast('حدث خطأ في الحذف'));
+        db.ref(`users/${userId}/garage/${carId}/logs/${key}`).remove()
+            .then(()=>{
+                toast('تم الحذف ✓');
+                // حذف محلي فوري قبل sync
+                const updatedCar=cars[activeIdx];
+                if(updatedCar?.logs) delete updatedCar.logs[key];
+                renderLogs();
+            })
+            .catch(e=>{
+                console.error('delete log',e);
+                toast('فشل الحذف — تحقق من الاتصال');
+            });
     });
 }
  
@@ -1247,11 +1296,21 @@ function saveCar(){
 }
  
 function confirmDeleteCar(){
-    if(!cars[activeIdx]?.id)return;
-    showConfirm('حذف المركبة',`هل أنت متأكد من حذف "${cars[activeIdx].type}"؟ ستُحذف جميع البيانات نهائياً.`,()=>{
-        db.ref(`users/${userId}/garage/${cars[activeIdx].id}`).remove()
-            .then(()=>toast('تم الحذف ✓'))
-            .catch(()=>toast('حدث خطأ في الحذف'));
+    const car=cars[activeIdx];
+    if(!car?.id)return;
+    // نحفظ id و name قبل فتح الـ dialog — لا نعتمد على activeIdx داخل الـ callback
+    const carId=car.id;
+    const carName=car.type;
+    showConfirm('حذف المركبة',`هل أنت متأكد من حذف "${carName}"؟ ستُحذف جميع البيانات نهائياً.`,()=>{
+        db.ref(`users/${userId}/garage/${carId}`).remove()
+            .then(()=>{
+                activeIdx=0;
+                toast('تم حذف المركبة ✓');
+            })
+            .catch(e=>{
+                console.error('delete car',e);
+                toast('فشل الحذف — تحقق من الاتصال');
+            });
     });
 }
  
@@ -1328,6 +1387,12 @@ function exportExcel(){
 // ══════════════════════════════════════════
 // MISC
 // ══════════════════════════════════════════
+function toggleInstalments(){
+    const v=document.getElementById('ins_pay_method')?.value;
+    const g=document.getElementById('ins_install_group');
+    if(g) g.classList.toggle('hidden',v!=='أقساط');
+}
+ 
 function toggleManualMaint(){
     document.getElementById('manual_m_group').classList.toggle('hidden',document.getElementById('m_type_sel').value!=='أخرى');
 }
