@@ -490,18 +490,23 @@ function handleAuth(){
     localStorage.setItem('loginTime',Date.now());
  
     // FIX #1: نميّز بين "مستخدم غير موجود" وغيره
+    // نحاول signIn أولاً
+    // إذا فشل بـ user-not-found → ننشئ حساباً جديداً
+    // إذا فشل بأي سبب آخر (كلمة مرور خاطئة، too-many-requests...) → نعرض رسالة مباشرة
     auth.signInWithEmailAndPassword(email,pass)
         .catch(err=>{
-            if(err.code==='auth/user-not-found'||err.code==='auth/invalid-credential'||err.code==='auth/invalid-email'){
+            if(err.code==='auth/user-not-found'){
                 return auth.createUserWithEmailAndPassword(email,pass);
             }
-            throw err; // كلمة مرور خاطئة أو خطأ آخر → ابقَ في الـ catch
+            throw err;
         })
         .catch(err=>{
             localStorage.removeItem('loginTime');
             let msg='حدث خطأ، تحقق من البيانات';
-            if(err.code==='auth/wrong-password'||err.code==='auth/invalid-credential') msg='كلمة المرور غير صحيحة';
-            if(err.code==='auth/too-many-requests') msg='محاولات كثيرة، حاول لاحقاً';
+            if(err.code==='auth/wrong-password')    msg='كلمة المرور غير صحيحة';
+            if(err.code==='auth/invalid-credential') msg='اسم المستخدم أو كلمة المرور غير صحيحة';
+            if(err.code==='auth/too-many-requests')  msg='محاولات كثيرة جداً — حاول لاحقاً';
+            if(err.code==='auth/weak-password')      msg='كلمة المرور ضعيفة جداً';
             errEl.textContent=msg; errEl.style.display='block';
             btn.disabled=false;
             btn.innerHTML='<i data-lucide="lock" width="16" height="16"></i> دخول آمن';
@@ -934,7 +939,9 @@ function openFineEditModal(key){openFineModal(key);}
  
 function saveFine(existingKey){
     const car=cars[activeIdx];
-    if(!car){toast('اختر مركبة أولاً');return;}
+    if(!car?.id){toast('اختر مركبة أولاً');return;}
+    const carId=car.id; // نحفظ مسبقاً
+    const isEdit=existingKey&&existingKey.length>0;
     const fineType=document.getElementById('fine_type').value;
     const priceRaw=document.getElementById('fine_price').value;
     const date    =document.getElementById('fine_date').value;
@@ -944,9 +951,9 @@ function saveFine(existingKey){
     if(!date){toast('اختر التاريخ');return;}
     const btn=document.getElementById('save-fine-btn');
     btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div>';
-    const ref=existingKey
-        ?db.ref(`users/${userId}/garage/${car.id}/fines/${existingKey}`)
-        :db.ref(`users/${userId}/garage/${car.id}/fines`).push();
+    const ref=isEdit
+        ?db.ref(`users/${userId}/garage/${carId}/fines/${existingKey}`)
+        :db.ref(`users/${userId}/garage/${carId}/fines`).push();
     ref.set({fineType,price,date,status})
         .then(()=>{closeExtraModal();toast(existingKey?'تم التعديل ✓':'تمت إضافة المخالفة ✓');extraFilter='مخالفات';showTab('p7');})
         .catch(()=>{resetBtn('save-fine-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');toast('حدث خطأ، حاول مجدداً');initIcons();});
@@ -1002,7 +1009,9 @@ function openInsEditModal(key){openInsModal(key);}
  
 function saveIns(existingKey){
     const car=cars[activeIdx];
-    if(!car){toast('اختر مركبة أولاً');return;}
+    if(!car?.id){toast('اختر مركبة أولاً');return;}
+    const carId=car.id; // نحفظ مسبقاً
+    const isEdit=existingKey&&existingKey.length>0;
     const insType =document.getElementById('ins_type').value;
     const company =document.getElementById('ins_company').value.trim();
     const priceRaw=document.getElementById('ins_price').value;
@@ -1019,9 +1028,9 @@ function saveIns(existingKey){
     const btn=document.getElementById('save-ins-btn');
     btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div>';
  
-    const ref=existingKey
-        ?db.ref(`users/${userId}/garage/${car.id}/insurance/${existingKey}`)
-        :db.ref(`users/${userId}/garage/${car.id}/insurance`).push();
+    const ref=isEdit
+        ?db.ref(`users/${userId}/garage/${carId}/insurance/${existingKey}`)
+        :db.ref(`users/${userId}/garage/${carId}/insurance`).push();
     const payload={insType,company,price,startDate,endDate,payMethod};
     if(payMethod==='أقساط') payload.instalments=instalments;
     ref.set(payload)
@@ -1052,11 +1061,11 @@ function confirmDeleteExtra(type,key){
         db.ref(`users/${userId}/garage/${carId}/${path}/${key}`).remove()
             .then(()=>{
                 toast('تم الحذف ✓');
-                // نعيد رسم القائمة من البيانات المحدّثة
-                const updatedCar=cars[activeIdx];
+                // حذف محلي فوري من كائن المركبة المحفوظ
+                const updatedCar=cars.find(c=>c.id===carId);
                 if(updatedCar){
-                    if(type==='fine'&&updatedCar.fines) delete updatedCar.fines[key];
-                    if(type==='ins'&&updatedCar.insurance) delete updatedCar.insurance[key];
+                    if(type==='fine' && updatedCar.fines)     delete updatedCar.fines[key];
+                    if(type==='ins'  && updatedCar.insurance) delete updatedCar.insurance[key];
                 }
                 renderExtra();
             })
@@ -1211,8 +1220,8 @@ function confirmDeleteLog(key){
         db.ref(`users/${userId}/garage/${carId}/logs/${key}`).remove()
             .then(()=>{
                 toast('تم الحذف ✓');
-                // حذف محلي فوري قبل sync
-                const updatedCar=cars[activeIdx];
+                // حذف محلي فوري بالبحث عن المركبة بالـ id
+                const updatedCar=cars.find(c=>c.id===carId);
                 if(updatedCar?.logs) delete updatedCar.logs[key];
                 renderLogs();
             })
@@ -1255,18 +1264,22 @@ function openEditModal(key){
 function closeEditModal(){const m=document.getElementById('edit-modal');m.style.display='none';m.innerHTML='';}
  
 function saveEdit(key){
+    const car=cars[activeIdx];
+    if(!car?.id){toast('خطأ: لا توجد مركبة');return;}
+    const carId=car.id; // نحفظ مسبقاً
     const title=document.getElementById('edit_title').value.trim();
     const price=document.getElementById('edit_price').value;
     const date =document.getElementById('edit_date').value;
     if(!title){toast('أدخل التفاصيل');return;}
     const p=parseFloat(price);
-    if(isNaN(p)||p<0){toast('أدخل مبلغاً صحيحاً');return;}  // FIX #6 + تحقق
+    if(isNaN(p)||p<0){toast('أدخل مبلغاً صحيحاً');return;}
+    if(!date){toast('اختر التاريخ');return;}
     const btn=document.getElementById('save-edit-btn');
     btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div>';
-    db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs/${key}`)
+    db.ref(`users/${userId}/garage/${carId}/logs/${key}`)
         .update({title,price:p,date})
         .then(()=>{closeEditModal();toast('تم التعديل ✓');renderLogs();})
-        .catch(()=>{resetBtn('save-edit-btn','<i data-lucide="check" width="16" height="16"></i> حفظ التعديلات');toast('حدث خطأ');initIcons();}); // FIX #3
+        .catch(()=>{resetBtn('save-edit-btn','<i data-lucide="check" width="16" height="16"></i> حفظ التعديلات');toast('حدث خطأ');initIcons();});
 }
  
 // ══════════════════════════════════════════
@@ -1287,11 +1300,12 @@ function saveCar(){
             .then(()=>{isAddingNew=false;toast('تمت إضافة المركبة ✓');})
             .catch(()=>{resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');toast('حدث خطأ');initIcons();}); // FIX #3
     } else {
-        if(!cars[activeIdx]?.id){toast('خطأ: لا توجد مركبة محددة');resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');initIcons();return;}
-        db.ref(`users/${userId}/garage/${cars[activeIdx].id}`)
+        const editCarId=cars[activeIdx]?.id;
+        if(!editCarId){toast('خطأ: لا توجد مركبة محددة');resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');initIcons();return;}
+        db.ref(`users/${userId}/garage/${editCarId}`)
             .update({type,model:document.getElementById('v_model').value})
             .then(()=>toast('تم الحفظ ✓'))
-            .catch(()=>{resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');toast('حدث خطأ');initIcons();}); // FIX #3
+            .catch(()=>{resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');toast('حدث خطأ');initIcons();});
     }
 }
  
@@ -1329,11 +1343,12 @@ function addLog(cat){
     const btnId=isFuel?'fuel-btn':'maint-btn';
     const btnHtml=isFuel?'<i data-lucide="fuel" width="16" height="16"></i> تسجيل الوقود':'<i data-lucide="wrench" width="16" height="16"></i> تسجيل الصيانة';
     const btn=document.getElementById(btnId);
+    const carId4log=cars[activeIdx].id; // نحفظ مسبقاً
     if(btn){btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div> جاري الحفظ...';}
-    db.ref(`users/${userId}/garage/${cars[activeIdx].id}/logs`)
+    db.ref(`users/${userId}/garage/${carId4log}/logs`)
         .push({cat,price,title,date})
         .then(()=>{toast('تم التسجيل ✓');currentFilter='الكل';showTab('p5');})
-        .catch(()=>{resetBtn(btnId,btnHtml);toast('حدث خطأ');initIcons();}); // FIX #3
+        .catch(()=>{resetBtn(btnId,btnHtml);toast('حدث خطأ');initIcons();});
 }
  
 // ══════════════════════════════════════════
@@ -1347,11 +1362,12 @@ function updateOdo(currentOdo){
     if(isNaN(v)||v<0){toast('أدخل رقماً صحيحاً');return;}
     if(!cars[activeIdx])return;
     const btn=document.getElementById('odo-btn');
+    const carId4odo=cars[activeIdx].id; // نحفظ مسبقاً
     if(btn){btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div> جاري التحديث...';}
-    db.ref(`users/${userId}/garage/${cars[activeIdx].id}`)
+    db.ref(`users/${userId}/garage/${carId4odo}`)
         .update({lastOdo:v+' كم'})
         .then(()=>toast('تم التحديث ✓'))
-        .catch(()=>{resetBtn('odo-btn','<i data-lucide="gauge" width="16" height="16"></i> تحديث العداد');toast('حدث خطأ');initIcons();}); // FIX #3
+        .catch(()=>{resetBtn('odo-btn','<i data-lucide="gauge" width="16" height="16"></i> تحديث العداد');toast('حدث خطأ');initIcons();});
 }
  
 // ══════════════════════════════════════════
@@ -1370,15 +1386,20 @@ function exportExcel(){
     // شيت ثانٍ للمخالفات والتأمين
     const wb=XLSX.utils.book_new();
     const ws=XLSX.utils.json_to_sheet(data);
-    XLSX.utils.book_append_sheet(wb,'السجل',ws); // ← اسم عربي أنظف
+    try{ XLSX.utils.book_append_sheet(wb,'السجل',ws); }
+    catch(e){ XLSX.utils.book_append_sheet(wb,'Log',ws); }
  
     if(car.fines){
-        const fd=Object.values(car.fines).map(f=>({'التاريخ':f.date,'النوع المخالفة':f.fineType,'المبلغ':Number(f.price),'الحالة':f.status}));
-        XLSX.utils.book_append_sheet(wb,'المخالفات',XLSX.utils.json_to_sheet(fd));
+        const fd=Object.values(car.fines).map(f=>({'التاريخ':f.date,'النوع':f.fineType,'المبلغ':Number(f.price),'الحالة':f.status}));
+        const wsFines=XLSX.utils.json_to_sheet(fd);
+        try{ XLSX.utils.book_append_sheet(wb,'المخالفات',wsFines); }
+        catch(e){ XLSX.utils.book_append_sheet(wb,'Fines',wsFines); }
     }
     if(car.insurance){
-        const id=Object.values(car.insurance).map(i=>({'نوع التأمين':i.insType,'الشركة':i.company||'—','القسط':Number(i.price),'بداية':i.startDate,'نهاية':i.endDate}));
-        XLSX.utils.book_append_sheet(wb,'التأمين',XLSX.utils.json_to_sheet(id));
+        const wi=Object.values(car.insurance).map(i=>({'النوع':i.insType,'الشركة':i.company||'—','القسط':Number(i.price),'طريقة الدفع':i.payMethod||'—','الأقساط':i.instalments||'—','بداية':i.startDate,'نهاية':i.endDate}));
+        const wsIns=XLSX.utils.json_to_sheet(wi);
+        try{ XLSX.utils.book_append_sheet(wb,'التأمين',wsIns); }
+        catch(e){ XLSX.utils.book_append_sheet(wb,'Insurance',wsIns); }
     }
     XLSX.writeFile(wb,`سجل_${car.type}.xlsx`);
     toast('تم التصدير ✓');
