@@ -610,25 +610,35 @@ function showTab(tabId,el){
         const vModel=isAddingNew?'':(car?car.model||'':'');
         const odoVal=car?parseInt(car.lastOdo)||0:0;
  
-        area.innerHTML=`<div class="section-card">
-            <div class="section-title"><i data-lucide="car" width="18" height="18"></i>
-                ${isAddingNew?'إضافة مركبة جديدة':'بيانات المركبة'}</div>
-            ${isAddingNew?`<div class="notice notice-gold"><i data-lucide="info" width="14" height="14"></i> أدخل بيانات المركبة الجديدة ثم اضغط حفظ</div>`:''}
+        area.innerHTML=`
+        ${isAddingNew?`<div class="section-card">
+            <div class="section-title"><i data-lucide="car" width="18" height="18"></i> إضافة مركبة جديدة</div>
+            <div class="notice notice-gold"><i data-lucide="info" width="14" height="14"></i> أدخل بيانات المركبة الجديدة ثم اضغط حفظ</div>
             <div class="input-group"><label>الماركة / الطراز</label>
                 <input type="text" id="v_type" value="${esc(vType)}" placeholder="مثال: نيسان التيما 2026"></div>
             <div class="input-group"><label>سنة الصنع</label>
                 <input type="text" id="v_model" value="${esc(vModel)}" placeholder="مثال: 2026"></div>
             <button class="btn btn-primary" id="save-car-btn" onclick="saveCar()">
-                <i data-lucide="check" width="16" height="16"></i> حفظ البيانات</button>
-            <div style="margin-top:10px;display:flex;gap:10px">
-                ${!isAddingNew?`<button class="btn btn-ghost btn-sm" style="flex:1" onclick="startAddNewCar()">
-                    <i data-lucide="plus" width="14" height="14"></i> إضافة مركبة</button>`
-                :`<button class="btn btn-ghost btn-sm" style="flex:1" onclick="cancelAddCar()">
-                    <i data-lucide="x" width="14" height="14"></i> إلغاء</button>`}
-                ${car&&!isAddingNew?`<button class="btn btn-danger-ghost btn-sm" style="flex:1" onclick="confirmDeleteCar()">
-                    <i data-lucide="trash-2" width="14" height="14"></i> حذف المركبة</button>`:''}
+                <i data-lucide="check" width="16" height="16"></i> حفظ</button>
+            <div style="margin-top:10px">
+                <button class="btn btn-ghost btn-sm" onclick="cancelAddCar()">
+                    <i data-lucide="x" width="14" height="14"></i> إلغاء</button>
             </div>
-        </div>
+        </div>`
+ 
+        :`<div class="section-card">
+            <div class="section-title"><i data-lucide="car" width="18" height="18"></i> مركباتي</div>
+            ${cars.length===0?`<div class="empty-state">
+                <div class="ei"><i data-lucide="car" width="48" height="48"></i></div>
+                <p>لا توجد مركبات مضافة بعد</p>
+            </div>`:''}
+            <button class="btn btn-primary" onclick="startAddNewCar()">
+                <i data-lucide="plus" width="16" height="16"></i> إضافة مركبة جديدة</button>
+            ${car?`<div style="margin-top:10px">
+                <button class="btn btn-danger-ghost btn-sm" onclick="confirmDeleteCar()">
+                    <i data-lucide="trash-2" width="14" height="14"></i> حذف "${esc(car.type)}"</button>
+            </div>`:''}
+        </div>`}
  
         ${car&&!isAddingNew?`<div class="section-card">
             <div class="section-title"><i data-lucide="gauge" width="18" height="18"></i> عداد المسافات</div>
@@ -756,6 +766,8 @@ function showTab(tabId,el){
         const ef=extraFilter;
         area.innerHTML=`${carHeaderHTML()}<div class="section-card">
             <div class="section-title"><i data-lucide="receipt" width="18" height="18"></i> المصاريف الأخرى</div>
+            <button class="btn btn-success btn-sm" onclick="exportExcel()">
+                <i data-lucide="download" width="14" height="14"></i> تصدير Excel</button>
             <div class="filter-pills">
                 <button class="pill ${ef==='الكل'?'active':''}"            onclick="setExtraFilter('الكل')">الكل</button>
                 <button class="pill pill-fine ${ef==='مخالفات'?'active':''}" onclick="setExtraFilter('مخالفات')">🚨 مخالفات</button>
