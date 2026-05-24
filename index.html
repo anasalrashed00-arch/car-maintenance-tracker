@@ -66,9 +66,9 @@
         /* SESSION BANNER */
         .session-banner{background:rgba(245,158,11,.08);border-bottom:1px solid var(--border-gold);padding:8px 16px;font-size:12px;font-weight:700;color:var(--gold);text-align:center;display:none;align-items:center;justify-content:center;gap:6px}
  
-        /* BOTTOM NAV */
-        .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--bottom-nav-h);background:rgba(13,20,35,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border-gold);display:none;align-items:center;justify-content:space-around;padding:0 2px;z-index:100}
-        .nav-item{display:flex;flex-direction:column;align-items:center;padding:6px 8px;border-radius:14px;cursor:pointer;color:var(--muted2);font-size:10px;font-weight:700;min-width:48px;transition:.2s;white-space:nowrap;flex-shrink:0;gap:3px;position:relative}
+        /* BOTTOM NAV — 5 tabs */
+        .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--bottom-nav-h);background:rgba(13,20,35,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border-gold);display:none;align-items:center;justify-content:space-around;padding:0 4px;z-index:100}
+        .nav-item{display:flex;flex-direction:column;align-items:center;padding:6px 10px;border-radius:14px;cursor:pointer;color:var(--muted2);font-size:10px;font-weight:700;min-width:56px;transition:.2s;white-space:nowrap;flex-shrink:0;gap:3px;position:relative}
         .nav-item i{transition:.2s}
         .nav-item.active{color:var(--gold)}
         .nav-item.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--gold);border-radius:0 0 4px 4px}
@@ -178,7 +178,6 @@
         .ins-progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);margin-bottom:6px}
         .ins-progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
         .ins-progress-fill{height:100%;border-radius:3px;transition:width .5s ease}
-        .ins-actions{display:flex;gap:8px;margin-top:12px}
  
         /* MODAL */
         .modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
@@ -233,11 +232,18 @@
         .empty-state .ei i{color:var(--muted2)}
         .empty-state p{font-size:14px;margin-bottom:16px}
  
-        /* ODO */
-        .odo-display{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;text-align:center;margin-bottom:16px}
-        .odo-num{font-size:42px;font-weight:900;color:var(--gold);letter-spacing:-1px}
-        .odo-label{font-size:12px;color:var(--muted2);margin-top:4px}
+        /* ODO — مدمج في صفحة المركبات */
+        .odo-display{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.02));border:1px solid var(--border-gold);border-radius:18px;padding:20px;display:flex;align-items:center;gap:16px;margin-bottom:16px}
+        .odo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--gold),#d97706);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .odo-icon i{color:#000}
+        .odo-num{font-size:32px;font-weight:900;color:var(--gold);letter-spacing:-1px;line-height:1}
+        .odo-label{font-size:11px;color:var(--muted2);margin-top:3px}
         .odo-warn{background:var(--danger-dim);border:1px solid rgba(244,63,94,.2);border-radius:10px;padding:10px 14px;font-size:12px;font-weight:700;color:var(--danger);margin-top:8px;display:none;align-items:center;gap:6px}
+ 
+        /* INLINE TABS (داخل تسجيل) */
+        .inner-tabs{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:4px;margin-bottom:20px}
+        .inner-tab{flex:1;height:40px;border:none;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:.2s;background:transparent;color:var(--muted2)}
+        .inner-tab.active{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;box-shadow:0 2px 12px rgba(245,158,11,.25)}
  
         /* NOTICE */
         .notice{border-radius:12px;padding:10px 14px;font-size:12px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
@@ -255,6 +261,10 @@
         ::-webkit-scrollbar{width:4px;height:4px}
         ::-webkit-scrollbar-track{background:transparent}
         ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+ 
+        /* CAR PAGE SECTIONS */
+        .car-section-divider{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.5px;margin:20px 0 12px;display:flex;align-items:center;gap:8px}
+        .car-section-divider::after{content:'';flex:1;height:1px;background:var(--border)}
     </style>
 </head>
 <body>
@@ -309,21 +319,16 @@
         </button>
     </div>
  
+    <!-- 5 تبويبات فقط -->
     <nav class="bottom-nav" id="main-nav">
         <div class="nav-item active" id="nav-p1" onclick="showTab('p1',this)">
             <i data-lucide="car" width="20" height="20"></i><span>مركبات</span>
         </div>
-        <div class="nav-item" id="nav-p6" onclick="showTab('p6',this)">
-            <i data-lucide="fuel" width="20" height="20"></i><span>وقود</span>
-        </div>
         <div class="nav-item" id="nav-p2" onclick="showTab('p2',this)">
-            <i data-lucide="wrench" width="20" height="20"></i><span>صيانة</span>
-        </div>
-        <div class="nav-item" id="nav-p3" onclick="showTab('p3',this)">
-            <i data-lucide="gauge" width="20" height="20"></i><span>العداد</span>
+            <i data-lucide="plus-circle" width="20" height="20"></i><span>تسجيل</span>
         </div>
         <div class="nav-item" id="nav-p7" onclick="showTab('p7',this)">
-            <i data-lucide="alert-triangle" width="20" height="20"></i><span>مصاريف</span>
+            <i data-lucide="receipt" width="20" height="20"></i><span>مصاريف</span>
         </div>
         <div class="nav-item" id="nav-p5" onclick="showTab('p5',this)">
             <i data-lucide="scroll-text" width="20" height="20"></i><span>السجل</span>
@@ -365,10 +370,11 @@ let cars          = [];
 let activeIdx     = 0;
 let userId        = null;
 let currentFilter = 'الكل';
-let extraFilter   = 'الكل';   // فلتر تبويب المصاريف
+let extraFilter   = 'الكل';
 let currentTabId  = 'p1';
 let isAddingNew   = false;
-let dbRef         = null;     // FIX #2: نحتفظ بـ reference للـ listener
+let registerSubTab= 'وقود';   // sub-tab داخل تسجيل: 'وقود' | 'صيانة'
+let dbRef         = null;
  
 const SESSION_DURATION = 8*60*60*1000;
 let sessionTimer = null, sessionWarningTimer = null;
@@ -378,15 +384,11 @@ let sessionTimer = null, sessionWarningTimer = null;
 // ══════════════════════════════════════════
 function initIcons(){ if(window.lucide) lucide.createIcons(); }
  
-// FIX #4: escape HTML لمنع XSS
 function esc(str){
     if(str==null) return '';
     return String(str)
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;')
-        .replace(/'/g,'&#39;');
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
  
 function hideSplash(){
@@ -402,14 +404,13 @@ function toast(msg,duration=2500){
     t._t=setTimeout(()=>t.classList.remove('show'),duration);
 }
  
-// FIX #3: helper لإعادة الزر لحالته بعد خطأ Firebase
 function resetBtn(id,html){
     const b=document.getElementById(id);
     if(b){b.disabled=false;b.innerHTML=html;}
 }
  
 // ══════════════════════════════════════════
-// SESSION — FIX #4 grace + تجديد
+// SESSION
 // ══════════════════════════════════════════
 const GRACE_MS = 60*1000;
  
@@ -463,7 +464,6 @@ auth.onAuthStateChanged(user=>{
             syncData(); initIcons();
         },1200);
     } else {
-        // FIX #2: ألغِ الـ listener القديم عند الخروج
         if(dbRef){dbRef.off();dbRef=null;}
         localStorage.removeItem('loginTime');
         clearTimeout(sessionTimer); clearTimeout(sessionWarningTimer);
@@ -488,11 +488,6 @@ function handleAuth(){
     btn.innerHTML='<div class="btn-spinner"></div> جاري الدخول...';
     const email=user+'@app.com';
     localStorage.setItem('loginTime',Date.now());
- 
-    // FIX #1: نميّز بين "مستخدم غير موجود" وغيره
-    // نحاول signIn أولاً
-    // إذا فشل بـ user-not-found → ننشئ حساباً جديداً
-    // إذا فشل بأي سبب آخر (كلمة مرور خاطئة، too-many-requests...) → نعرض رسالة مباشرة
     auth.signInWithEmailAndPassword(email,pass)
         .catch(err=>{
             if(err.code==='auth/user-not-found'){
@@ -503,7 +498,7 @@ function handleAuth(){
         .catch(err=>{
             localStorage.removeItem('loginTime');
             let msg='حدث خطأ، تحقق من البيانات';
-            if(err.code==='auth/wrong-password')    msg='كلمة المرور غير صحيحة';
+            if(err.code==='auth/wrong-password')     msg='كلمة المرور غير صحيحة';
             if(err.code==='auth/invalid-credential') msg='اسم المستخدم أو كلمة المرور غير صحيحة';
             if(err.code==='auth/too-many-requests')  msg='محاولات كثيرة جداً — حاول لاحقاً';
             if(err.code==='auth/weak-password')      msg='كلمة المرور ضعيفة جداً';
@@ -517,10 +512,10 @@ function handleAuth(){
 function logout(){localStorage.removeItem('loginTime');auth.signOut();}
  
 // ══════════════════════════════════════════
-// SYNC — FIX #2: listener واحد فقط
+// SYNC
 // ══════════════════════════════════════════
 function syncData(){
-    if(dbRef) dbRef.off(); // ألغِ القديم قبل تسجيل جديد
+    if(dbRef) dbRef.off();
     dbRef=db.ref('users/'+userId+'/garage');
     dbRef.on('value',snap=>{
         const data=snap.val();
@@ -555,9 +550,9 @@ function openCarSwitchModal(){
     const items=cars.map((c,i)=>`
         <div class="car-list-item ${i===activeIdx?'selected':''}" onclick="switchCar(${i})">
             <div class="car-list-avatar"><i data-lucide="car" width="22" height="22"></i></div>
-            <div><div class="car-list-name">${esc(c.type)}</div>
+            <div style="flex:1"><div class="car-list-name">${esc(c.type)}</div>
             <div class="car-list-year">${c.model?esc(c.model)+' · ':''}${esc(c.lastOdo)||'0 كم'}</div></div>
-            ${i===activeIdx?'<i data-lucide="check" width="18" height="18" style="color:var(--gold);margin-right:auto"></i>':''}
+            ${i===activeIdx?'<i data-lucide="check" width="18" height="18" style="color:var(--gold)"></i>':''}
         </div>`).join('');
     modal.innerHTML=`<div class="modal-box">
         <div class="modal-handle"></div>
@@ -604,27 +599,27 @@ function showTab(tabId,el){
     document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
     const navEl=el||document.getElementById('nav-'+tabId);
     if(navEl) navEl.classList.add('active');
- 
-    // إعادة ضبط isAddingNew عند مغادرة p1 — FIX #6
     if(tabId!=='p1') isAddingNew=false;
  
     const area=document.getElementById('content-area');
     const car=cars[activeIdx];
  
-    // ── VEHICLES ──
+    // ── VEHICLES + ODO ──
     if(tabId==='p1'){
         const vType =isAddingNew?'':(car?car.type:'');
         const vModel=isAddingNew?'':(car?car.model||'':'');
+        const odoVal=car?parseInt(car.lastOdo)||0:0;
+ 
         area.innerHTML=`<div class="section-card">
             <div class="section-title"><i data-lucide="car" width="18" height="18"></i>
-                ${isAddingNew?'إضافة مركبة جديدة':'المركبات'}</div>
+                ${isAddingNew?'إضافة مركبة جديدة':'بيانات المركبة'}</div>
             ${isAddingNew?`<div class="notice notice-gold"><i data-lucide="info" width="14" height="14"></i> أدخل بيانات المركبة الجديدة ثم اضغط حفظ</div>`:''}
             <div class="input-group"><label>الماركة / الطراز</label>
                 <input type="text" id="v_type" value="${esc(vType)}" placeholder="مثال: نيسان التيما 2026"></div>
             <div class="input-group"><label>سنة الصنع</label>
                 <input type="text" id="v_model" value="${esc(vModel)}" placeholder="مثال: 2026"></div>
             <button class="btn btn-primary" id="save-car-btn" onclick="saveCar()">
-                <i data-lucide="check" width="16" height="16"></i> حفظ</button>
+                <i data-lucide="check" width="16" height="16"></i> حفظ البيانات</button>
             <div style="margin-top:10px;display:flex;gap:10px">
                 ${!isAddingNew?`<button class="btn btn-ghost btn-sm" style="flex:1" onclick="startAddNewCar()">
                     <i data-lucide="plus" width="14" height="14"></i> إضافة مركبة</button>`
@@ -632,8 +627,75 @@ function showTab(tabId,el){
                     <i data-lucide="x" width="14" height="14"></i> إلغاء</button>`}
                 ${car&&!isAddingNew?`<button class="btn btn-danger-ghost btn-sm" style="flex:1" onclick="confirmDeleteCar()">
                     <i data-lucide="trash-2" width="14" height="14"></i> حذف المركبة</button>`:''}
-            </div></div>`;
+            </div>
+        </div>
+ 
+        ${car&&!isAddingNew?`<div class="section-card">
+            <div class="section-title"><i data-lucide="gauge" width="18" height="18"></i> عداد المسافات</div>
+            <div class="odo-display">
+                <div class="odo-icon"><i data-lucide="gauge" width="24" height="24"></i></div>
+                <div>
+                    <div class="odo-num">${odoVal.toLocaleString()}</div>
+                    <div class="odo-label">الكيلومتر الحالي</div>
+                </div>
+            </div>
+            <div class="input-group"><label>القراءة الجديدة (كم)</label>
+                <input type="number" id="odo_val" placeholder="${odoVal}" oninput="checkOdoWarn(${odoVal})"></div>
+            <div class="odo-warn" id="odo-warn">
+                <i data-lucide="alert-triangle" width="14" height="14"></i> القراءة أقل من الحالية — تأكد قبل الحفظ</div>
+            <button class="btn btn-primary" id="odo-btn" onclick="updateOdo(${odoVal})">
+                <i data-lucide="gauge" width="16" height="16"></i> تحديث العداد</button>
+        </div>`:''}`;
         if(isAddingNew) setTimeout(()=>document.getElementById('v_type')?.focus(),100);
+    }
+ 
+    // ── REGISTER (وقود + صيانة) ──
+    else if(tabId==='p2'){
+        if(!car){area.innerHTML=noCar('plus-circle');initIcons();return;}
+        const isFuel=registerSubTab==='وقود';
+        area.innerHTML=`${carHeaderHTML()}<div class="section-card">
+            <div class="section-title"><i data-lucide="plus-circle" width="18" height="18"></i> تسجيل عملية جديدة</div>
+            <div class="inner-tabs">
+                <button class="inner-tab ${isFuel?'active':''}" onclick="setRegisterSubTab('وقود')">
+                    ⛽ وقود</button>
+                <button class="inner-tab ${!isFuel?'active':''}" onclick="setRegisterSubTab('صيانة')">
+                    🔧 صيانة</button>
+            </div>
+            ${isFuel?`
+            <div class="input-group"><label>قيمة التعبئة (ر.س)</label>
+                <input type="number" id="f_p" placeholder="0" min="0"></div>
+            <div class="input-group"><label>التاريخ</label>
+                <input type="date" id="f_d"></div>
+            <button class="btn btn-primary" id="fuel-btn" onclick="addLog('وقود')">
+                <i data-lucide="fuel" width="16" height="16"></i> تسجيل الوقود</button>
+            `:`
+            <div class="input-group"><label>نوع الصيانة</label>
+                <div class="select-wrap"><select id="m_type_sel" onchange="toggleManualMaint()">
+                    <option value="زيت المحرك">زيت المحرك</option>
+                    <option value="زيت القير">زيت القير</option>
+                    <option value="تغيير كفرات">تغيير كفرات</option>
+                    <option value="فلتر مكينة">فلتر مكينة</option>
+                    <option value="غيار الفرامل">غيار الفرامل</option>
+                    <option value="بطارية">بطارية</option>
+                    <option value="أخرى">أخرى</option>
+                </select></div></div>
+            <div id="manual_m_group" class="input-group hidden"><label>وصف الصيانة</label>
+                <input type="text" id="m_t_manual" placeholder="اكتب نوع الصيانة"></div>
+            <div class="input-group"><label>التكلفة (ر.س)</label>
+                <input type="number" id="m_p" placeholder="0" min="0"></div>
+            <div class="input-group"><label>التاريخ</label>
+                <input type="date" id="m_d"></div>
+            <button class="btn btn-primary" id="maint-btn" onclick="addLog('صيانة')">
+                <i data-lucide="wrench" width="16" height="16"></i> تسجيل الصيانة</button>
+            `}
+        </div>`;
+        // تعيين التاريخ الافتراضي
+        setTimeout(()=>{
+            const fd=document.getElementById('f_d');
+            const md=document.getElementById('m_d');
+            if(fd) fd.valueAsDate=new Date();
+            if(md) md.valueAsDate=new Date();
+        },0);
     }
  
     // ── STATS ──
@@ -656,9 +718,9 @@ function showTab(tabId,el){
                         <span class="stat-label">الصيانة</span><span class="stat-value">${maint.toLocaleString()}</span><span class="stat-unit">ريال</span></div>
                     <div class="stat-card"><div class="stat-icon"><i data-lucide="fuel" width="22" height="22"></i></div>
                         <span class="stat-label">الوقود</span><span class="stat-value">${fuel.toLocaleString()}</span><span class="stat-unit">ريال</span></div>
-                    <div class="stat-card"><div class="stat-icon" style="color:var(--danger)"><i data-lucide="alert-octagon" width="22" height="22" style="color:var(--danger)"></i></div>
+                    <div class="stat-card"><div class="stat-icon"><i data-lucide="alert-octagon" width="22" height="22" style="color:var(--danger)"></i></div>
                         <span class="stat-label">المخالفات</span><span class="stat-value" style="color:var(--danger)">${finesTotal.toLocaleString()}</span><span class="stat-unit">ريال</span></div>
-                    <div class="stat-card"><div class="stat-icon" style="color:var(--purple)"><i data-lucide="shield" width="22" height="22" style="color:var(--purple)"></i></div>
+                    <div class="stat-card"><div class="stat-icon"><i data-lucide="shield" width="22" height="22" style="color:var(--purple)"></i></div>
                         <span class="stat-label">التأمين</span><span class="stat-value" style="color:var(--purple)">${insTotal.toLocaleString()}</span><span class="stat-unit">ريال</span></div>
                     <div class="stat-card"><div class="stat-icon"><i data-lucide="gauge" width="22" height="22"></i></div>
                         <span class="stat-label">العداد</span><span class="stat-value">${parseInt(car.lastOdo)||0}</span><span class="stat-unit">كم</span></div>
@@ -669,65 +731,6 @@ function showTab(tabId,el){
                 </div>
                 ${md.hasData?renderChart(md):''}
             </div>`;
-    }
- 
-    // ── MAINTENANCE ──
-    else if(tabId==='p2'){
-        if(!car){area.innerHTML=noCar('wrench');initIcons();return;}
-        area.innerHTML=`${carHeaderHTML()}<div class="section-card">
-            <div class="section-title"><i data-lucide="wrench" width="18" height="18"></i> تسجيل صيانة</div>
-            <div class="input-group"><label>نوع الصيانة</label>
-                <div class="select-wrap"><select id="m_type_sel" onchange="toggleManualMaint()">
-                    <option value="زيت المحرك">زيت المحرك</option>
-                    <option value="زيت القير">زيت القير</option>
-                    <option value="تغيير كفرات">تغيير كفرات</option>
-                    <option value="فلتر مكينة">فلتر مكينة</option>
-                    <option value="أخرى">أخرى</option>
-                </select></div></div>
-            <div id="manual_m_group" class="input-group hidden"><label>وصف الصيانة</label>
-                <input type="text" id="m_t_manual" placeholder="اكتب نوع الصيانة"></div>
-            <div class="input-group"><label>التكلفة (ر.س)</label>
-                <input type="number" id="m_p" placeholder="0" min="0"></div>
-            <div class="input-group"><label>التاريخ</label>
-                <input type="date" id="m_d"></div>
-            <button class="btn btn-primary" id="maint-btn" onclick="addLog('صيانة')">
-                <i data-lucide="wrench" width="16" height="16"></i> تسجيل الصيانة</button>
-        </div>`;
-        document.getElementById('m_d').valueAsDate=new Date();
-    }
- 
-    // ── FUEL ──
-    else if(tabId==='p6'){
-        if(!car){area.innerHTML=noCar('fuel');initIcons();return;}
-        area.innerHTML=`${carHeaderHTML()}<div class="section-card">
-            <div class="section-title"><i data-lucide="fuel" width="18" height="18"></i> تعبئة وقود</div>
-            <div class="input-group"><label>قيمة التعبئة (ر.س)</label>
-                <input type="number" id="f_p" placeholder="0" min="0"></div>
-            <div class="input-group"><label>التاريخ</label>
-                <input type="date" id="f_d"></div>
-            <button class="btn btn-primary" id="fuel-btn" onclick="addLog('وقود')">
-                <i data-lucide="fuel" width="16" height="16"></i> تسجيل الوقود</button>
-        </div>`;
-        document.getElementById('f_d').valueAsDate=new Date();
-    }
- 
-    // ── ODO ──
-    else if(tabId==='p3'){
-        if(!car){area.innerHTML=noCar('gauge');initIcons();return;}
-        const odoVal=parseInt(car.lastOdo)||0;
-        area.innerHTML=`${carHeaderHTML()}<div class="section-card">
-            <div class="section-title"><i data-lucide="gauge" width="18" height="18"></i> عداد المسافات</div>
-            <div class="odo-display">
-                <div class="odo-num">${odoVal.toLocaleString()}</div>
-                <div class="odo-label">القراءة الحالية بالكيلومتر</div>
-            </div>
-            <div class="input-group"><label>القراءة الجديدة (كم)</label>
-                <input type="number" id="odo_val" placeholder="${odoVal}" oninput="checkOdoWarn(${odoVal})"></div>
-            <div class="odo-warn" id="odo-warn">
-                <i data-lucide="alert-triangle" width="14" height="14"></i> القراءة أقل من الحالية — تأكد قبل الحفظ</div>
-            <button class="btn btn-primary" id="odo-btn" onclick="updateOdo(${odoVal})">
-                <i data-lucide="gauge" width="16" height="16"></i> تحديث العداد</button>
-        </div>`;
     }
  
     // ── LOG ──
@@ -749,12 +752,12 @@ function showTab(tabId,el){
  
     // ── EXTRA (مخالفات + تأمين) ──
     else if(tabId==='p7'){
-        if(!car){area.innerHTML=noCar('alert-triangle');initIcons();return;}
+        if(!car){area.innerHTML=noCar('receipt');initIcons();return;}
         const ef=extraFilter;
         area.innerHTML=`${carHeaderHTML()}<div class="section-card">
-            <div class="section-title"><i data-lucide="alert-triangle" width="18" height="18"></i> المصاريف الأخرى</div>
+            <div class="section-title"><i data-lucide="receipt" width="18" height="18"></i> المصاريف الأخرى</div>
             <div class="filter-pills">
-                <button class="pill ${ef==='الكل'?'active':''}"       onclick="setExtraFilter('الكل')">الكل</button>
+                <button class="pill ${ef==='الكل'?'active':''}"            onclick="setExtraFilter('الكل')">الكل</button>
                 <button class="pill pill-fine ${ef==='مخالفات'?'active':''}" onclick="setExtraFilter('مخالفات')">🚨 مخالفات</button>
                 <button class="pill pill-ins  ${ef==='تأمين'?'active':''}"   onclick="setExtraFilter('تأمين')">🛡️ تأمين</button>
             </div>
@@ -773,6 +776,14 @@ function showTab(tabId,el){
 }
  
 // ══════════════════════════════════════════
+// REGISTER SUB-TAB
+// ══════════════════════════════════════════
+function setRegisterSubTab(tab){
+    registerSubTab=tab;
+    showTab('p2');
+}
+ 
+// ══════════════════════════════════════════
 // EXTRA FILTER
 // ══════════════════════════════════════════
 function setExtraFilter(f){extraFilter=f;showTab('p7');}
@@ -784,29 +795,23 @@ function renderExtra(){
     const car=cars[activeIdx];
     const container=document.getElementById('extra_container');
     if(!container)return;
- 
     const fines=car.fines   ?Object.keys(car.fines).map(k=>({...car.fines[k],key:k,_type:'fine'})):[];
     const ins  =car.insurance?Object.keys(car.insurance).map(k=>({...car.insurance[k],key:k,_type:'ins'})):[];
- 
     let items=[];
-    if(extraFilter==='الكل')    items=[...fines,...ins];
+    if(extraFilter==='الكل')       items=[...fines,...ins];
     else if(extraFilter==='مخالفات') items=fines;
-    else items=ins;
- 
+    else                            items=ins;
     if(items.length===0){
         container.innerHTML=`<div class="empty-state">
             <div class="ei"><i data-lucide="${extraFilter==='تأمين'?'shield':'alert-octagon'}" width="48" height="48"></i></div>
             <p>لا توجد سجلات</p></div>`;
         initIcons();return;
     }
- 
-    // ترتيب بالتاريخ (الأحدث أولاً)
     items.sort((a,b)=>{
         const da=a._type==='fine'?a.date:(a.startDate||'');
         const db2=b._type==='fine'?b.date:(b.startDate||'');
         return db2.localeCompare(da);
     });
- 
     container.innerHTML=items.map(item=>{
         if(item._type==='fine') return renderFineItem(item);
         return renderInsItem(item);
@@ -833,14 +838,11 @@ function renderInsItem(ins){
     const today=new Date(); today.setHours(0,0,0,0);
     const end=ins.endDate?new Date(ins.endDate):null;
     let statusClass='status-active', statusLabel='فعّال';
-    let daysLeft=null;
     if(end){
         const diff=Math.ceil((end-today)/(1000*60*60*24));
-        daysLeft=diff;
         if(diff<0){statusClass='status-expired';statusLabel='منتهي';}
         else if(diff<=30){statusClass='status-expiring';statusLabel=`ينتهي بعد ${diff} يوم`;}
     }
-    // حساب نسبة التقدم
     let progress=100;
     if(ins.startDate&&ins.endDate){
         const s=new Date(ins.startDate),e=new Date(ins.endDate);
@@ -848,7 +850,6 @@ function renderInsItem(ins){
         progress=total>0?Math.min(100,Math.max(0,Math.round((elapsed/total)*100))):100;
     }
     const barColor=statusClass==='status-expired'?'var(--danger)':statusClass==='status-expiring'?'var(--gold)':'var(--success)';
- 
     return`<div class="ins-card">
         <div class="ins-card-header">
             <div class="ins-avatar"><i data-lucide="shield" width="22" height="22"></i></div>
@@ -859,30 +860,20 @@ function renderInsItem(ins){
             <span class="status-badge ${statusClass}">${statusLabel}</span>
         </div>
         <div class="ins-dates">
-            <div class="ins-date-item">
-                <div class="ins-date-label">تاريخ البداية</div>
-                <div class="ins-date-val">${esc(ins.startDate)||'—'}</div>
-            </div>
-            <div class="ins-date-item">
-                <div class="ins-date-label">تاريخ الانتهاء</div>
-                <div class="ins-date-val">${esc(ins.endDate)||'—'}</div>
-            </div>
+            <div class="ins-date-item"><div class="ins-date-label">تاريخ البداية</div><div class="ins-date-val">${esc(ins.startDate)||'—'}</div></div>
+            <div class="ins-date-item"><div class="ins-date-label">تاريخ الانتهاء</div><div class="ins-date-val">${esc(ins.endDate)||'—'}</div></div>
         </div>
         ${ins.startDate&&ins.endDate?`
         <div class="ins-progress">
-            <div class="ins-progress-label">
-                <span>نسبة المنقضي</span><span>${progress}%</span>
-            </div>
-            <div class="ins-progress-bar">
-                <div class="ins-progress-fill" style="width:${progress}%;background:${barColor}"></div>
-            </div>
+            <div class="ins-progress-label"><span>نسبة المنقضي</span><span>${progress}%</span></div>
+            <div class="ins-progress-bar"><div class="ins-progress-fill" style="width:${progress}%;background:${barColor}"></div></div>
         </div>`:''}
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
             <div>
                 <div class="log-price" style="font-size:15px">${Number(ins.price).toLocaleString()} ر.س</div>
                 ${ins.payMethod?`<div style="font-size:11px;color:var(--muted2);margin-top:4px">
                     ${ins.payMethod==='أقساط'?`📆 أقساط · ${ins.instalments} قسط · ${Math.round(ins.price/ins.instalments).toLocaleString()} ر.س/قسط`:'💵 كاش'}
-                </div>`:""}
+                </div>`:''}
             </div>
             <div style="display:flex;gap:6px">
                 <div class="log-edit" onclick="openInsEditModal('${ins.key}')"><i data-lucide="pencil" width="15" height="15"></i></div>
@@ -908,12 +899,12 @@ function openFineModal(existingKey){
             ${existing?'تعديل مخالفة':'إضافة مخالفة'}</div>
         <div class="input-group"><label>نوع المخالفة</label>
             <div class="select-wrap"><select id="fine_type">
-                <option value="تجاوز السرعة" ${existing?.fineType==='تجاوز السرعة'?'selected':''}>تجاوز السرعة</option>
-                <option value="وقوف ممنوع"   ${existing?.fineType==='وقوف ممنوع'?'selected':''}>وقوف ممنوع</option>
-                <option value="تجاوز إشارة"  ${existing?.fineType==='تجاوز إشارة'?'selected':''}>تجاوز إشارة</option>
+                <option value="تجاوز السرعة"   ${existing?.fineType==='تجاوز السرعة'?'selected':''}>تجاوز السرعة</option>
+                <option value="وقوف ممنوع"     ${existing?.fineType==='وقوف ممنوع'?'selected':''}>وقوف ممنوع</option>
+                <option value="تجاوز إشارة"    ${existing?.fineType==='تجاوز إشارة'?'selected':''}>تجاوز إشارة</option>
                 <option value="عدم ربط الحزام" ${existing?.fineType==='عدم ربط الحزام'?'selected':''}>عدم ربط الحزام</option>
                 <option value="استخدام الجوال" ${existing?.fineType==='استخدام الجوال'?'selected':''}>استخدام الجوال</option>
-                <option value="أخرى"          ${existing?.fineType==='أخرى'?'selected':''}>أخرى</option>
+                <option value="أخرى"           ${existing?.fineType==='أخرى'?'selected':''}>أخرى</option>
             </select></div></div>
         <div class="input-group"><label>المبلغ (ر.س)</label>
             <input type="number" id="fine_price" value="${existing?existing.price:''}" placeholder="0" min="0"></div>
@@ -921,8 +912,8 @@ function openFineModal(existingKey){
             <input type="date" id="fine_date" value="${existing?existing.date:''}"></div>
         <div class="input-group"><label>حالة الدفع</label>
             <div class="select-wrap"><select id="fine_status">
-                <option value="معلقة"   ${(!existing||existing.status==='معلقة')?'selected':''}>⏳ معلقة</option>
-                <option value="مدفوعة"  ${existing?.status==='مدفوعة'?'selected':''}>✅ مدفوعة</option>
+                <option value="معلقة"  ${(!existing||existing.status==='معلقة')?'selected':''}>⏳ معلقة</option>
+                <option value="مدفوعة" ${existing?.status==='مدفوعة'?'selected':''}>✅ مدفوعة</option>
             </select></div></div>
         <div class="modal-actions">
             <button class="btn btn-ghost" style="flex:1" onclick="closeExtraModal()">إلغاء</button>
@@ -931,7 +922,7 @@ function openFineModal(existingKey){
                 <i data-lucide="check" width="16" height="16"></i> حفظ</button>
         </div>
     </div>`;
-    if(!existing) setTimeout(()=>document.getElementById('fine_date').valueAsDate=new Date(),50);
+    if(!existing) setTimeout(()=>{ const fd=document.getElementById('fine_date'); if(fd) fd.valueAsDate=new Date(); },50);
     modal.onclick=e=>{if(e.target===modal)closeExtraModal();};
     initIcons();
 }
@@ -940,7 +931,7 @@ function openFineEditModal(key){openFineModal(key);}
 function saveFine(existingKey){
     const car=cars[activeIdx];
     if(!car?.id){toast('اختر مركبة أولاً');return;}
-    const carId=car.id; // نحفظ مسبقاً
+    const carId=car.id;
     const isEdit=existingKey&&existingKey.length>0;
     const fineType=document.getElementById('fine_type').value;
     const priceRaw=document.getElementById('fine_price').value;
@@ -955,7 +946,7 @@ function saveFine(existingKey){
         ?db.ref(`users/${userId}/garage/${carId}/fines/${existingKey}`)
         :db.ref(`users/${userId}/garage/${carId}/fines`).push();
     ref.set({fineType,price,date,status})
-        .then(()=>{closeExtraModal();toast(existingKey?'تم التعديل ✓':'تمت إضافة المخالفة ✓');extraFilter='مخالفات';showTab('p7');})
+        .then(()=>{closeExtraModal();toast(isEdit?'تم التعديل ✓':'تمت إضافة المخالفة ✓');extraFilter='مخالفات';showTab('p7');})
         .catch(()=>{resetBtn('save-fine-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');toast('حدث خطأ، حاول مجدداً');initIcons();});
 }
  
@@ -975,8 +966,8 @@ function openInsModal(existingKey){
             ${existing?'تعديل التأمين':'إضافة تأمين'}</div>
         <div class="input-group"><label>نوع التأمين</label>
             <div class="select-wrap"><select id="ins_type">
-                <option value="تأمين شامل"      ${existing?.insType==='تأمين شامل'?'selected':''}>تأمين شامل</option>
-                <option value="تأمين ضد الغير"  ${existing?.insType==='تأمين ضد الغير'?'selected':''}>تأمين ضد الغير</option>
+                <option value="تأمين شامل"     ${existing?.insType==='تأمين شامل'?'selected':''}>تأمين شامل</option>
+                <option value="تأمين ضد الغير" ${existing?.insType==='تأمين ضد الغير'?'selected':''}>تأمين ضد الغير</option>
             </select></div></div>
         <div class="input-group"><label>شركة التأمين (اختياري)</label>
             <input type="text" id="ins_company" value="${existing?esc(existing.company||''):''}" placeholder="مثال: ولاء، تكافل الراجحي..."></div>
@@ -988,8 +979,8 @@ function openInsModal(existingKey){
             <input type="date" id="ins_end" value="${existing?existing.endDate:''}"></div>
         <div class="input-group"><label>طريقة الدفع</label>
             <div class="select-wrap"><select id="ins_pay_method" onchange="toggleInstalments()">
-                <option value="كاش"    ${(!existing||existing.payMethod==='كاش')?'selected':''}>💵 كاش (دفعة واحدة)</option>
-                <option value="أقساط"  ${existing?.payMethod==='أقساط'?'selected':''}>📆 أقساط</option>
+                <option value="كاش"   ${(!existing||existing.payMethod==='كاش')?'selected':''}>💵 كاش (دفعة واحدة)</option>
+                <option value="أقساط" ${existing?.payMethod==='أقساط'?'selected':''}>📆 أقساط</option>
             </select></div></div>
         <div id="ins_install_group" class="${existing?.payMethod==='أقساط'?'input-group':'input-group hidden'}">
             <label>عدد الأقساط</label>
@@ -1010,24 +1001,23 @@ function openInsEditModal(key){openInsModal(key);}
 function saveIns(existingKey){
     const car=cars[activeIdx];
     if(!car?.id){toast('اختر مركبة أولاً');return;}
-    const carId=car.id; // نحفظ مسبقاً
+    const carId=car.id;
     const isEdit=existingKey&&existingKey.length>0;
-    const insType =document.getElementById('ins_type').value;
-    const company =document.getElementById('ins_company').value.trim();
-    const priceRaw=document.getElementById('ins_price').value;
+    const insType  =document.getElementById('ins_type').value;
+    const company  =document.getElementById('ins_company').value.trim();
+    const priceRaw =document.getElementById('ins_price').value;
     const startDate=document.getElementById('ins_start').value;
     const endDate  =document.getElementById('ins_end').value;
     const price=parseFloat(priceRaw);
     if(!priceRaw||isNaN(price)||price<0){toast('أدخل مبلغاً صحيحاً');return;}
     if(!startDate||!endDate){toast('أدخل تواريخ البداية والانتهاء');return;}
     if(endDate<=startDate){toast('تاريخ الانتهاء يجب أن يكون بعد البداية');return;}
-    const payMethod   =document.getElementById('ins_pay_method').value;
+    const payMethod    =document.getElementById('ins_pay_method').value;
     const instalmentsRaw=document.getElementById('ins_instalments')?.value;
-    const instalments =payMethod==='أقساط'?(parseInt(instalmentsRaw)||0):0;
+    const instalments  =payMethod==='أقساط'?(parseInt(instalmentsRaw)||0):0;
     if(payMethod==='أقساط'&&instalments<2){toast('أدخل عدد أقساط صحيح (2 أو أكثر)');return;}
     const btn=document.getElementById('save-ins-btn');
     btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div>';
- 
     const ref=isEdit
         ?db.ref(`users/${userId}/garage/${carId}/insurance/${existingKey}`)
         :db.ref(`users/${userId}/garage/${carId}/insurance`).push();
@@ -1036,9 +1026,8 @@ function saveIns(existingKey){
     ref.set(payload)
         .then(()=>{
             closeExtraModal();
-            toast(existingKey?'تم التعديل ✓':'تمت إضافة التأمين ✓');
+            toast(isEdit?'تم التعديل ✓':'تمت إضافة التأمين ✓');
             extraFilter='تأمين';showTab('p7');
-            // تحقق إذا ينتهي قريباً
             const daysLeft=Math.ceil((new Date(endDate)-new Date())/(1000*60*60*24));
             if(daysLeft>=0&&daysLeft<=30) toast(`⚠️ التأمين ينتهي بعد ${daysLeft} يوم`,4000);
         })
@@ -1053,26 +1042,21 @@ function closeExtraModal(){const m=document.getElementById('extra-modal');m.styl
 function confirmDeleteExtra(type,key){
     const car=cars[activeIdx];
     if(!car?.id)return;
-    // نحفظ carId مسبقاً
     const carId=car.id;
     const label=type==='fine'?'المخالفة':'وثيقة التأمين';
-    const path=type==='fine'?'fines':'insurance';
-    showConfirm(`حذف ${label}`,`هل أنت متأكد من الحذف؟ لا يمكن التراجع.`,()=>{
+    const path =type==='fine'?'fines':'insurance';
+    showConfirm(`حذف ${label}`,'هل أنت متأكد من الحذف؟ لا يمكن التراجع.',()=>{
         db.ref(`users/${userId}/garage/${carId}/${path}/${key}`).remove()
             .then(()=>{
                 toast('تم الحذف ✓');
-                // حذف محلي فوري من كائن المركبة المحفوظ
                 const updatedCar=cars.find(c=>c.id===carId);
                 if(updatedCar){
-                    if(type==='fine' && updatedCar.fines)     delete updatedCar.fines[key];
-                    if(type==='ins'  && updatedCar.insurance) delete updatedCar.insurance[key];
+                    if(type==='fine'&&updatedCar.fines)     delete updatedCar.fines[key];
+                    if(type==='ins' &&updatedCar.insurance) delete updatedCar.insurance[key];
                 }
                 renderExtra();
             })
-            .catch(e=>{
-                console.error('delete extra',e);
-                toast('فشل الحذف — تحقق من الاتصال');
-            });
+            .catch(()=>toast('فشل الحذف — تحقق من الاتصال'));
     });
 }
  
@@ -1080,11 +1064,26 @@ function confirmDeleteExtra(type,key){
 // ODO
 // ══════════════════════════════════════════
 function checkOdoWarn(cur){
-    const val=parseInt(document.getElementById('odo_val').value);
+    const val=parseInt(document.getElementById('odo_val')?.value);
     const w=document.getElementById('odo-warn');
     if(!w)return;
     w.style.display=(val&&val<cur)?'flex':'none';
     if(w.style.display==='flex')initIcons();
+}
+ 
+function updateOdo(currentOdo){
+    const raw=document.getElementById('odo_val')?.value;
+    if(raw===''||raw===null||raw===undefined){toast('أدخل قراءة العداد');return;}
+    const v=parseInt(raw);
+    if(isNaN(v)||v<0){toast('أدخل رقماً صحيحاً');return;}
+    if(!cars[activeIdx])return;
+    const btn=document.getElementById('odo-btn');
+    const carId=cars[activeIdx].id;
+    if(btn){btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div> جاري التحديث...';}
+    db.ref(`users/${userId}/garage/${carId}`)
+        .update({lastOdo:v+' كم'})
+        .then(()=>toast('تم تحديث العداد ✓'))
+        .catch(()=>{resetBtn('odo-btn','<i data-lucide="gauge" width="16" height="16"></i> تحديث العداد');toast('حدث خطأ');initIcons();});
 }
  
 // ══════════════════════════════════════════
@@ -1151,8 +1150,8 @@ function renderLogs(){
         container.innerHTML=`<div class="empty-state">
             <div class="ei"><i data-lucide="clipboard-list" width="48" height="48"></i></div>
             <p>لا توجد سجلات بعد</p>
-            <button class="btn btn-primary btn-sm" style="width:auto;padding:0 24px" onclick="showTab('p6')">
-                <i data-lucide="fuel" width="14" height="14"></i> سجّل أول عملية</button></div>`;
+            <button class="btn btn-primary btn-sm" style="width:auto;padding:0 24px" onclick="showTab('p2')">
+                <i data-lucide="plus-circle" width="14" height="14"></i> سجّل أول عملية</button></div>`;
         initIcons();return;
     }
     const arr=Object.keys(car.logs).map(k=>({...car.logs[k],key:k}));
@@ -1214,26 +1213,21 @@ function closeConfirm(){const m=document.getElementById('confirm-modal');m.style
 function confirmDeleteLog(key){
     const car=cars[activeIdx];
     if(!car?.id)return;
-    // نحفظ carId مسبقاً
     const carId=car.id;
     showConfirm('حذف العملية','هل أنت متأكد من حذف هذه العملية؟ لا يمكن التراجع.',()=>{
         db.ref(`users/${userId}/garage/${carId}/logs/${key}`).remove()
             .then(()=>{
                 toast('تم الحذف ✓');
-                // حذف محلي فوري بالبحث عن المركبة بالـ id
                 const updatedCar=cars.find(c=>c.id===carId);
                 if(updatedCar?.logs) delete updatedCar.logs[key];
                 renderLogs();
             })
-            .catch(e=>{
-                console.error('delete log',e);
-                toast('فشل الحذف — تحقق من الاتصال');
-            });
+            .catch(()=>toast('فشل الحذف — تحقق من الاتصال'));
     });
 }
  
 // ══════════════════════════════════════════
-// EDIT MODAL — FIX #8 esc في value
+// EDIT MODAL
 // ══════════════════════════════════════════
 function openEditModal(key){
     const car=cars[activeIdx];
@@ -1266,7 +1260,7 @@ function closeEditModal(){const m=document.getElementById('edit-modal');m.style.
 function saveEdit(key){
     const car=cars[activeIdx];
     if(!car?.id){toast('خطأ: لا توجد مركبة');return;}
-    const carId=car.id; // نحفظ مسبقاً
+    const carId=car.id;
     const title=document.getElementById('edit_title').value.trim();
     const price=document.getElementById('edit_price').value;
     const date =document.getElementById('edit_date').value;
@@ -1283,7 +1277,7 @@ function saveEdit(key){
 }
  
 // ══════════════════════════════════════════
-// CAR CRUD — FIX #2
+// CAR CRUD
 // ══════════════════════════════════════════
 function startAddNewCar(){isAddingNew=true;showTab('p1');}
 function cancelAddCar()  {isAddingNew=false;showTab('p1');}
@@ -1298,111 +1292,117 @@ function saveCar(){
         db.ref(`users/${userId}/garage/${carId}`)
             .set({id:carId,type,model:document.getElementById('v_model').value,lastOdo:'0 كم'})
             .then(()=>{isAddingNew=false;toast('تمت إضافة المركبة ✓');})
-            .catch(()=>{resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');toast('حدث خطأ');initIcons();}); // FIX #3
+            .catch(()=>{resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ البيانات');toast('حدث خطأ');initIcons();});
     } else {
         const editCarId=cars[activeIdx]?.id;
-        if(!editCarId){toast('خطأ: لا توجد مركبة محددة');resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');initIcons();return;}
+        if(!editCarId){toast('خطأ: لا توجد مركبة محددة');resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ البيانات');initIcons();return;}
         db.ref(`users/${userId}/garage/${editCarId}`)
             .update({type,model:document.getElementById('v_model').value})
             .then(()=>toast('تم الحفظ ✓'))
-            .catch(()=>{resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');toast('حدث خطأ');initIcons();});
+            .catch(()=>{resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ البيانات');toast('حدث خطأ');initIcons();});
     }
 }
  
 function confirmDeleteCar(){
     const car=cars[activeIdx];
     if(!car?.id)return;
-    // نحفظ id و name قبل فتح الـ dialog — لا نعتمد على activeIdx داخل الـ callback
     const carId=car.id;
     const carName=car.type;
     showConfirm('حذف المركبة',`هل أنت متأكد من حذف "${carName}"؟ ستُحذف جميع البيانات نهائياً.`,()=>{
         db.ref(`users/${userId}/garage/${carId}`).remove()
-            .then(()=>{
-                activeIdx=0;
-                toast('تم حذف المركبة ✓');
-            })
-            .catch(e=>{
-                console.error('delete car',e);
-                toast('فشل الحذف — تحقق من الاتصال');
-            });
+            .then(()=>{activeIdx=0;toast('تم حذف المركبة ✓');})
+            .catch(()=>toast('فشل الحذف — تحقق من الاتصال'));
     });
 }
  
 // ══════════════════════════════════════════
-// ADD LOG — FIX #6
+// ADD LOG
 // ══════════════════════════════════════════
 function addLog(cat){
     if(!cars[activeIdx]){toast('اختر مركبة أولاً');return;}
     const isFuel=cat==='وقود';
-    const priceRaw=isFuel?document.getElementById('f_p').value:document.getElementById('m_p').value;
+    const priceRaw=isFuel?document.getElementById('f_p')?.value:document.getElementById('m_p')?.value;
     const price=parseFloat(priceRaw);
     if(!priceRaw||isNaN(price)||price<0){toast('أدخل مبلغاً صحيحاً');return;}
     let title=isFuel?'تعبئة وقود':document.getElementById('m_type_sel').value;
-    if(title==='أخرى') title=document.getElementById('m_t_manual').value||'صيانة أخرى';
-    const date=isFuel?document.getElementById('f_d').value:document.getElementById('m_d').value;
+    if(title==='أخرى') title=document.getElementById('m_t_manual')?.value||'صيانة أخرى';
+    const date=isFuel?document.getElementById('f_d')?.value:document.getElementById('m_d')?.value;
+    if(!date){toast('اختر التاريخ');return;}
     const btnId=isFuel?'fuel-btn':'maint-btn';
     const btnHtml=isFuel?'<i data-lucide="fuel" width="16" height="16"></i> تسجيل الوقود':'<i data-lucide="wrench" width="16" height="16"></i> تسجيل الصيانة';
     const btn=document.getElementById(btnId);
-    const carId4log=cars[activeIdx].id; // نحفظ مسبقاً
+    const carId=cars[activeIdx].id;
     if(btn){btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div> جاري الحفظ...';}
-    db.ref(`users/${userId}/garage/${carId4log}/logs`)
+    db.ref(`users/${userId}/garage/${carId}/logs`)
         .push({cat,price,title,date})
         .then(()=>{toast('تم التسجيل ✓');currentFilter='الكل';showTab('p5');})
         .catch(()=>{resetBtn(btnId,btnHtml);toast('حدث خطأ');initIcons();});
 }
  
 // ══════════════════════════════════════════
-// ODO — FIX #5 + FIX #10
-// ══════════════════════════════════════════
-function updateOdo(currentOdo){
-    const raw=document.getElementById('odo_val').value;
-    // FIX #10: نقبل الصفر وأي رقم صحيح
-    if(raw===''||raw===null){toast('أدخل قراءة العداد');return;}
-    const v=parseInt(raw);
-    if(isNaN(v)||v<0){toast('أدخل رقماً صحيحاً');return;}
-    if(!cars[activeIdx])return;
-    const btn=document.getElementById('odo-btn');
-    const carId4odo=cars[activeIdx].id; // نحفظ مسبقاً
-    if(btn){btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div> جاري التحديث...';}
-    db.ref(`users/${userId}/garage/${carId4odo}`)
-        .update({lastOdo:v+' كم'})
-        .then(()=>toast('تم التحديث ✓'))
-        .catch(()=>{resetBtn('odo-btn','<i data-lucide="gauge" width="16" height="16"></i> تحديث العداد');toast('حدث خطأ');initIcons();});
-}
- 
-// ══════════════════════════════════════════
-// EXPORT — FIX #9
+// EXPORT EXCEL — إصلاح شامل لأسماء الشيتات
 // ══════════════════════════════════════════
 function exportExcel(){
     const car=cars[activeIdx];
-    if(!car?.logs){toast('لا توجد بيانات للتصدير');return;}
-    const arr=Object.values(car.logs);
-    const filtered=currentFilter==='الكل'?arr:arr.filter(l=>l.title.includes(currentFilter)||l.cat.includes(currentFilter));
-    // FIX #9: تحقق من الفلتر الفارغ
-    if(filtered.length===0){toast('لا توجد سجلات في هذا الفلتر');return;}
-    const total=filtered.reduce((a,b)=>a+Number(b.price),0);
-    const data=filtered.map(l=>({'التاريخ':l.date,'النوع':l.cat,'التفاصيل':l.title,'المبلغ':Number(l.price)}));
-    data.push({'التاريخ':'','النوع':'','التفاصيل':'الإجمالي','المبلغ':total});
-    // شيت ثانٍ للمخالفات والتأمين
-    const wb=XLSX.utils.book_new();
-    const ws=XLSX.utils.json_to_sheet(data);
-    try{ XLSX.utils.book_append_sheet(wb,'السجل',ws); }
-    catch(e){ XLSX.utils.book_append_sheet(wb,'Log',ws); }
+    if(!car){toast('اختر مركبة أولاً');return;}
+    if(!car.logs&&!car.fines&&!car.insurance){toast('لا توجد بيانات للتصدير');return;}
  
+    const wb=XLSX.utils.book_new();
+ 
+    // شيت السجل
+    if(car.logs){
+        const arr=Object.values(car.logs);
+        const filtered=currentFilter==='الكل'?arr:arr.filter(l=>l.title.includes(currentFilter)||l.cat.includes(currentFilter));
+        if(filtered.length>0){
+            const total=filtered.reduce((a,b)=>a+Number(b.price),0);
+            const data=filtered.slice().reverse().map(l=>({
+                'Date':l.date,
+                'Type':l.cat,
+                'Details':l.title,
+                'Amount':Number(l.price)
+            }));
+            data.push({'Date':'','Type':'','Details':'Total','Amount':total});
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), 'Log');
+        }
+    }
+ 
+    // شيت المخالفات
     if(car.fines){
-        const fd=Object.values(car.fines).map(f=>({'التاريخ':f.date,'النوع':f.fineType,'المبلغ':Number(f.price),'الحالة':f.status}));
-        const wsFines=XLSX.utils.json_to_sheet(fd);
-        try{ XLSX.utils.book_append_sheet(wb,'المخالفات',wsFines); }
-        catch(e){ XLSX.utils.book_append_sheet(wb,'Fines',wsFines); }
+        const fd=Object.values(car.fines).map(f=>({
+            'Date':f.date,
+            'Fine_Type':f.fineType,
+            'Amount':Number(f.price),
+            'Status':f.status
+        }));
+        if(fd.length>0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(fd), 'Fines');
     }
+ 
+    // شيت التأمين
     if(car.insurance){
-        const wi=Object.values(car.insurance).map(i=>({'النوع':i.insType,'الشركة':i.company||'—','القسط':Number(i.price),'طريقة الدفع':i.payMethod||'—','الأقساط':i.instalments||'—','بداية':i.startDate,'نهاية':i.endDate}));
-        const wsIns=XLSX.utils.json_to_sheet(wi);
-        try{ XLSX.utils.book_append_sheet(wb,'التأمين',wsIns); }
-        catch(e){ XLSX.utils.book_append_sheet(wb,'Insurance',wsIns); }
+        const wi=Object.values(car.insurance).map(i=>({
+            'Type':i.insType,
+            'Company':i.company||'',
+            'Premium':Number(i.price),
+            'Payment':i.payMethod||'',
+            'Instalments':i.instalments||'',
+            'Start':i.startDate,
+            'End':i.endDate
+        }));
+        if(wi.length>0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(wi), 'Insurance');
     }
-    XLSX.writeFile(wb,`سجل_${car.type}.xlsx`);
-    toast('تم التصدير ✓');
+ 
+    // تأكد إن فيه شيت واحد على الأقل
+    if(wb.SheetNames.length===0){toast('لا توجد بيانات للتصدير');return;}
+ 
+    // اسم الملف: بدون أحرف خاصة
+    const safeName=car.type.replace(/[^a-zA-Z0-9\u0600-\u06FF\s]/g,'').trim()||'car';
+    try{
+        XLSX.writeFile(wb, `record_${safeName}.xlsx`);
+        toast('تم التصدير ✓');
+    }catch(e){
+        console.error('Excel export error:',e);
+        toast('حدث خطأ في التصدير');
+    }
 }
  
 // ══════════════════════════════════════════
@@ -1415,7 +1415,8 @@ function toggleInstalments(){
 }
  
 function toggleManualMaint(){
-    document.getElementById('manual_m_group').classList.toggle('hidden',document.getElementById('m_type_sel').value!=='أخرى');
+    document.getElementById('manual_m_group')?.classList.toggle('hidden',
+        document.getElementById('m_type_sel')?.value!=='أخرى');
 }
 </script>
 </body>
