@@ -66,7 +66,7 @@
         /* SESSION BANNER */
         .session-banner{background:rgba(245,158,11,.08);border-bottom:1px solid var(--border-gold);padding:8px 16px;font-size:12px;font-weight:700;color:var(--gold);text-align:center;display:none;align-items:center;justify-content:center;gap:6px}
  
-        /* BOTTOM NAV — 5 tabs */
+        /* BOTTOM NAV */
         .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--bottom-nav-h);background:rgba(13,20,35,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border-gold);display:none;align-items:center;justify-content:space-around;padding:0 4px;z-index:100}
         .nav-item{display:flex;flex-direction:column;align-items:center;padding:6px 10px;border-radius:14px;cursor:pointer;color:var(--muted2);font-size:10px;font-weight:700;min-width:56px;transition:.2s;white-space:nowrap;flex-shrink:0;gap:3px;position:relative}
         .nav-item i{transition:.2s}
@@ -217,10 +217,21 @@
  
         /* FILTER PILLS */
         .filter-pills{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:16px}
+        .filter-pills::-webkit-scrollbar{display:none}
         .pill{padding:7px 16px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted2);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0;font-family:'Cairo',sans-serif}
         .pill.active{background:var(--gold-dim);border-color:var(--border-gold);color:var(--gold)}
         .pill.pill-fine.active{background:var(--danger-dim);border-color:rgba(244,63,94,.3);color:var(--danger)}
         .pill.pill-ins.active{background:var(--purple-dim);border-color:rgba(139,92,246,.3);color:var(--purple)}
+ 
+        /* ── فلتر الشهر ── */
+        .month-filter-wrap{margin-bottom:16px}
+        .month-filter-label{font-size:11px;font-weight:700;color:var(--muted2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+        .month-filter-label i{color:var(--gold)}
+        .month-pills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+        .month-pills::-webkit-scrollbar{display:none}
+        .month-pill{padding:6px 14px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted2);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0;font-family:'Cairo',sans-serif}
+        .month-pill.active{background:var(--gold-dim);border-color:var(--border-gold);color:var(--gold)}
+        .month-pill:hover:not(.active){border-color:var(--muted);color:var(--text)}
  
         /* TOAST */
         #toast{position:fixed;bottom:calc(var(--bottom-nav-h) + 12px);left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--border-gold);color:var(--text);padding:12px 24px;border-radius:100px;font-size:14px;font-weight:700;z-index:9999;pointer-events:none;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;box-shadow:0 8px 32px rgba(0,0,0,.4);white-space:nowrap}
@@ -232,7 +243,7 @@
         .empty-state .ei i{color:var(--muted2)}
         .empty-state p{font-size:14px;margin-bottom:16px}
  
-        /* ODO — مدمج في صفحة المركبات */
+        /* ODO */
         .odo-display{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.02));border:1px solid var(--border-gold);border-radius:18px;padding:20px;display:flex;align-items:center;gap:16px;margin-bottom:16px}
         .odo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--gold),#d97706);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
         .odo-icon i{color:#000}
@@ -240,7 +251,7 @@
         .odo-label{font-size:11px;color:var(--muted2);margin-top:3px}
         .odo-warn{background:var(--danger-dim);border:1px solid rgba(244,63,94,.2);border-radius:10px;padding:10px 14px;font-size:12px;font-weight:700;color:var(--danger);margin-top:8px;display:none;align-items:center;gap:6px}
  
-        /* INLINE TABS (داخل تسجيل) */
+        /* INNER TABS */
         .inner-tabs{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:4px;margin-bottom:20px}
         .inner-tab{flex:1;height:40px;border:none;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:.2s;background:transparent;color:var(--muted2)}
         .inner-tab.active{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;box-shadow:0 2px 12px rgba(245,158,11,.25)}
@@ -262,7 +273,6 @@
         ::-webkit-scrollbar-track{background:transparent}
         ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
  
-        /* CAR PAGE SECTIONS */
         .car-section-divider{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.5px;margin:20px 0 12px;display:flex;align-items:center;gap:8px}
         .car-section-divider::after{content:'';flex:1;height:1px;background:var(--border)}
     </style>
@@ -319,7 +329,6 @@
         </button>
     </div>
  
-    <!-- 5 تبويبات فقط -->
     <nav class="bottom-nav" id="main-nav">
         <div class="nav-item active" id="nav-p1" onclick="showTab('p1',this)">
             <i data-lucide="car" width="20" height="20"></i><span>مركبات</span>
@@ -366,18 +375,26 @@ const auth = firebase.auth();
 // ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
-let cars          = [];
-let activeIdx     = 0;
-let userId        = null;
-let currentFilter = 'الكل';
-let extraFilter   = 'الكل';
-let currentTabId  = 'p1';
-let isAddingNew   = false;
-let registerSubTab= 'وقود';   // sub-tab داخل تسجيل: 'وقود' | 'صيانة'
-let dbRef         = null;
+let cars           = [];
+let activeIdx      = 0;
+let userId         = null;
+let currentFilter  = 'الكل';
+let extraFilter    = 'الكل';
+let currentTabId   = 'p1';
+let isAddingNew    = false;
+let registerSubTab = 'وقود';
+let dbRef          = null;
+ 
+// ── فلاتر الشهر ──
+let logMonthFilter   = 'الكل';   // للسجل
+let extraMonthFilter = 'الكل';   // للمصاريف
  
 const SESSION_DURATION = 8*60*60*1000;
 let sessionTimer = null, sessionWarningTimer = null;
+ 
+// أسماء الأشهر العربية
+const MONTH_NAMES = ['يناير','فبراير','مارس','أبريل','مايو','يونيو',
+                     'يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
  
 // ══════════════════════════════════════════
 // UTILS
@@ -407,6 +424,41 @@ function toast(msg,duration=2500){
 function resetBtn(id,html){
     const b=document.getElementById(id);
     if(b){b.disabled=false;b.innerHTML=html;}
+}
+ 
+// ══════════════════════════════════════════
+// دالة بناء فلتر الشهر — تُعيد HTML
+// ══════════════════════════════════════════
+function buildMonthFilterHTML(items, activeMth, onClickFn) {
+    // استخرج الشهور الموجودة فعلاً في البيانات
+    const monthsSet = new Set();
+    items.forEach(item => {
+        const d = item.date || item.startDate || '';
+        if (d && d.length >= 7) {
+            monthsSet.add(d.substring(0,7)); // YYYY-MM
+        }
+    });
+ 
+    if (monthsSet.size === 0) return '';
+ 
+    // رتّب تنازلياً
+    const sorted = [...monthsSet].sort((a,b) => b.localeCompare(a));
+ 
+    const pills = sorted.map(ym => {
+        const [y, m] = ym.split('-');
+        const label  = MONTH_NAMES[parseInt(m)-1] + ' ' + y;
+        const active = activeMth === ym ? 'active' : '';
+        return `<button class="month-pill ${active}" onclick="${onClickFn}('${ym}')">${label}</button>`;
+    }).join('');
+ 
+    const allActive = activeMth === 'الكل' ? 'active' : '';
+    return `<div class="month-filter-wrap">
+        <div class="month-filter-label"><i data-lucide="calendar" width="13" height="13"></i> فلتر بالشهر</div>
+        <div class="month-pills">
+            <button class="month-pill ${allActive}" onclick="${onClickFn}('الكل')">الكل</button>
+            ${pills}
+        </div>
+    </div>`;
 }
  
 // ══════════════════════════════════════════
@@ -565,6 +617,7 @@ function openCarSwitchModal(){
 }
 function switchCar(idx){
     activeIdx=idx; currentFilter='الكل'; extraFilter='الكل';
+    logMonthFilter='الكل'; extraMonthFilter='الكل';
     updateHeaderCar(); closeCarSwitchModal();
     showTab(currentTabId); toast('تم التبديل إلى '+cars[idx].type+' ✓');
 }
@@ -625,7 +678,6 @@ function showTab(tabId,el){
                     <i data-lucide="x" width="14" height="14"></i> إلغاء</button>
             </div>
         </div>`
- 
         :`<div class="section-card">
             <div class="section-title"><i data-lucide="car" width="18" height="18"></i> مركباتي</div>
             ${cars.length===0?`<div class="empty-state">
@@ -659,17 +711,15 @@ function showTab(tabId,el){
         if(isAddingNew) setTimeout(()=>document.getElementById('v_type')?.focus(),100);
     }
  
-    // ── REGISTER (وقود + صيانة) ──
+    // ── REGISTER ──
     else if(tabId==='p2'){
         if(!car){area.innerHTML=noCar('plus-circle');initIcons();return;}
         const isFuel=registerSubTab==='وقود';
         area.innerHTML=`${carHeaderHTML()}<div class="section-card">
             <div class="section-title"><i data-lucide="plus-circle" width="18" height="18"></i> تسجيل عملية جديدة</div>
             <div class="inner-tabs">
-                <button class="inner-tab ${isFuel?'active':''}" onclick="setRegisterSubTab('وقود')">
-                    ⛽ وقود</button>
-                <button class="inner-tab ${!isFuel?'active':''}" onclick="setRegisterSubTab('صيانة')">
-                    🔧 صيانة</button>
+                <button class="inner-tab ${isFuel?'active':''}" onclick="setRegisterSubTab('وقود')">⛽ وقود</button>
+                <button class="inner-tab ${!isFuel?'active':''}" onclick="setRegisterSubTab('صيانة')">🔧 صيانة</button>
             </div>
             ${isFuel?`
             <div class="input-group"><label>قيمة التعبئة (ر.س)</label>
@@ -699,7 +749,6 @@ function showTab(tabId,el){
                 <i data-lucide="wrench" width="16" height="16"></i> تسجيل الصيانة</button>
             `}
         </div>`;
-        // تعيين التاريخ الافتراضي
         setTimeout(()=>{
             const fd=document.getElementById('f_d');
             const md=document.getElementById('m_d');
@@ -711,9 +760,9 @@ function showTab(tabId,el){
     // ── STATS ──
     else if(tabId==='p4'){
         if(!car){area.innerHTML=`<div class="section-card"><div class="empty-state"><div class="ei"><i data-lucide="bar-chart-2" width="48" height="48"></i></div><p>لا توجد مركبات</p></div></div>`;initIcons();return;}
-        const logs =car.logs  ?Object.values(car.logs) :[];
-        const fines=car.fines ?Object.values(car.fines):[];
-        const ins  =car.insurance?Object.values(car.insurance):[];
+        const logs =car.logs      ?Object.values(car.logs)     :[];
+        const fines=car.fines     ?Object.values(car.fines)    :[];
+        const ins  =car.insurance ?Object.values(car.insurance):[];
         const maint=logs.filter(l=>l.cat==='صيانة').reduce((a,b)=>a+Number(b.price),0);
         const fuel =logs.filter(l=>l.cat==='وقود' ).reduce((a,b)=>a+Number(b.price),0);
         const finesTotal=fines.reduce((a,b)=>a+Number(b.price),0);
@@ -746,10 +795,14 @@ function showTab(tabId,el){
     // ── LOG ──
     else if(tabId==='p5'){
         if(!car){area.innerHTML=noCar('scroll-text');initIcons();return;}
+        const allLogs = car.logs ? Object.keys(car.logs).map(k=>({...car.logs[k],key:k})) : [];
+        const monthFilterHTML = buildMonthFilterHTML(allLogs, logMonthFilter, 'setLogMonth');
+ 
         area.innerHTML=`${carHeaderHTML()}<div class="section-card">
             <div class="section-title"><i data-lucide="scroll-text" width="18" height="18"></i> سجل العمليات</div>
             <button class="btn btn-success btn-sm" onclick="exportExcel()">
                 <i data-lucide="download" width="14" height="14"></i> تصدير Excel</button>
+            ${monthFilterHTML}
             <div class="filter-pills">
                 ${['الكل','وقود','زيت المحرك','زيت القير','أخرى'].map(f=>
                     `<button class="pill ${currentFilter===f?'active':''}" onclick="setFilter('${f}')">${f}</button>`
@@ -760,16 +813,22 @@ function showTab(tabId,el){
         renderLogs();
     }
  
-    // ── EXTRA (مخالفات + تأمين) ──
+    // ── EXTRA ──
     else if(tabId==='p7'){
         if(!car){area.innerHTML=noCar('receipt');initIcons();return;}
         const ef=extraFilter;
+        const fines   = car.fines    ? Object.keys(car.fines).map(k=>({...car.fines[k],key:k,_type:'fine'}))  : [];
+        const ins     = car.insurance? Object.keys(car.insurance).map(k=>({...car.insurance[k],key:k,_type:'ins'})) : [];
+        const allExtra = [...fines, ...ins];
+        const monthFilterHTML = buildMonthFilterHTML(allExtra, extraMonthFilter, 'setExtraMonth');
+ 
         area.innerHTML=`${carHeaderHTML()}<div class="section-card">
             <div class="section-title"><i data-lucide="receipt" width="18" height="18"></i> المصاريف الأخرى</div>
             <button class="btn btn-success btn-sm" onclick="exportExcel()">
                 <i data-lucide="download" width="14" height="14"></i> تصدير Excel</button>
+            ${monthFilterHTML}
             <div class="filter-pills">
-                <button class="pill ${ef==='الكل'?'active':''}"            onclick="setExtraFilter('الكل')">الكل</button>
+                <button class="pill ${ef==='الكل'?'active':''}"             onclick="setExtraFilter('الكل')">الكل</button>
                 <button class="pill pill-fine ${ef==='مخالفات'?'active':''}" onclick="setExtraFilter('مخالفات')">🚨 مخالفات</button>
                 <button class="pill pill-ins  ${ef==='تأمين'?'active':''}"   onclick="setExtraFilter('تأمين')">🛡️ تأمين</button>
             </div>
@@ -785,6 +844,19 @@ function showTab(tabId,el){
     }
  
     initIcons();
+}
+ 
+// ══════════════════════════════════════════
+// ضبط فلتر الشهر
+// ══════════════════════════════════════════
+function setLogMonth(ym){
+    logMonthFilter = ym;
+    showTab('p5');
+}
+ 
+function setExtraMonth(ym){
+    extraMonthFilter = ym;
+    showTab('p7');
 }
  
 // ══════════════════════════════════════════
@@ -807,16 +879,25 @@ function renderExtra(){
     const car=cars[activeIdx];
     const container=document.getElementById('extra_container');
     if(!container)return;
-    const fines=car.fines   ?Object.keys(car.fines).map(k=>({...car.fines[k],key:k,_type:'fine'})):[];
-    const ins  =car.insurance?Object.keys(car.insurance).map(k=>({...car.insurance[k],key:k,_type:'ins'})):[];
+    const fines=car.fines    ?Object.keys(car.fines).map(k=>({...car.fines[k],key:k,_type:'fine'}))        :[];
+    const ins  =car.insurance?Object.keys(car.insurance).map(k=>({...car.insurance[k],key:k,_type:'ins'})) :[];
     let items=[];
-    if(extraFilter==='الكل')       items=[...fines,...ins];
+    if(extraFilter==='الكل')        items=[...fines,...ins];
     else if(extraFilter==='مخالفات') items=fines;
-    else                            items=ins;
+    else                             items=ins;
+ 
+    // ── تطبيق فلتر الشهر ──
+    if(extraMonthFilter !== 'الكل'){
+        items = items.filter(item => {
+            const d = item.date || item.startDate || '';
+            return d.startsWith(extraMonthFilter);
+        });
+    }
+ 
     if(items.length===0){
         container.innerHTML=`<div class="empty-state">
             <div class="ei"><i data-lucide="${extraFilter==='تأمين'?'shield':'alert-octagon'}" width="48" height="48"></i></div>
-            <p>لا توجد سجلات</p></div>`;
+            <p>لا توجد سجلات${extraMonthFilter!=='الكل'?' في هذا الشهر':''}</p></div>`;
         initIcons();return;
     }
     items.sort((a,b)=>{
@@ -1144,7 +1225,7 @@ function renderChart({data,maxVal}){
 }
  
 // ══════════════════════════════════════════
-// FILTER
+// FILTER (نوع)
 // ══════════════════════════════════════════
 function setFilter(f){
     currentFilter=f;
@@ -1166,10 +1247,19 @@ function renderLogs(){
                 <i data-lucide="plus-circle" width="14" height="14"></i> سجّل أول عملية</button></div>`;
         initIcons();return;
     }
-    const arr=Object.keys(car.logs).map(k=>({...car.logs[k],key:k}));
+    let arr=Object.keys(car.logs).map(k=>({...car.logs[k],key:k}));
+ 
+    // ── تطبيق فلتر الشهر ──
+    if(logMonthFilter !== 'الكل'){
+        arr = arr.filter(l => l.date && l.date.startsWith(logMonthFilter));
+    }
+ 
+    // ── تطبيق فلتر النوع ──
     const filtered=currentFilter==='الكل'?arr:arr.filter(l=>l.title.includes(currentFilter)||l.cat.includes(currentFilter));
+ 
     if(filtered.length===0){
-        container.innerHTML=`<div class="empty-state"><div class="ei"><i data-lucide="search-x" width="48" height="48"></i></div><p>لا توجد نتائج</p></div>`;
+        container.innerHTML=`<div class="empty-state"><div class="ei"><i data-lucide="search-x" width="48" height="48"></i></div>
+            <p>لا توجد نتائج${logMonthFilter!=='الكل'?' في هذا الشهر':''}</p></div>`;
         initIcons();return;
     }
     const total=filtered.reduce((a,b)=>a+Number(b.price),0);
@@ -1347,12 +1437,12 @@ function addLog(cat){
     if(btn){btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div> جاري الحفظ...';}
     db.ref(`users/${userId}/garage/${carId}/logs`)
         .push({cat,price,title,date})
-        .then(()=>{toast('تم التسجيل ✓');currentFilter='الكل';showTab('p5');})
+        .then(()=>{toast('تم التسجيل ✓');currentFilter='الكل';logMonthFilter='الكل';showTab('p5');})
         .catch(()=>{resetBtn(btnId,btnHtml);toast('حدث خطأ');initIcons();});
 }
  
 // ══════════════════════════════════════════
-// EXPORT EXCEL — إصلاح شامل لأسماء الشيتات
+// EXPORT EXCEL
 // ══════════════════════════════════════════
 function exportExcel(){
     const car=cars[activeIdx];
@@ -1361,52 +1451,34 @@ function exportExcel(){
  
     const wb=XLSX.utils.book_new();
  
-    // شيت السجل
     if(car.logs){
         const arr=Object.values(car.logs);
         const filtered=currentFilter==='الكل'?arr:arr.filter(l=>l.title.includes(currentFilter)||l.cat.includes(currentFilter));
         if(filtered.length>0){
             const total=filtered.reduce((a,b)=>a+Number(b.price),0);
             const data=filtered.slice().reverse().map(l=>({
-                'Date':l.date,
-                'Type':l.cat,
-                'Details':l.title,
-                'Amount':Number(l.price)
+                'Date':l.date,'Type':l.cat,'Details':l.title,'Amount':Number(l.price)
             }));
             data.push({'Date':'','Type':'','Details':'Total','Amount':total});
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), 'Log');
         }
     }
- 
-    // شيت المخالفات
     if(car.fines){
         const fd=Object.values(car.fines).map(f=>({
-            'Date':f.date,
-            'Fine_Type':f.fineType,
-            'Amount':Number(f.price),
-            'Status':f.status
+            'Date':f.date,'Fine_Type':f.fineType,'Amount':Number(f.price),'Status':f.status
         }));
         if(fd.length>0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(fd), 'Fines');
     }
- 
-    // شيت التأمين
     if(car.insurance){
         const wi=Object.values(car.insurance).map(i=>({
-            'Type':i.insType,
-            'Company':i.company||'',
-            'Premium':Number(i.price),
-            'Payment':i.payMethod||'',
-            'Instalments':i.instalments||'',
-            'Start':i.startDate,
-            'End':i.endDate
+            'Type':i.insType,'Company':i.company||'','Premium':Number(i.price),
+            'Payment':i.payMethod||'','Instalments':i.instalments||'',
+            'Start':i.startDate,'End':i.endDate
         }));
         if(wi.length>0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(wi), 'Insurance');
     }
  
-    // تأكد إن فيه شيت واحد على الأقل
     if(wb.SheetNames.length===0){toast('لا توجد بيانات للتصدير');return;}
- 
-    // اسم الملف: بدون أحرف خاصة
     const safeName=car.type.replace(/[^a-zA-Z0-9\u0600-\u06FF\s]/g,'').trim()||'car';
     try{
         XLSX.writeFile(wb, `record_${safeName}.xlsx`);
@@ -1425,7 +1497,6 @@ function toggleInstalments(){
     const g=document.getElementById('ins_install_group');
     if(g) g.classList.toggle('hidden',v!=='أقساط');
 }
- 
 function toggleManualMaint(){
     document.getElementById('manual_m_group')?.classList.toggle('hidden',
         document.getElementById('m_type_sel')?.value!=='أخرى');
