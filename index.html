@@ -3,901 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مركبتي السحابية</title>
+    <title>مركبتي</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --accent: #6ee7f7;
-            --accent2: #a78bfa;
-            --accent3: #f472b6;
-            --gold: #fbbf24;
-            --bg1: #060b18;
-            --bg2: #0b1222;
-            --glass: rgba(255,255,255,0.04);
-            --glass-border: rgba(255,255,255,0.09);
-            --glass-hover: rgba(255,255,255,0.07);
-            --glass-strong: rgba(255,255,255,0.08);
-            --text: #e8eeff;
-            --text2: #8899bb;
-            --text3: #5a6a8a;
-            --danger: #f87171;
-            --danger-glass: rgba(248,113,113,0.1);
-            --success: #34d399;
-            --success-glass: rgba(52,211,153,0.1);
-            --warn: #fbbf24;
-            --warn-glass: rgba(251,191,36,0.1);
-            --purple-glass: rgba(167,139,250,0.1);
-            --nav-h: 72px;
-            --r: 18px;
-            --r-sm: 12px;
-        }
- 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button { -webkit-appearance: none; }
-        input[type=number] { -moz-appearance: textfield; }
- 
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: var(--bg1);
-            color: var(--text);
-            direction: rtl;
-            min-height: 100vh;
-            overflow-x: hidden;
-            padding-bottom: var(--nav-h);
-        }
- 
-        /* ─── AMBIENT GLOW BACKGROUND ─── */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            background:
-                radial-gradient(ellipse 70% 50% at 20% 10%, rgba(110,231,247,0.07) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(167,139,250,0.07) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 50% at 50% 50%, rgba(244,114,182,0.04) 0%, transparent 70%);
-            pointer-events: none;
-        }
- 
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-            background-size: 48px 48px;
-            pointer-events: none;
-        }
- 
-        /* ─── SPLASH ─── */
-        #splash {
-            position: fixed; inset: 0; z-index: 9999;
-            background: var(--bg1);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 24px;
-            transition: opacity .5s ease;
-        }
-        #splash.hide { opacity: 0; pointer-events: none; }
- 
-        .splash-orb {
-            width: 96px; height: 96px;
-            border-radius: 28px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
-            animation: splashFloat 3s ease-in-out infinite;
-        }
-        .splash-orb::before {
-            content: '';
-            position: absolute; inset: -1px;
-            border-radius: 29px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            z-index: -1;
-            opacity: 0.4;
-            filter: blur(12px);
-            animation: splashPulse 3s ease-in-out infinite;
-        }
-        .splash-orb svg { width: 44px; height: 44px; color: #000; }
- 
-        @keyframes splashFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-        @keyframes splashPulse {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.15); }
-        }
- 
-        .splash-title {
-            font-size: 26px; font-weight: 800;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
-        }
-        .splash-sub { font-size: 13px; color: var(--text3); }
-        .splash-dots { display: flex; gap: 6px; }
-        .splash-dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            background: var(--text3);
-            animation: dotPulse 1.4s ease-in-out infinite;
-        }
-        .splash-dot:nth-child(2) { animation-delay: .2s; }
-        .splash-dot:nth-child(3) { animation-delay: .4s; }
-        @keyframes dotPulse {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.4); background: var(--accent); }
-        }
- 
-        /* ─── AUTH ─── */
-        #auth-area {
-            display: flex; align-items: center; justify-content: center;
-            min-height: 100vh; padding: 24px;
-            position: relative; z-index: 1;
-        }
- 
-        .auth-card {
-            background: var(--glass-strong);
-            border: 1px solid var(--glass-border);
-            border-radius: 28px;
-            padding: 48px 36px;
-            width: 100%; max-width: 400px;
-            text-align: center;
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            position: relative;
-            overflow: hidden;
-        }
-        .auth-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(110,231,247,0.5), transparent);
-        }
- 
-        .auth-icon {
-            width: 80px; height: 80px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 24px;
-            display: inline-flex; align-items: center; justify-content: center;
-            margin-bottom: 24px;
-            position: relative;
-        }
-        .auth-icon::after {
-            content: '';
-            position: absolute; inset: -2px;
-            border-radius: 26px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            z-index: -1; opacity: 0.3; filter: blur(8px);
-        }
-        .auth-icon svg { width: 38px; height: 38px; color: #000; }
-        .auth-title { font-size: 24px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
-        .auth-sub { font-size: 13px; color: var(--text2); margin-bottom: 36px; }
- 
-        /* ─── HEADER ─── */
-        .header-bar {
-            background: rgba(6,11,24,0.85);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 0 16px;
-            height: 60px;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 200;
-            gap: 12px;
-        }
-        .header-bar::after {
-            content: '';
-            position: absolute; bottom: 0; left: 10%; right: 10%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(110,231,247,0.2), transparent);
-        }
- 
-        .header-brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-        .header-logo {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .header-logo svg { width: 18px; height: 18px; color: #000; }
-        .header-name {
-            font-size: 16px; font-weight: 800;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
- 
-        .header-car-switch { flex: 1; display: flex; align-items: center; justify-content: center; }
-        .car-switch-btn {
-            display: flex; align-items: center; gap: 8px;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 100px;
-            padding: 7px 14px;
-            cursor: pointer;
-            transition: all .2s;
-            max-width: 200px;
-        }
-        .car-switch-btn:hover { background: var(--glass-hover); border-color: rgba(110,231,247,0.25); }
-        .car-switch-name { font-size: 12px; font-weight: 700; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
-        .car-switch-btn svg { color: var(--accent); flex-shrink: 0; width: 14px; height: 14px; }
- 
-        .logout-btn {
-            background: var(--danger-glass);
-            color: var(--danger);
-            border: 1px solid rgba(248,113,113,0.2);
-            border-radius: 10px;
-            padding: 7px 12px;
-            font-size: 12px; font-weight: 700;
-            cursor: pointer;
-            font-family: 'Tajawal', sans-serif;
-            display: flex; align-items: center; gap: 5px;
-            flex-shrink: 0;
-            transition: all .2s;
-        }
-        .logout-btn:hover { background: rgba(248,113,113,0.18); }
-        .logout-btn svg { width: 13px; height: 13px; }
- 
-        /* ─── SESSION BANNER ─── */
-        .session-banner {
-            background: var(--warn-glass);
-            border-bottom: 1px solid rgba(251,191,36,0.15);
-            padding: 8px 16px;
-            font-size: 12px; font-weight: 700;
-            color: var(--warn);
-            text-align: center;
-            display: none; align-items: center; justify-content: center; gap: 8px;
-        }
- 
-        /* ─── BOTTOM NAV ─── */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            height: var(--nav-h);
-            background: rgba(6,11,24,0.92);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            border-top: 1px solid var(--glass-border);
-            display: none;
-            align-items: center; justify-content: space-around;
-            padding: 0 8px;
-            z-index: 200;
-        }
-        .bottom-nav::before {
-            content: '';
-            position: absolute; top: 0; left: 15%; right: 15%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(110,231,247,0.15), transparent);
-        }
- 
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            padding: 8px 12px;
-            border-radius: 16px;
-            cursor: pointer;
-            color: var(--text3);
-            font-size: 10px; font-weight: 700;
-            min-width: 58px;
-            transition: all .25s;
-            white-space: nowrap;
-            flex-shrink: 0;
-            gap: 4px;
-            position: relative;
-        }
-        .nav-item svg { width: 22px; height: 22px; transition: all .25s; }
-        .nav-item.active { color: var(--accent); }
-        .nav-item.active svg { filter: drop-shadow(0 0 6px var(--accent)); }
-        .nav-item.active::before {
-            content: '';
-            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 28px; height: 2px;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            border-radius: 0 0 4px 4px;
-        }
-        .nav-item:not(.active):hover { color: var(--text2); }
- 
-        /* ─── MAIN ─── */
-        #app-area { position: relative; z-index: 1; }
-        .main-content { padding: 16px; max-width: 560px; margin: 0 auto; }
- 
-        /* ─── GLASS CARD ─── */
-        .g-card {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--r);
-            padding: 22px 18px;
-            margin-bottom: 14px;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            position: relative;
-            overflow: hidden;
-        }
-        .g-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            pointer-events: none;
-        }
- 
-        .section-title {
-            font-size: 15px; font-weight: 800;
-            display: flex; align-items: center; gap: 8px;
-            margin-bottom: 18px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid var(--glass-border);
-            color: var(--text);
-        }
-        .section-title svg { color: var(--accent); width: 18px; height: 18px; }
- 
-        /* ─── INPUTS ─── */
-        .input-group { margin-bottom: 14px; }
-        label { display: block; font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 7px; letter-spacing: .3px; }
- 
-        input, select {
-            width: 100%; height: 50px;
-            padding: 0 16px;
-            border: 1px solid var(--glass-border);
-            border-radius: var(--r-sm);
-            background: var(--glass);
-            color: var(--text);
-            font-size: 14px;
-            font-family: 'Tajawal', sans-serif;
-            outline: none;
-            appearance: none; -webkit-appearance: none;
-            transition: all .2s;
-            backdrop-filter: blur(8px);
-        }
-        input:focus, select:focus {
-            border-color: rgba(110,231,247,0.4);
-            background: rgba(110,231,247,0.05);
-            box-shadow: 0 0 0 3px rgba(110,231,247,0.08);
-        }
-        input::placeholder { color: var(--text3); }
-        select option { background: #0e1829; color: var(--text); }
- 
-        .select-wrap { position: relative; }
-        .select-wrap::after {
-            content: '▾'; font-size: 13px; color: var(--accent);
-            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-            pointer-events: none;
-        }
- 
-        /* ─── BUTTONS ─── */
-        .btn {
-            width: 100%; height: 50px;
-            border: none; border-radius: var(--r-sm);
-            font-family: 'Tajawal', sans-serif;
-            font-size: 15px; font-weight: 800;
-            cursor: pointer;
-            transition: all .2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            position: relative; overflow: hidden;
-        }
-        .btn::after {
-            content: '';
-            position: absolute; inset: 0;
-            background: rgba(255,255,255,0);
-            transition: background .2s;
-        }
-        .btn:hover::after { background: rgba(255,255,255,0.06); }
-        .btn:disabled { opacity: .5; cursor: not-allowed; }
-        .btn:disabled::after { display: none; }
- 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: #060b18;
-            box-shadow: 0 4px 24px rgba(110,231,247,0.2);
-        }
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 32px rgba(110,231,247,0.3);
-        }
-        .btn-primary:active:not(:disabled) { transform: translateY(0); }
-        .btn-primary svg { width: 16px; height: 16px; }
- 
-        .btn-ghost {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: var(--text2);
-        }
-        .btn-ghost:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
- 
-        .btn-danger {
-            background: var(--danger-glass);
-            border: 1px solid rgba(248,113,113,0.2);
-            color: var(--danger);
-        }
-        .btn-danger:hover { background: rgba(248,113,113,0.18); }
- 
-        .btn-success-outline {
-            background: var(--success-glass);
-            border: 1px solid rgba(52,211,153,0.2);
-            color: var(--success);
-            margin-bottom: 14px;
-        }
-        .btn-success-outline:hover { background: rgba(52,211,153,0.18); }
- 
-        .btn-fine {
-            background: var(--danger-glass);
-            border: 1px solid rgba(248,113,113,0.2);
-            color: var(--danger);
-        }
-        .btn-fine:hover { background: rgba(248,113,113,0.18); }
- 
-        .btn-ins {
-            background: var(--purple-glass);
-            border: 1px solid rgba(167,139,250,0.2);
-            color: var(--accent2);
-        }
-        .btn-ins:hover { background: rgba(167,139,250,0.18); }
- 
-        .btn-sm { height: 38px; font-size: 13px; border-radius: var(--r-sm); }
-        .btn-spinner {
-            width: 16px; height: 16px;
-            border: 2px solid rgba(0,0,0,0.25);
-            border-top-color: #060b18;
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
-        }
-        .btn-spinner-light {
-            width: 16px; height: 16px;
-            border: 2px solid rgba(255,255,255,0.15);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
- 
-        /* ─── STATS ─── */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
- 
-        .stat-card {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--r);
-            padding: 18px 14px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: all .2s;
-        }
-        .stat-card:hover { border-color: rgba(110,231,247,0.2); }
-        .stat-icon { margin-bottom: 8px; display: flex; justify-content: center; }
-        .stat-icon svg { width: 22px; height: 22px; color: var(--accent); }
-        .stat-label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6px; display: block; }
-        .stat-value { font-size: 22px; font-weight: 900; color: var(--accent); display: block; }
-        .stat-unit { font-size: 11px; color: var(--text3); }
-        .stat-card.total { grid-column: span 2; }
-        .stat-card.total .stat-value { font-size: 28px; }
- 
-        /* ─── CHART ─── */
-        .chart-wrap {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--r);
-            padding: 20px;
-            margin-top: 12px;
-        }
-        .chart-title { font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 16px; }
-        .chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 100px; }
-        .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .chart-bar { width: 100%; border-radius: 5px 5px 0 0; min-height: 4px; transition: height .5s ease; }
-        .chart-bar.fuel-bar { background: linear-gradient(to top, rgba(110,231,247,0.4), rgba(110,231,247,0.8)); }
-        .chart-bar.maint-bar { background: linear-gradient(to top, rgba(167,139,250,0.4), rgba(167,139,250,0.8)); }
-        .chart-label { font-size: 9px; color: var(--text3); font-weight: 600; }
-        .chart-legend { display: flex; gap: 16px; margin-top: 12px; justify-content: center; }
-        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); font-weight: 600; }
-        .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
- 
-        /* ─── LOG ITEMS ─── */
-        .log-item {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--r-sm);
-            padding: 12px 14px;
-            margin-bottom: 8px;
-            display: flex; align-items: center; gap: 10px;
-            transition: all .2s;
-        }
-        .log-item:hover { border-color: rgba(110,231,247,0.18); background: var(--glass-hover); }
- 
-        .log-dot {
-            width: 40px; height: 40px;
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        .log-dot.fuel { background: rgba(110,231,247,0.1); }
-        .log-dot.fuel svg { color: var(--accent); }
-        .log-dot.maint { background: rgba(167,139,250,0.1); }
-        .log-dot.maint svg { color: var(--accent2); }
-        .log-dot.fine { background: var(--danger-glass); }
-        .log-dot.fine svg { color: var(--danger); }
-        .log-dot.ins { background: var(--purple-glass); }
-        .log-dot.ins svg { color: var(--accent2); }
-        .log-dot svg { width: 18px; height: 18px; }
- 
-        .log-info { flex: 1; min-width: 0; }
-        .log-title { font-size: 14px; font-weight: 700; color: var(--text); }
-        .log-meta { font-size: 11px; color: var(--text2); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
- 
-        .log-price {
-            background: rgba(110,231,247,0.08);
-            border: 1px solid rgba(110,231,247,0.18);
-            color: var(--accent);
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 13px; font-weight: 800;
-            flex-shrink: 0; white-space: nowrap;
-        }
- 
-        .log-del, .log-edit {
-            color: var(--text3);
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 8px;
-            transition: all .2s;
-            flex-shrink: 0;
-            display: flex; align-items: center;
-        }
-        .log-del svg, .log-edit svg { width: 15px; height: 15px; }
-        .log-del:hover { color: var(--danger); background: var(--danger-glass); }
-        .log-edit:hover { color: var(--accent); background: rgba(110,231,247,0.08); }
- 
-        /* ─── STATUS BADGE ─── */
-        .status-badge {
-            padding: 3px 10px;
-            border-radius: 100px;
-            font-size: 11px; font-weight: 800;
-            flex-shrink: 0; white-space: nowrap;
-        }
-        .status-paid { background: var(--success-glass); color: var(--success); border: 1px solid rgba(52,211,153,0.2); }
-        .status-pending { background: var(--danger-glass); color: var(--danger); border: 1px solid rgba(248,113,113,0.2); }
-        .status-active { background: var(--success-glass); color: var(--success); border: 1px solid rgba(52,211,153,0.2); }
-        .status-expiring { background: var(--warn-glass); color: var(--warn); border: 1px solid rgba(251,191,36,0.2); }
-        .status-expired { background: var(--danger-glass); color: var(--danger); border: 1px solid rgba(248,113,113,0.2); }
- 
-        /* ─── LOG TOTAL ─── */
-        .log-total {
-            background: rgba(110,231,247,0.06);
-            border: 1px solid rgba(110,231,247,0.15);
-            border-radius: var(--r-sm);
-            padding: 14px 16px;
-            display: flex; align-items: center; justify-content: space-between;
-            margin-top: 6px;
-        }
-        .log-total-label { font-size: 13px; font-weight: 700; color: var(--text2); }
-        .log-total-value { font-size: 18px; font-weight: 900; color: var(--accent); }
- 
-        /* ─── INSURANCE CARD ─── */
-        .ins-card {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--r);
-            padding: 18px 16px;
-            margin-bottom: 12px;
-            transition: all .2s;
-        }
-        .ins-card:hover { border-color: rgba(167,139,250,0.2); }
-        .ins-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-        .ins-avatar {
-            width: 46px; height: 46px;
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-            background: var(--purple-glass);
-        }
-        .ins-avatar svg { width: 22px; height: 22px; color: var(--accent2); }
-        .ins-title { font-size: 15px; font-weight: 800; color: var(--text); }
-        .ins-type { font-size: 12px; color: var(--text2); margin-top: 2px; }
-        .ins-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .ins-date-item {
-            background: var(--glass);
-            border-radius: 10px;
-            padding: 10px 12px;
-            border: 1px solid var(--glass-border);
-        }
-        .ins-date-label { font-size: 10px; color: var(--text3); font-weight: 600; margin-bottom: 3px; }
-        .ins-date-val { font-size: 13px; font-weight: 800; color: var(--text); }
-        .ins-progress { margin-top: 14px; }
-        .ins-progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); margin-bottom: 6px; }
-        .ins-progress-bar { height: 5px; background: var(--glass-border); border-radius: 3px; overflow: hidden; }
-        .ins-progress-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
- 
-        /* ─── MODAL ─── */
-        .modal-overlay {
-            position: fixed; inset: 0; z-index: 500;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            display: flex; align-items: flex-end; justify-content: center;
-            animation: fadeIn .2s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
- 
-        .modal-box {
-            background: #0b1525;
-            border: 1px solid rgba(110,231,247,0.12);
-            border-bottom: none;
-            border-radius: 28px 28px 0 0;
-            padding: 28px 20px 40px;
-            width: 100%; max-width: 560px;
-            animation: slideUp .3s cubic-bezier(.34,1.2,.64,1);
-            max-height: 92vh; overflow-y: auto;
-            position: relative;
-        }
-        .modal-box::before {
-            content: '';
-            position: absolute; top: 0; left: 20%; right: 20%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(110,231,247,0.4), transparent);
-        }
- 
-        .modal-handle {
-            width: 44px; height: 4px;
-            background: var(--glass-border);
-            border-radius: 4px;
-            margin: 0 auto 22px;
-        }
-        .modal-title { font-size: 17px; font-weight: 900; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-        .modal-title svg { width: 18px; height: 18px; color: var(--accent); }
-        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
- 
-        /* ─── CONFIRM ─── */
-        .confirm-overlay {
-            position: fixed; inset: 0; z-index: 600;
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            display: flex; align-items: center; justify-content: center;
-            padding: 24px;
-            animation: fadeIn .2s ease;
-        }
-        .confirm-box {
-            background: #0b1525;
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 32px 24px;
-            width: 100%; max-width: 320px;
-            text-align: center;
-            animation: scaleIn .25s cubic-bezier(.34,1.2,.64,1);
-        }
-        @keyframes scaleIn { from { transform: scale(.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .confirm-icon {
-            width: 64px; height: 64px;
-            background: var(--danger-glass);
-            border: 1px solid rgba(248,113,113,0.15);
-            border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 18px;
-        }
-        .confirm-icon svg { width: 28px; height: 28px; color: var(--danger); }
-        .confirm-title { font-size: 17px; font-weight: 900; color: var(--text); margin-bottom: 8px; }
-        .confirm-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.7; }
-        .confirm-actions { display: flex; gap: 10px; }
- 
-        /* ─── CAR SWITCH MODAL ─── */
-        .car-list-item {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--r-sm);
-            padding: 14px 16px;
-            margin-bottom: 8px;
-            display: flex; align-items: center; gap: 12px;
-            cursor: pointer;
-            transition: all .2s;
-        }
-        .car-list-item:hover { border-color: rgba(110,231,247,0.2); background: var(--glass-hover); }
-        .car-list-item.selected { border-color: rgba(110,231,247,0.4); background: rgba(110,231,247,0.06); }
-        .car-list-avatar {
-            width: 46px; height: 46px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        .car-list-avatar svg { width: 22px; height: 22px; color: #000; }
-        .car-list-name { font-size: 15px; font-weight: 800; color: var(--text); }
-        .car-list-year { font-size: 12px; color: var(--text2); margin-top: 2px; }
- 
-        /* ─── CAR HEADER ─── */
-        .car-header {
-            background: rgba(110,231,247,0.04);
-            border: 1px solid rgba(110,231,247,0.12);
-            border-radius: var(--r);
-            padding: 16px 18px;
-            margin-bottom: 14px;
-            display: flex; align-items: center; gap: 14px;
-            position: relative; overflow: hidden;
-        }
-        .car-header::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(110,231,247,0.3), transparent);
-        }
-        .car-avatar {
-            width: 50px; height: 50px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        .car-avatar svg { width: 24px; height: 24px; color: #000; }
-        .car-name { font-size: 16px; font-weight: 900; color: var(--text); }
-        .car-year { font-size: 12px; color: var(--text2); margin-top: 2px; }
- 
-        /* ─── FILTER PILLS ─── */
-        .filter-pills {
-            display: flex; gap: 8px;
-            overflow-x: auto; scrollbar-width: none;
-            padding-bottom: 2px; margin-bottom: 16px;
-        }
-        .filter-pills::-webkit-scrollbar { display: none; }
-        .pill {
-            padding: 7px 16px;
-            border-radius: 100px;
-            border: 1px solid var(--glass-border);
-            background: var(--glass);
-            color: var(--text2);
-            font-size: 12px; font-weight: 700;
-            cursor: pointer; white-space: nowrap;
-            transition: all .2s;
-            flex-shrink: 0;
-            font-family: 'Tajawal', sans-serif;
-        }
-        .pill.active { background: rgba(110,231,247,0.1); border-color: rgba(110,231,247,0.35); color: var(--accent); }
-        .pill.pill-fine.active { background: var(--danger-glass); border-color: rgba(248,113,113,0.3); color: var(--danger); }
-        .pill.pill-ins.active { background: var(--purple-glass); border-color: rgba(167,139,250,0.3); color: var(--accent2); }
- 
-        /* ─── ODO ─── */
-        .odo-display {
-            background: rgba(110,231,247,0.04);
-            border: 1px solid rgba(110,231,247,0.12);
-            border-radius: var(--r-sm);
-            padding: 20px;
-            display: flex; align-items: center; gap: 16px;
-            margin-bottom: 16px;
-        }
-        .odo-icon {
-            width: 50px; height: 50px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        .odo-icon svg { width: 24px; height: 24px; color: #000; }
-        .odo-num { font-size: 32px; font-weight: 900; color: var(--accent); letter-spacing: -1px; line-height: 1; }
-        .odo-label { font-size: 11px; color: var(--text2); margin-top: 3px; }
-        .odo-warn {
-            background: var(--danger-glass);
-            border: 1px solid rgba(248,113,113,0.2);
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-size: 12px; font-weight: 700;
-            color: var(--danger);
-            margin-top: 8px;
-            display: none; align-items: center; gap: 6px;
-        }
-        .odo-warn svg { width: 14px; height: 14px; }
- 
-        /* ─── INNER TABS ─── */
-        .inner-tabs {
-            display: flex; gap: 0;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--r-sm);
-            padding: 4px;
-            margin-bottom: 20px;
-        }
-        .inner-tab {
-            flex: 1; height: 40px;
-            border: none; border-radius: 9px;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 13px; font-weight: 800;
-            cursor: pointer;
-            transition: all .25s;
-            background: transparent;
-            color: var(--text2);
-        }
-        .inner-tab.active {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: #060b18;
-            box-shadow: 0 2px 12px rgba(110,231,247,0.2);
-        }
- 
-        /* ─── NOTICE ─── */
-        .notice {
-            border-radius: var(--r-sm);
-            padding: 10px 14px;
-            font-size: 12px; font-weight: 700;
-            margin-bottom: 16px;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .notice svg { width: 14px; height: 14px; flex-shrink: 0; }
-        .notice-cyan { background: rgba(110,231,247,0.07); border: 1px solid rgba(110,231,247,0.18); color: var(--accent); }
-        .notice-danger { background: var(--danger-glass); border: 1px solid rgba(248,113,113,0.2); color: var(--danger); }
-        .notice-purple { background: var(--purple-glass); border: 1px solid rgba(167,139,250,0.2); color: var(--accent2); }
- 
-        /* ─── BADGE ─── */
-        .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .badge-fuel { background: rgba(110,231,247,0.1); color: var(--accent); }
-        .badge-maint { background: var(--purple-glass); color: var(--accent2); }
-        .badge-fine { background: var(--danger-glass); color: var(--danger); }
-        .badge-ins { background: var(--purple-glass); color: var(--accent2); }
- 
-        /* ─── TOAST ─── */
-        #toast {
-            position: fixed;
-            bottom: calc(var(--nav-h) + 16px);
-            left: 50%; transform: translateX(-50%) translateY(80px);
-            background: rgba(11,21,37,0.95);
-            border: 1px solid rgba(110,231,247,0.25);
-            color: var(--text);
-            padding: 12px 24px;
-            border-radius: 100px;
-            font-size: 14px; font-weight: 700;
-            z-index: 9999;
-            pointer-events: none;
-            transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s;
-            opacity: 0;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(110,231,247,0.1);
-            white-space: nowrap;
-            backdrop-filter: blur(12px);
-        }
-        #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
- 
-        /* ─── EMPTY ─── */
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text2); }
-        .empty-state .ei { margin-bottom: 12px; display: flex; justify-content: center; opacity: .3; }
-        .empty-state .ei svg { width: 48px; height: 48px; color: var(--text2); }
-        .empty-state p { font-size: 14px; margin-bottom: 16px; }
- 
-        /* ─── MISC ─── */
-        .hidden { display: none !important; }
- 
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
+            --gold:#f59e0b; --gold-light:#fcd34d; --gold-dim:rgba(245,158,11,0.12);
+            --bg:#080d16; --surface:#0e1623; --card:#131e30; --card2:#192538;
+            --border:rgba(255,255,255,0.07); --border-gold:rgba(245,158,11,0.3);
+            --text:#f0f4ff; --muted:#64748b; --muted2:#94a3b8;
+            --danger:#f43f5e; --danger-dim:rgba(244,63,94,0.12);
+            --success:#10b981; --success-dim:rgba(16,185,129,0.12);
+            --blue:#3b82f6; --blue-dim:rgba(59,130,246,0.12);
+            --purple:#8b5cf6; --purple-dim:rgba(139,92,246,0.12);
+            --bottom-nav-h:68px;
+        }
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Cairo',sans-serif;-webkit-tap-highlight-color:transparent}
+        input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+        input[type=number]{-moz-appearance:textfield}
+        body{background:var(--bg);color:var(--text);direction:rtl;overflow-x:hidden;min-height:100vh;padding-bottom:var(--bottom-nav-h)}
+        body::before{content:'';position:fixed;inset:0;z-index:0;
+            background-image:linear-gradient(rgba(245,158,11,0.03)1px,transparent 1px),linear-gradient(90deg,rgba(245,158,11,0.03)1px,transparent 1px);
+            background-size:40px 40px;pointer-events:none}
+
+        /* SPLASH */
+        #splash{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .4s ease}
+        #splash.hide{opacity:0;pointer-events:none}
+        .splash-logo{width:80px;height:80px;background:linear-gradient(135deg,var(--gold),#d97706);border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(245,158,11,.3);animation:splashPulse 1.5s ease infinite}
+        .splash-logo i{color:#000}
+        @keyframes splashPulse{0%,100%{box-shadow:0 0 40px rgba(245,158,11,.3)}50%{box-shadow:0 0 80px rgba(245,158,11,.5)}}
+        .splash-title{font-size:24px;font-weight:900;color:var(--gold)}
+        .splash-spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        /* AUTH */
+        #auth-area{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;position:relative;z-index:1}
+        .auth-glow{position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(245,158,11,.12),transparent 70%);border-radius:50%;pointer-events:none}
+        .auth-card{position:relative;z-index:2;background:var(--card);border:1px solid var(--border-gold);border-radius:28px;padding:44px 36px;width:100%;max-width:400px;text-align:center;box-shadow:0 0 60px rgba(245,158,11,.08),0 30px 60px rgba(0,0,0,.4)}
+        .auth-icon{width:72px;height:72px;background:linear-gradient(135deg,var(--gold),#d97706);border-radius:20px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:20px;box-shadow:0 8px 32px rgba(245,158,11,.35)}
+        .auth-icon i{color:#000}
+        .auth-title{font-size:22px;font-weight:900;color:var(--text);margin-bottom:6px}
+        .auth-sub{font-size:13px;color:var(--muted2);margin-bottom:32px}
+
+        /* HEADER */
+        .header-bar{background:rgba(13,20,35,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-gold);padding:0 16px;height:58px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;gap:10px}
+        .header-brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+        .header-logo{width:34px;height:34px;background:linear-gradient(135deg,var(--gold),#d97706);border-radius:10px;display:flex;align-items:center;justify-content:center}
+        .header-logo i{color:#000}
+        .header-name{font-size:15px;font-weight:800;color:var(--gold)}
+        .header-car-switch{flex:1;display:flex;align-items:center;justify-content:center}
+        .car-switch-btn{display:flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:12px;padding:6px 12px;cursor:pointer;transition:.2s;max-width:200px;overflow:hidden}
+        .car-switch-btn:hover{background:rgba(245,158,11,.2)}
+        .car-switch-name{font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .car-switch-btn i{color:var(--gold);flex-shrink:0}
+        .logout-btn{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(244,63,94,.2);border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;font-family:'Cairo',sans-serif;display:flex;align-items:center;gap:4px;flex-shrink:0}
+        .logout-btn:hover{background:rgba(244,63,94,.2)}
+
+        /* SESSION BANNER */
+        .session-banner{background:rgba(245,158,11,.08);border-bottom:1px solid var(--border-gold);padding:8px 16px;font-size:12px;font-weight:700;color:var(--gold);text-align:center;display:none;align-items:center;justify-content:center;gap:6px}
+
+        /* BOTTOM NAV */
+        .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--bottom-nav-h);background:rgba(13,20,35,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border-gold);display:none;align-items:center;justify-content:space-around;padding:0 4px;z-index:100}
+        .nav-item{display:flex;flex-direction:column;align-items:center;padding:6px 10px;border-radius:14px;cursor:pointer;color:var(--muted2);font-size:10px;font-weight:700;min-width:56px;transition:.2s;white-space:nowrap;flex-shrink:0;gap:3px;position:relative}
+        .nav-item i{transition:.2s}
+        .nav-item.active{color:var(--gold)}
+        .nav-item.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--gold);border-radius:0 0 4px 4px}
+        .nav-item:not(.active):hover{color:var(--text)}
+
+        /* MAIN */
+        #app-area{position:relative;z-index:1}
+        .main-content{padding:16px;max-width:540px;margin:0 auto}
+
+        /* CARDS */
+        .section-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px 20px;margin-bottom:16px}
+        .section-title{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);color:var(--text)}
+        .section-title i{color:var(--gold)}
+
+        /* INPUTS */
+        .input-group{margin-bottom:16px}
+        label{display:block;font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:.3px}
+        input,select{width:100%;height:52px;padding:0 16px;border:1.5px solid var(--border);border-radius:14px;background:var(--surface);color:var(--text);font-size:14px;font-family:'Cairo',sans-serif;outline:none;appearance:none;-webkit-appearance:none;transition:.2s}
+        input:focus,select:focus{border-color:var(--gold);background:var(--card2);box-shadow:0 0 0 3px rgba(245,158,11,.08)}
+        input::placeholder{color:var(--muted)}
+        .select-wrap{position:relative}
+        .select-wrap::after{content:'▾';font-size:13px;color:var(--gold);position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none}
+
+        /* BUTTONS */
+        .btn{width:100%;height:52px;border:none;border-radius:14px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+        .btn:disabled{opacity:.6;cursor:not-allowed;transform:none!important}
+        .btn-primary{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;box-shadow:0 4px 20px rgba(245,158,11,.25)}
+        .btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 28px rgba(245,158,11,.35)}
+        .btn-primary:active:not(:disabled){transform:translateY(0)}
+        .btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--muted2)}
+        .btn-ghost:hover{border-color:var(--muted2);color:var(--text)}
+        .btn-danger-ghost{background:var(--danger-dim);border:1px solid rgba(244,63,94,.2);color:var(--danger)}
+        .btn-danger-ghost:hover{background:rgba(244,63,94,.2)}
+        .btn-success{background:var(--success-dim);border:1px solid rgba(16,185,129,.2);color:var(--success);margin-bottom:16px}
+        .btn-success:hover{background:rgba(16,185,129,.2)}
+        .btn-sm{height:38px;font-size:13px;border-radius:10px}
+        .btn-spinner{width:16px;height:16px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite}
+
+        /* STATS */
+        .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 14px;text-align:center;position:relative;overflow:hidden;transition:.2s}
+        .stat-card:hover{border-color:var(--border-gold)}
+        .stat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,158,11,.04),transparent)}
+        .stat-icon{margin-bottom:6px;display:flex;justify-content:center}
+        .stat-icon i{color:var(--gold)}
+        .stat-label{font-size:11px;color:var(--muted2);font-weight:600;margin-bottom:6px;display:block}
+        .stat-value{font-size:22px;font-weight:900;color:var(--gold);display:block}
+        .stat-unit{font-size:11px;color:var(--muted)}
+        .stat-card.total{grid-column:span 2}
+        .stat-card.total .stat-value{font-size:28px}
+
+        /* CHART */
+        .chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;margin-top:10px}
+        .chart-title{font-size:13px;font-weight:700;color:var(--muted2);margin-bottom:16px}
+        .chart-bars{display:flex;align-items:flex-end;gap:6px;height:100px}
+        .chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+        .chart-bar{width:100%;border-radius:6px 6px 0 0;min-height:4px;transition:height .5s ease}
+        .chart-bar.fuel-bar{background:linear-gradient(to top,#1d4ed8,#3b82f6)}
+        .chart-bar.maint-bar{background:linear-gradient(to top,#d97706,var(--gold))}
+        .chart-label{font-size:9px;color:var(--muted);font-weight:600}
+        .chart-legend{display:flex;gap:16px;margin-top:12px;justify-content:center}
+        .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted2);font-weight:600}
+        .legend-dot{width:10px;height:10px;border-radius:3px}
+
+        /* LOG ITEMS */
+        .log-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:10px;transition:.2s}
+        .log-item:hover{border-color:var(--border-gold)}
+        .log-dot{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .log-dot.fuel{background:rgba(59,130,246,.15)} .log-dot.fuel i{color:#3b82f6}
+        .log-dot.maint{background:rgba(245,158,11,.12)} .log-dot.maint i{color:var(--gold)}
+        .log-dot.fine{background:rgba(244,63,94,.12)} .log-dot.fine i{color:var(--danger)}
+        .log-dot.ins{background:rgba(139,92,246,.12)} .log-dot.ins i{color:var(--purple)}
+        .log-info{flex:1;min-width:0}
+        .log-title{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .log-meta{font-size:11px;color:var(--muted2);margin-top:2px}
+        .log-price{background:var(--gold-dim);border:1px solid var(--border-gold);color:var(--gold);padding:4px 10px;border-radius:8px;font-size:13px;font-weight:800;flex-shrink:0;white-space:nowrap}
+        .log-del,.log-edit{color:var(--muted);cursor:pointer;padding:6px;border-radius:8px;transition:.2s;flex-shrink:0;display:flex;align-items:center}
+        .log-del:hover{color:var(--danger);background:var(--danger-dim)}
+        .log-edit:hover{color:var(--gold);background:var(--gold-dim)}
+
+        /* STATUS BADGE */
+        .status-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;flex-shrink:0;white-space:nowrap}
+        .status-paid{background:var(--success-dim);color:var(--success);border:1px solid rgba(16,185,129,.2)}
+        .status-pending{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(244,63,94,.2)}
+        .status-active{background:var(--success-dim);color:var(--success);border:1px solid rgba(16,185,129,.2)}
+        .status-expiring{background:rgba(245,158,11,.15);color:var(--gold);border:1px solid var(--border-gold)}
+        .status-expired{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(244,63,94,.2)}
+
+        /* LOG TOTAL */
+        .log-total{background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+        .log-total-label{font-size:13px;font-weight:700;color:var(--muted2)}
+        .log-total-value{font-size:18px;font-weight:900;color:var(--gold)}
+
+        /* INSURANCE CARD */
+        .ins-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 16px;margin-bottom:12px;transition:.2s}
+        .ins-card:hover{border-color:var(--border-gold)}
+        .ins-card-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+        .ins-avatar{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--purple-dim)}
+        .ins-avatar i{color:var(--purple)}
+        .ins-title{font-size:15px;font-weight:800;color:var(--text)}
+        .ins-type{font-size:12px;color:var(--muted2);margin-top:2px}
+        .ins-dates{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+        .ins-date-item{background:var(--card);border-radius:10px;padding:10px 12px}
+        .ins-date-label{font-size:10px;color:var(--muted2);font-weight:600;margin-bottom:3px}
+        .ins-date-val{font-size:13px;font-weight:800;color:var(--text)}
+        .ins-progress{margin-top:12px}
+        .ins-progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);margin-bottom:6px}
+        .ins-progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+        .ins-progress-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+        /* INSTALMENTS */
+        .inst-list{margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
+        .inst-list-title{font-size:12px;font-weight:700;color:var(--muted2);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+        .inst-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;margin-bottom:6px;background:var(--card);border:1px solid var(--border);transition:.2s}
+        .inst-item.paid{border-color:rgba(16,185,129,.2);background:rgba(16,185,129,.04)}
+        .inst-item.upcoming{border-color:var(--border-gold);background:var(--gold-dim)}
+        .inst-num{font-size:11px;font-weight:800;color:var(--muted2);min-width:24px}
+        .inst-date{font-size:12px;font-weight:700;color:var(--text);flex:1}
+        .inst-amount{font-size:13px;font-weight:800;color:var(--gold);white-space:nowrap}
+        .inst-pay-btn{background:var(--success-dim);border:1px solid rgba(16,185,129,.2);color:var(--success);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Cairo',sans-serif;transition:.2s;white-space:nowrap}
+        .inst-pay-btn:hover{background:rgba(16,185,129,.2)}
+        .inst-paid-badge{background:var(--success-dim);color:var(--success);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;white-space:nowrap}
+
+        /* MODAL */
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+        .modal-box{background:var(--card);border:1px solid var(--border-gold);border-radius:28px 28px 0 0;padding:28px 20px 36px;width:100%;max-width:540px;animation:slideUp .3s cubic-bezier(.34,1.2,.64,1);max-height:90vh;overflow-y:auto}
+        .modal-handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 20px}
+        .modal-title{font-size:17px;font-weight:900;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+        .modal-title i{color:var(--gold)}
+        .modal-actions{display:flex;gap:10px;margin-top:20px}
+
+        /* CONFIRM */
+        @keyframes scaleIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+        .confirm-box{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:28px 24px;width:100%;max-width:320px;text-align:center;animation:scaleIn .25s cubic-bezier(.34,1.2,.64,1)}
+        .confirm-icon{width:60px;height:60px;background:var(--danger-dim);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+        .confirm-icon i{color:var(--danger)}
+        .confirm-title{font-size:17px;font-weight:900;color:var(--text);margin-bottom:8px}
+        .confirm-sub{font-size:13px;color:var(--muted2);margin-bottom:24px;line-height:1.6}
+        .confirm-actions{display:flex;gap:10px}
+
+        /* CAR SWITCH */
+        .car-list-item{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:.2s}
+        .car-list-item:hover{border-color:var(--border-gold)}
+        .car-list-item.selected{border-color:var(--gold);background:var(--gold-dim)}
+        .car-list-avatar{width:44px;height:44px;background:linear-gradient(135deg,var(--gold),#d97706);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .car-list-avatar i{color:#000}
+        .car-list-name{font-size:15px;font-weight:800;color:var(--text)}
+        .car-list-year{font-size:12px;color:var(--muted2);margin-top:2px}
+
+        /* CAR HEADER */
+        .car-header{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.02));border:1px solid var(--border-gold);border-radius:20px;padding:18px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+        .car-avatar{width:52px;height:52px;background:linear-gradient(135deg,var(--gold),#d97706);border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .car-avatar i{color:#000}
+        .car-name{font-size:17px;font-weight:900;color:var(--text)}
+        .car-year{font-size:12px;color:var(--muted2);margin-top:2px}
+
+        /* FILTER PILLS */
+        .filter-pills{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:16px}
+        .filter-pills::-webkit-scrollbar{display:none}
+        .pill{padding:7px 16px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted2);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;flex-shrink:0;font-family:'Cairo',sans-serif}
+        .pill.active{background:var(--gold-dim);border-color:var(--border-gold);color:var(--gold)}
+        .pill.pill-fine.active{background:var(--danger-dim);border-color:rgba(244,63,94,.3);color:var(--danger)}
+        .pill.pill-ins.active{background:var(--purple-dim);border-color:rgba(139,92,246,.3);color:var(--purple)}
+
+        /* TOAST */
+        #toast{position:fixed;bottom:calc(var(--bottom-nav-h) + 12px);left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--border-gold);color:var(--text);padding:12px 24px;border-radius:100px;font-size:14px;font-weight:700;z-index:9999;pointer-events:none;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;box-shadow:0 8px 32px rgba(0,0,0,.4);white-space:nowrap;max-width:90vw;text-align:center}
+        #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+        /* EMPTY */
+        .empty-state{text-align:center;padding:40px 20px;color:var(--muted2)}
+        .empty-state .ei{margin-bottom:12px;display:flex;justify-content:center;opacity:.4}
+        .empty-state .ei i{color:var(--muted2)}
+        .empty-state p{font-size:14px;margin-bottom:16px}
+
+        /* ODO */
+        .odo-display{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.02));border:1px solid var(--border-gold);border-radius:18px;padding:20px;display:flex;align-items:center;gap:16px;margin-bottom:16px}
+        .odo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--gold),#d97706);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .odo-icon i{color:#000}
+        .odo-num{font-size:32px;font-weight:900;color:var(--gold);letter-spacing:-1px;line-height:1}
+        .odo-label{font-size:11px;color:var(--muted2);margin-top:3px}
+        .odo-warn{background:var(--danger-dim);border:1px solid rgba(244,63,94,.2);border-radius:10px;padding:10px 14px;font-size:12px;font-weight:700;color:var(--danger);margin-top:8px;display:none;align-items:center;gap:6px}
+
+        /* INLINE TABS */
+        .inner-tabs{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:4px;margin-bottom:20px}
+        .inner-tab{flex:1;height:40px;border:none;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:.2s;background:transparent;color:var(--muted2)}
+        .inner-tab.active{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;box-shadow:0 2px 12px rgba(245,158,11,.25)}
+
+        /* NOTICE */
+        .notice{border-radius:12px;padding:10px 14px;font-size:12px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+        .notice-gold{background:var(--gold-dim);border:1px solid var(--border-gold);color:var(--gold)}
+        .notice-danger{background:var(--danger-dim);border:1px solid rgba(244,63,94,.2);color:var(--danger)}
+        .notice-purple{background:var(--purple-dim);border:1px solid rgba(139,92,246,.2);color:var(--purple)}
+
+        /* QUICK ACTIONS — الصفحة الرئيسية */
+        .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+        .quick-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px 14px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+        .quick-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,158,11,.03),transparent);pointer-events:none}
+        .quick-card:hover{border-color:var(--border-gold);transform:translateY(-1px)}
+        .quick-card:active{transform:translateY(0)}
+        .quick-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+        .quick-label{font-size:13px;font-weight:800;color:var(--text)}
+        .quick-sub{font-size:11px;color:var(--muted2)}
+
+        /* MISC */
+        .hidden{display:none!important}
+        .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700}
+        .badge-fuel{background:rgba(59,130,246,.15);color:#93c5fd}
+        .badge-maint{background:var(--gold-dim);color:var(--gold-light)}
+        .badge-fine{background:var(--danger-dim);color:var(--danger)}
+        .badge-ins{background:var(--purple-dim);color:#c4b5fd}
+        ::-webkit-scrollbar{width:4px;height:4px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
     </style>
 </head>
 <body>
- 
-<!-- ═══ SPLASH ═══ -->
+
 <div id="splash">
-    <div class="splash-orb">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/>
-            <polyline points="12 17 12 19 17 22 22 19 22 12 17 9 12 12"/>
-            <line x1="17" y1="9" x2="17" y2="22"/><line x1="12" y1="12" x2="22" y2="19"/>
-        </svg>
-    </div>
-    <div class="splash-title">مركبتي السحابية</div>
-    <div class="splash-sub">جاري تحميل بياناتك...</div>
-    <div class="splash-dots">
-        <div class="splash-dot"></div>
-        <div class="splash-dot"></div>
-        <div class="splash-dot"></div>
-    </div>
+    <div class="splash-logo"><i data-lucide="car" width="36" height="36"></i></div>
+    <div class="splash-title">مركبتي</div>
+    <div class="splash-spinner"></div>
 </div>
- 
-<!-- ═══ AUTH ═══ -->
+
 <div id="auth-area" style="display:none">
+    <div class="auth-glow"></div>
     <div class="auth-card">
-        <div class="auth-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-        </div>
-        <div class="auth-title">مركبتي السحابية</div>
+        <div class="auth-icon"><i data-lucide="car" width="34" height="34"></i></div>
+        <div class="auth-title">مركبتي</div>
         <div class="auth-sub">سجّل دخولك لإدارة مركباتك</div>
         <div class="input-group">
             <label>اسم المستخدم</label>
@@ -909,109 +309,63 @@
                    onkeydown="if(event.key==='Enter')handleAuth()">
         </div>
         <button class="btn btn-primary" id="auth-btn" onclick="handleAuth()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-            دخول آمن
+            <i data-lucide="log-in" width="16" height="16"></i> تسجيل الدخول
         </button>
         <div id="auth-err" style="color:var(--danger);font-size:12px;margin-top:12px;display:none"></div>
     </div>
 </div>
- 
-<!-- ═══ APP ═══ -->
+
 <div id="app-area" style="display:none">
     <div class="session-banner" id="session-banner">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <i data-lucide="clock" width="14" height="14"></i>
         <span id="session-text"></span>
         <span onclick="renewSession()" style="cursor:pointer;text-decoration:underline;margin-right:8px">تجديد الجلسة</span>
     </div>
- 
     <div class="header-bar">
         <div class="header-brand">
-            <div class="header-logo">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/>
-                    <polyline points="12 17 12 19 17 22 22 19 22 12 17 9 12 12"/>
-                    <line x1="17" y1="9" x2="17" y2="22"/><line x1="12" y1="12" x2="22" y2="19"/>
-                </svg>
-            </div>
+            <div class="header-logo"><i data-lucide="car" width="18" height="18"></i></div>
             <span class="header-name">مركبتي</span>
         </div>
         <div class="header-car-switch">
             <div class="car-switch-btn" onclick="openCarSwitchModal()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg>
+                <i data-lucide="chevrons-up-down" width="14" height="14"></i>
                 <span class="car-switch-name" id="header-car-name">—</span>
             </div>
         </div>
         <button class="logout-btn" onclick="logout()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            خروج
+            <i data-lucide="log-out" width="13" height="13"></i> خروج
         </button>
     </div>
- 
-    <!-- NAV -->
+
+    <!-- ترتيب جديد: مركبات، تسجيل، السجل، مصاريف، إحصائيات -->
     <nav class="bottom-nav" id="main-nav">
         <div class="nav-item active" id="nav-p1" onclick="showTab('p1',this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            <span>مركبات</span>
+            <i data-lucide="car" width="20" height="20"></i><span>مركبات</span>
         </div>
         <div class="nav-item" id="nav-p2" onclick="showTab('p2',this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-            <span>تسجيل</span>
-        </div>
-        <div class="nav-item" id="nav-p7" onclick="showTab('p7',this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            <span>مصاريف</span>
+            <i data-lucide="plus-circle" width="20" height="20"></i><span>تسجيل</span>
         </div>
         <div class="nav-item" id="nav-p5" onclick="showTab('p5',this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-            <span>السجل</span>
+            <i data-lucide="scroll-text" width="20" height="20"></i><span>السجل</span>
+        </div>
+        <div class="nav-item" id="nav-p7" onclick="showTab('p7',this)">
+            <i data-lucide="receipt" width="20" height="20"></i><span>مصاريف</span>
         </div>
         <div class="nav-item" id="nav-p4" onclick="showTab('p4',this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            <span>إحصائيات</span>
+            <i data-lucide="bar-chart-2" width="20" height="20"></i><span>إحصائيات</span>
         </div>
     </nav>
- 
+
     <main class="main-content" id="content-area"></main>
 </div>
- 
+
 <div id="toast"></div>
 <div id="edit-modal"       style="display:none"></div>
 <div id="confirm-modal"    style="display:none"></div>
 <div id="car-switch-modal" style="display:none"></div>
 <div id="extra-modal"      style="display:none"></div>
- 
+
 <script>
-// ══════════════════════════════════════════
-// SVG ICONS
-// ══════════════════════════════════════════
-const ICONS = {
-  car:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
-  fuel:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="15" y2="22"/><line x1="4" y1="9" x2="14" y2="9"/><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"/></svg>`,
-  wrench:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
-  gauge:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
-  shield:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-  alert:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
-  plus:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-  check:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-  trash:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
-  pencil:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
-  download:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
-  chart:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
-  wallet:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>`,
-  info:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
-  file:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
-  x:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-  list:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
-  search:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
-  clock:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
-  arrowRt:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
-  chevUD:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg>`,
-  triWarn:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
-  clipboard:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>`,
-  receipt:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
-};
-function ic(name,size=18){ const s=ICONS[name]||ICONS.info; return s.replace('<svg','<svg width="'+size+'" height="'+size+'"'); }
- 
 // ══════════════════════════════════════════
 // FIREBASE
 // ══════════════════════════════════════════
@@ -1026,44 +380,91 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db   = firebase.database();
 const auth = firebase.auth();
- 
+
 // ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
-let cars=[], activeIdx=0, userId=null;
-let currentFilter='الكل', extraFilter='الكل';
-let currentTabId='p1', isAddingNew=false;
-let registerSubTab='وقود', dbRef=null;
-const SESSION_DURATION=8*60*60*1000;
-let sessionTimer=null, sessionWarningTimer=null;
- 
+let cars          = [];
+let activeIdx     = 0;
+let userId        = null;
+let currentFilter = 'الكل';
+let extraFilter   = 'الكل';
+let currentTabId  = 'p1';
+let isAddingNew   = false;
+let registerSubTab= 'وقود';
+let dbRef         = null;
+
+const SESSION_DURATION = 8*60*60*1000;
+let sessionTimer = null, sessionWarningTimer = null;
+
 // ══════════════════════════════════════════
 // UTILS
 // ══════════════════════════════════════════
-function esc(str){ if(str==null)return''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function hideSplash(){ const s=document.getElementById('splash'); s.classList.add('hide'); setTimeout(()=>s.style.display='none',500); }
-function toast(msg,duration=2500){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),duration); }
-function resetBtn(id,html){ const b=document.getElementById(id); if(b){b.disabled=false;b.innerHTML=html;} }
- 
+function initIcons(){ if(window.lucide) lucide.createIcons(); }
+
+function esc(str){
+    if(str==null) return '';
+    return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function hideSplash(){
+    const s=document.getElementById('splash');
+    s.classList.add('hide');
+    setTimeout(()=>s.style.display='none',400);
+}
+
+function toast(msg,duration=2500){
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.classList.add('show');
+    clearTimeout(t._t);
+    t._t=setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+function resetBtn(id,html){
+    const b=document.getElementById(id);
+    if(b){b.disabled=false;b.innerHTML=html;}
+}
+
 // ══════════════════════════════════════════
 // SESSION
 // ══════════════════════════════════════════
-const GRACE_MS=60*1000;
-function startSession(){ localStorage.setItem('loginTime',Date.now()); hideBanner(); scheduleSessionCheck(); }
+const GRACE_MS = 60*1000;
+
+function startSession(){
+    localStorage.setItem('loginTime',Date.now());
+    hideBanner(); scheduleSessionCheck();
+}
 function renewSession(){ startSession(); toast('تم تجديد الجلسة ✓'); }
-function hideBanner(){ const b=document.getElementById('session-banner'); if(b) b.style.display='none'; }
+function hideBanner(){
+    const b=document.getElementById('session-banner');
+    if(b) b.style.display='none';
+}
 function scheduleSessionCheck(){
     clearTimeout(sessionTimer); clearTimeout(sessionWarningTimer);
     const loginTime=parseInt(localStorage.getItem('loginTime')||'0');
     const remaining=SESSION_DURATION-(Date.now()-loginTime);
     if(remaining<=0){auth.signOut();return;}
     const warnAt=remaining-15*60*1000;
-    if(warnAt>0){ sessionWarningTimer=setTimeout(()=>{ const b=document.getElementById('session-banner'); const t=document.getElementById('session-text'); if(b&&t){t.textContent='ستنتهي جلستك خلال 15 دقيقة —';b.style.display='flex';} },warnAt); }
-    else { const b=document.getElementById('session-banner'); const t=document.getElementById('session-text'); if(b&&t){t.textContent='ستنتهي جلستك قريباً —';b.style.display='flex';} }
+    if(warnAt>0){
+        sessionWarningTimer=setTimeout(()=>{
+            const banner=document.getElementById('session-banner');
+            const text=document.getElementById('session-text');
+            if(banner&&text){text.textContent='ستنتهي جلستك خلال 15 دقيقة —';banner.style.display='flex';initIcons();}
+        },warnAt);
+    } else {
+        const banner=document.getElementById('session-banner');
+        const text=document.getElementById('session-text');
+        if(banner&&text){text.textContent='ستنتهي جلستك قريباً —';banner.style.display='flex';initIcons();}
+    }
     sessionTimer=setTimeout(()=>{auth.signOut();toast('انتهت الجلسة، يرجى تسجيل الدخول مجدداً',4000);},remaining);
 }
-function isSessionValid(){ const t=parseInt(localStorage.getItem('loginTime')||'0'); return t&&(Date.now()-t)<(SESSION_DURATION+GRACE_MS); }
- 
+function isSessionValid(){
+    const t=parseInt(localStorage.getItem('loginTime')||'0');
+    return t && (Date.now()-t)<(SESSION_DURATION+GRACE_MS);
+}
+
 // ══════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════
@@ -1078,7 +479,7 @@ auth.onAuthStateChanged(user=>{
             document.getElementById('auth-area').style.display='none';
             document.getElementById('app-area').style.display='block';
             document.getElementById('main-nav').style.display='flex';
-            syncData();
+            syncData(); initIcons();
         },1200);
     } else {
         if(dbRef){dbRef.off();dbRef=null;}
@@ -1088,10 +489,11 @@ auth.onAuthStateChanged(user=>{
             hideSplash();
             document.getElementById('auth-area').style.display='flex';
             document.getElementById('app-area').style.display='none';
+            initIcons();
         },1200);
     }
 });
- 
+
 function handleAuth(){
     const user=document.getElementById('user_id').value.trim().toLowerCase();
     const pass=document.getElementById('user_pass').value;
@@ -1105,7 +507,12 @@ function handleAuth(){
     const email=user+'@app.com';
     localStorage.setItem('loginTime',Date.now());
     auth.signInWithEmailAndPassword(email,pass)
-        .catch(err=>{ if(err.code==='auth/user-not-found') return auth.createUserWithEmailAndPassword(email,pass); throw err; })
+        .catch(err=>{
+            if(err.code==='auth/user-not-found'){
+                return auth.createUserWithEmailAndPassword(email,pass);
+            }
+            throw err;
+        })
         .catch(err=>{
             localStorage.removeItem('loginTime');
             let msg='حدث خطأ، تحقق من البيانات';
@@ -1115,11 +522,13 @@ function handleAuth(){
             if(err.code==='auth/weak-password')      msg='كلمة المرور ضعيفة جداً';
             errEl.textContent=msg; errEl.style.display='block';
             btn.disabled=false;
-            btn.innerHTML=ic('arrowRt',16)+' دخول آمن';
+            btn.innerHTML='<i data-lucide="log-in" width="16" height="16"></i> تسجيل الدخول';
+            initIcons();
         });
 }
-function logout(){ localStorage.removeItem('loginTime'); auth.signOut(); }
- 
+
+function logout(){localStorage.removeItem('loginTime');auth.signOut();}
+
 // ══════════════════════════════════════════
 // SYNC
 // ══════════════════════════════════════════
@@ -1133,65 +542,75 @@ function syncData(){
             const curId=cars[activeIdx].id;
             const ni=newCars.findIndex(c=>c.id===curId);
             activeIdx=ni>=0?ni:0;
-        } else { activeIdx=Math.min(activeIdx,Math.max(0,newCars.length-1)); }
-        isAddingNew=false; cars=newCars;
-        updateHeaderCar(); showTab(currentTabId);
+        } else {
+            activeIdx=Math.min(activeIdx,Math.max(0,newCars.length-1));
+        }
+        isAddingNew=false;
+        cars=newCars;
+        updateHeaderCar();
+        showTab(currentTabId);
     });
 }
- 
+
 function updateHeaderCar(){
     const el=document.getElementById('header-car-name');
     if(el) el.textContent=cars[activeIdx]?cars[activeIdx].type:'لا توجد مركبة';
 }
- 
+
 // ══════════════════════════════════════════
-// CAR SWITCH
+// CAR SWITCH MODAL
 // ══════════════════════════════════════════
 function openCarSwitchModal(){
     const modal=document.getElementById('car-switch-modal');
-    Object.assign(modal.style,{display:'flex',position:'fixed',inset:'0',zIndex:'500',alignItems:'flex-end',justifyContent:'center',background:'rgba(0,0,0,0.7)',backdropFilter:'blur(8px)'});
+    Object.assign(modal.style,{display:'flex',position:'fixed',inset:'0',zIndex:'500',
+        alignItems:'flex-end',justifyContent:'center',
+        background:'rgba(0,0,0,0.7)',backdropFilter:'blur(6px)'});
     const items=cars.map((c,i)=>`
         <div class="car-list-item ${i===activeIdx?'selected':''}" onclick="switchCar(${i})">
-            <div class="car-list-avatar">${ic('car',22)}</div>
+            <div class="car-list-avatar"><i data-lucide="car" width="22" height="22"></i></div>
             <div style="flex:1"><div class="car-list-name">${esc(c.type)}</div>
             <div class="car-list-year">${c.model?esc(c.model)+' · ':''}${esc(c.lastOdo)||'0 كم'}</div></div>
-            ${i===activeIdx?`<span style="color:var(--accent)">${ic('check',18)}</span>`:''}
+            ${i===activeIdx?'<i data-lucide="check" width="18" height="18" style="color:var(--gold)"></i>':''}
         </div>`).join('');
     modal.innerHTML=`<div class="modal-box">
         <div class="modal-handle"></div>
-        <div class="modal-title" style="color:var(--accent)">${ic('car',20)} اختر المركبة</div>
-        ${cars.length===0?`<div class="empty-state"><div class="ei">${ic('car',48)}</div><p>لا توجد مركبات مضافة</p></div>`:items}
+        <div class="modal-title"><i data-lucide="car" width="20" height="20"></i> اختر المركبة</div>
+        ${cars.length===0?`<div class="empty-state"><div class="ei"><i data-lucide="car" width="48" height="48"></i></div><p>لا توجد مركبات مضافة</p></div>`:items}
         <button class="btn btn-ghost" style="margin-top:10px" onclick="closeCarSwitchModal()">إغلاق</button>
     </div>`;
     modal.onclick=e=>{if(e.target===modal)closeCarSwitchModal();};
+    initIcons();
 }
 function switchCar(idx){
     activeIdx=idx; currentFilter='الكل'; extraFilter='الكل';
     updateHeaderCar(); closeCarSwitchModal();
     showTab(currentTabId); toast('تم التبديل إلى '+cars[idx].type+' ✓');
 }
-function closeCarSwitchModal(){ const m=document.getElementById('car-switch-modal'); m.style.display='none'; m.innerHTML=''; }
- 
+function closeCarSwitchModal(){const m=document.getElementById('car-switch-modal');m.style.display='none';m.innerHTML='';}
+
 // ══════════════════════════════════════════
 // SNIPPETS
 // ══════════════════════════════════════════
 function carHeaderHTML(){
-    const car=cars[activeIdx]; if(!car)return'';
+    const car=cars[activeIdx];
+    if(!car)return'';
     return`<div class="car-header">
-        <div class="car-avatar">${ic('car',24)}</div>
-        <div><div class="car-name">${esc(car.type)}</div>
-        <div class="car-year">${car.model?esc(car.model)+' · ':''}${esc(car.lastOdo)||'0 كم'}</div></div>
+        <div class="car-avatar"><i data-lucide="car" width="26" height="26"></i></div>
+        <div style="flex:1;min-width:0">
+            <div class="car-name">${esc(car.type)}</div>
+            <div class="car-year">${car.model?esc(car.model)+' · ':''}${esc(car.lastOdo)||'0 كم'}</div>
+        </div>
     </div>`;
 }
-function noCar(iconName){
-    return`<div class="g-card"><div class="empty-state">
-        <div class="ei">${ic(iconName,48)}</div>
+function noCar(icon){
+    return`<div class="section-card"><div class="empty-state">
+        <div class="ei"><i data-lucide="${icon}" width="48" height="48"></i></div>
         <p>اختر مركبة أولاً</p>
         <button class="btn btn-primary btn-sm" style="width:auto;padding:0 24px" onclick="openCarSwitchModal()">
-            ${ic('car',14)} اختر مركبة
+            <i data-lucide="car" width="14" height="14"></i> اختر مركبة
         </button></div></div>`;
 }
- 
+
 // ══════════════════════════════════════════
 // SHOW TAB
 // ══════════════════════════════════════════
@@ -1201,47 +620,87 @@ function showTab(tabId,el){
     const navEl=el||document.getElementById('nav-'+tabId);
     if(navEl) navEl.classList.add('active');
     if(tabId!=='p1') isAddingNew=false;
+
     const area=document.getElementById('content-area');
     const car=cars[activeIdx];
- 
+
     // ── VEHICLES + ODO ──
     if(tabId==='p1'){
-        const vType=isAddingNew?'':(car?car.type:'');
+        const vType =isAddingNew?'':(car?car.type:'');
         const vModel=isAddingNew?'':(car?car.model||'':'');
         const odoVal=car?parseInt(car.lastOdo)||0:0;
+
+        // إحصائيات سريعة للمركبة الحالية
+        const logs  = car?.logs   ? Object.values(car.logs)      : [];
+        const fines = car?.fines  ? Object.values(car.fines)      : [];
+        const ins   = car?.insurance ? Object.values(car.insurance) : [];
+        const fuelTotal  = logs.filter(l=>l.cat==='وقود').reduce((a,b)=>a+Number(b.price),0);
+        const maintTotal = logs.filter(l=>l.cat==='صيانة').reduce((a,b)=>a+Number(b.price),0);
+        const pendingFines = fines.filter(f=>f.status==='معلقة').length;
+        const activeIns = ins.filter(i=>{
+            if(!i.endDate) return true;
+            return new Date(i.endDate) >= new Date();
+        }).length;
+
         area.innerHTML=`
-        ${isAddingNew?`<div class="g-card">
-            <div class="section-title">${ic('car',18)} إضافة مركبة جديدة</div>
-            <div class="notice notice-cyan">${ic('info',14)} أدخل بيانات المركبة الجديدة ثم اضغط حفظ</div>
+        ${isAddingNew?`<div class="section-card">
+            <div class="section-title"><i data-lucide="car" width="18" height="18"></i> إضافة مركبة جديدة</div>
+            <div class="notice notice-gold"><i data-lucide="info" width="14" height="14"></i> أدخل بيانات المركبة الجديدة ثم اضغط حفظ</div>
             <div class="input-group"><label>الماركة / الطراز</label>
                 <input type="text" id="v_type" value="${esc(vType)}" placeholder="مثال: نيسان التيما 2026"></div>
             <div class="input-group"><label>سنة الصنع</label>
                 <input type="text" id="v_model" value="${esc(vModel)}" placeholder="مثال: 2026"></div>
             <button class="btn btn-primary" id="save-car-btn" onclick="saveCar()">
-                ${ic('check',16)} حفظ</button>
+                <i data-lucide="check" width="16" height="16"></i> حفظ</button>
             <div style="margin-top:10px">
                 <button class="btn btn-ghost btn-sm" onclick="cancelAddCar()">
-                    ${ic('x',14)} إلغاء</button>
+                    <i data-lucide="x" width="14" height="14"></i> إلغاء</button>
             </div>
         </div>`
-        :`<div class="g-card">
-            <div class="section-title">${ic('car',18)} مركباتي</div>
+        :`<div class="section-card">
+            <div class="section-title"><i data-lucide="car" width="18" height="18"></i> مركباتي</div>
             ${cars.length===0?`<div class="empty-state">
-                <div class="ei">${ic('car',48)}</div>
+                <div class="ei"><i data-lucide="car" width="48" height="48"></i></div>
                 <p>لا توجد مركبات مضافة بعد</p>
             </div>`:''}
             <button class="btn btn-primary" onclick="startAddNewCar()">
-                ${ic('plus',16)} إضافة مركبة جديدة</button>
+                <i data-lucide="plus" width="16" height="16"></i> إضافة مركبة جديدة</button>
             ${car?`<div style="margin-top:10px">
-                <button class="btn btn-danger btn-sm" onclick="confirmDeleteCar()">
-                    ${ic('trash',14)} حذف "${esc(car.type)}"</button>
+                <button class="btn btn-danger-ghost btn-sm" onclick="confirmDeleteCar()">
+                    <i data-lucide="trash-2" width="14" height="14"></i> حذف "${esc(car.type)}"</button>
             </div>`:''}
         </div>`}
- 
-        ${car&&!isAddingNew?`<div class="g-card">
-            <div class="section-title">${ic('gauge',18)} عداد المسافات</div>
+
+        ${car&&!isAddingNew?`
+        <!-- إحصائيات سريعة -->
+        <div class="quick-grid">
+            <div class="quick-card" onclick="showTab('p5')">
+                <div class="quick-icon" style="background:var(--blue-dim)"><i data-lucide="fuel" width="20" height="20" style="color:var(--blue)"></i></div>
+                <div class="quick-label">${fuelTotal.toLocaleString()} ر.س</div>
+                <div class="quick-sub">إجمالي الوقود</div>
+            </div>
+            <div class="quick-card" onclick="showTab('p5')">
+                <div class="quick-icon" style="background:var(--gold-dim)"><i data-lucide="wrench" width="20" height="20" style="color:var(--gold)"></i></div>
+                <div class="quick-label">${maintTotal.toLocaleString()} ر.س</div>
+                <div class="quick-sub">إجمالي الصيانة</div>
+            </div>
+            <div class="quick-card" onclick="setExtraFilter('مخالفات');showTab('p7')">
+                <div class="quick-icon" style="background:var(--danger-dim)"><i data-lucide="alert-octagon" width="20" height="20" style="color:var(--danger)"></i></div>
+                <div class="quick-label" style="color:${pendingFines>0?'var(--danger)':'var(--text)'}">${pendingFines} مخالفة</div>
+                <div class="quick-sub">معلقة الدفع</div>
+            </div>
+            <div class="quick-card" onclick="setExtraFilter('تأمين');showTab('p7')">
+                <div class="quick-icon" style="background:var(--purple-dim)"><i data-lucide="shield" width="20" height="20" style="color:var(--purple)"></i></div>
+                <div class="quick-label" style="color:var(--purple)">${activeIns} وثيقة</div>
+                <div class="quick-sub">تأمين فعّال</div>
+            </div>
+        </div>
+
+        <!-- عداد المسافات -->
+        <div class="section-card">
+            <div class="section-title"><i data-lucide="gauge" width="18" height="18"></i> عداد المسافات</div>
             <div class="odo-display">
-                <div class="odo-icon">${ic('gauge',24)}</div>
+                <div class="odo-icon"><i data-lucide="gauge" width="24" height="24"></i></div>
                 <div>
                     <div class="odo-num">${odoVal.toLocaleString()}</div>
                     <div class="odo-label">الكيلومتر الحالي</div>
@@ -1250,19 +709,19 @@ function showTab(tabId,el){
             <div class="input-group"><label>القراءة الجديدة (كم)</label>
                 <input type="number" id="odo_val" placeholder="${odoVal}" oninput="checkOdoWarn(${odoVal})"></div>
             <div class="odo-warn" id="odo-warn">
-                ${ic('triWarn',14)} القراءة أقل من الحالية — تأكد قبل الحفظ</div>
+                <i data-lucide="alert-triangle" width="14" height="14"></i> القراءة أقل من الحالية — تأكد قبل الحفظ</div>
             <button class="btn btn-primary" id="odo-btn" onclick="updateOdo(${odoVal})">
-                ${ic('gauge',16)} تحديث العداد</button>
+                <i data-lucide="gauge" width="16" height="16"></i> تحديث العداد</button>
         </div>`:''}`;
         if(isAddingNew) setTimeout(()=>document.getElementById('v_type')?.focus(),100);
     }
- 
+
     // ── REGISTER ──
     else if(tabId==='p2'){
-        if(!car){area.innerHTML=noCar('plus');return;}
+        if(!car){area.innerHTML=noCar('plus-circle');initIcons();return;}
         const isFuel=registerSubTab==='وقود';
-        area.innerHTML=`${carHeaderHTML()}<div class="g-card">
-            <div class="section-title">${ic('plus',18)} تسجيل عملية جديدة</div>
+        area.innerHTML=`${carHeaderHTML()}<div class="section-card">
+            <div class="section-title"><i data-lucide="plus-circle" width="18" height="18"></i> تسجيل عملية جديدة</div>
             <div class="inner-tabs">
                 <button class="inner-tab ${isFuel?'active':''}" onclick="setRegisterSubTab('وقود')">⛽ وقود</button>
                 <button class="inner-tab ${!isFuel?'active':''}" onclick="setRegisterSubTab('صيانة')">🔧 صيانة</button>
@@ -1273,7 +732,7 @@ function showTab(tabId,el){
             <div class="input-group"><label>التاريخ</label>
                 <input type="date" id="f_d"></div>
             <button class="btn btn-primary" id="fuel-btn" onclick="addLog('وقود')">
-                ${ic('fuel',16)} تسجيل الوقود</button>
+                <i data-lucide="fuel" width="16" height="16"></i> تسجيل الوقود</button>
             `:`
             <div class="input-group"><label>نوع الصيانة</label>
                 <div class="select-wrap"><select id="m_type_sel" onchange="toggleManualMaint()">
@@ -1292,100 +751,110 @@ function showTab(tabId,el){
             <div class="input-group"><label>التاريخ</label>
                 <input type="date" id="m_d"></div>
             <button class="btn btn-primary" id="maint-btn" onclick="addLog('صيانة')">
-                ${ic('wrench',16)} تسجيل الصيانة</button>
+                <i data-lucide="wrench" width="16" height="16"></i> تسجيل الصيانة</button>
             `}
         </div>`;
         setTimeout(()=>{
-            const fd=document.getElementById('f_d'); const md=document.getElementById('m_d');
-            if(fd) fd.valueAsDate=new Date(); if(md) md.valueAsDate=new Date();
+            const fd=document.getElementById('f_d');
+            const md=document.getElementById('m_d');
+            if(fd) fd.valueAsDate=new Date();
+            if(md) md.valueAsDate=new Date();
         },0);
     }
- 
+
     // ── STATS ──
     else if(tabId==='p4'){
-        if(!car){area.innerHTML=`<div class="g-card"><div class="empty-state"><div class="ei">${ic('chart',48)}</div><p>لا توجد مركبات</p></div></div>`;return;}
-        const logs=car.logs?Object.values(car.logs):[];
-        const fines=car.fines?Object.values(car.fines):[];
-        const ins=car.insurance?Object.values(car.insurance):[];
+        if(!car){area.innerHTML=`<div class="section-card"><div class="empty-state"><div class="ei"><i data-lucide="bar-chart-2" width="48" height="48"></i></div><p>لا توجد مركبات</p></div></div>`;initIcons();return;}
+        const logs =car.logs  ?Object.values(car.logs) :[];
+        const fines=car.fines ?Object.values(car.fines):[];
+        const ins  =car.insurance?Object.values(car.insurance):[];
         const maint=logs.filter(l=>l.cat==='صيانة').reduce((a,b)=>a+Number(b.price),0);
-        const fuel=logs.filter(l=>l.cat==='وقود').reduce((a,b)=>a+Number(b.price),0);
+        const fuel =logs.filter(l=>l.cat==='وقود' ).reduce((a,b)=>a+Number(b.price),0);
         const finesTotal=fines.reduce((a,b)=>a+Number(b.price),0);
-        const insTotal=ins.reduce((a,b)=>a+Number(b.price),0);
+        let insTotal=0;
+        ins.forEach(i=>{
+            if(i.payMethod==='أقساط'&&i.paidInstalments){
+                const perInst=i.instalments>0?i.price/i.instalments:0;
+                insTotal+=Object.keys(i.paidInstalments).length*perInst;
+            } else if(i.payMethod!=='أقساط'){
+                insTotal+=Number(i.price);
+            }
+        });
         const total=maint+fuel+finesTotal+insTotal;
         const md=buildMonthlyChart(logs);
         area.innerHTML=`${carHeaderHTML()}
-            <div class="g-card">
-                <div class="section-title">${ic('chart',18)} الإحصائيات</div>
+            <div class="section-card">
+                <div class="section-title"><i data-lucide="bar-chart-2" width="18" height="18"></i> الإحصائيات</div>
                 <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-icon">${ic('wrench',22)}</div>
-                        <span class="stat-label">الصيانة</span><span class="stat-value" style="color:var(--accent2)">${maint.toLocaleString()}</span><span class="stat-unit">ريال</span></div>
-                    <div class="stat-card"><div class="stat-icon" style="color:var(--accent)">${ic('fuel',22)}</div>
+                    <div class="stat-card"><div class="stat-icon"><i data-lucide="wrench" width="22" height="22"></i></div>
+                        <span class="stat-label">الصيانة</span><span class="stat-value">${maint.toLocaleString()}</span><span class="stat-unit">ريال</span></div>
+                    <div class="stat-card"><div class="stat-icon"><i data-lucide="fuel" width="22" height="22"></i></div>
                         <span class="stat-label">الوقود</span><span class="stat-value">${fuel.toLocaleString()}</span><span class="stat-unit">ريال</span></div>
-                    <div class="stat-card"><div class="stat-icon" style="color:var(--danger)">${ic('alert',22)}</div>
+                    <div class="stat-card"><div class="stat-icon"><i data-lucide="alert-octagon" width="22" height="22" style="color:var(--danger)"></i></div>
                         <span class="stat-label">المخالفات</span><span class="stat-value" style="color:var(--danger)">${finesTotal.toLocaleString()}</span><span class="stat-unit">ريال</span></div>
-                    <div class="stat-card"><div class="stat-icon" style="color:var(--accent2)">${ic('shield',22)}</div>
-                        <span class="stat-label">التأمين</span><span class="stat-value" style="color:var(--accent2)">${insTotal.toLocaleString()}</span><span class="stat-unit">ريال</span></div>
-                    <div class="stat-card"><div class="stat-icon">${ic('gauge',22)}</div>
+                    <div class="stat-card"><div class="stat-icon"><i data-lucide="shield" width="22" height="22" style="color:var(--purple)"></i></div>
+                        <span class="stat-label">التأمين المدفوع</span><span class="stat-value" style="color:var(--purple)">${Math.round(insTotal).toLocaleString()}</span><span class="stat-unit">ريال</span></div>
+                    <div class="stat-card"><div class="stat-icon"><i data-lucide="gauge" width="22" height="22"></i></div>
                         <span class="stat-label">العداد</span><span class="stat-value">${parseInt(car.lastOdo)||0}</span><span class="stat-unit">كم</span></div>
-                    <div class="stat-card"><div class="stat-icon">${ic('file',22)}</div>
+                    <div class="stat-card"><div class="stat-icon"><i data-lucide="file-text" width="22" height="22"></i></div>
                         <span class="stat-label">السجلات</span><span class="stat-value">${logs.length+fines.length+ins.length}</span><span class="stat-unit">عملية</span></div>
-                    <div class="stat-card total"><div class="stat-icon">${ic('wallet',22)}</div>
-                        <span class="stat-label">الإجمالي الكلي</span>
-                        <span class="stat-value" style="background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${total.toLocaleString()}</span>
-                        <span class="stat-unit">ريال سعودي</span></div>
+                    <div class="stat-card total"><div class="stat-icon"><i data-lucide="wallet" width="22" height="22"></i></div>
+                        <span class="stat-label">الإجمالي الكلي</span><span class="stat-value">${Math.round(total).toLocaleString()}</span><span class="stat-unit">ريال سعودي</span></div>
                 </div>
                 ${md.hasData?renderChart(md):''}
             </div>`;
     }
- 
+
     // ── LOG ──
     else if(tabId==='p5'){
-        if(!car){area.innerHTML=noCar('list');return;}
-        area.innerHTML=`${carHeaderHTML()}<div class="g-card">
-            <div class="section-title">${ic('list',18)} سجل العمليات</div>
-            <button class="btn btn-success-outline btn-sm" onclick="exportExcel()">
-                ${ic('download',14)} تصدير Excel</button>
+        if(!car){area.innerHTML=noCar('scroll-text');initIcons();return;}
+        area.innerHTML=`${carHeaderHTML()}<div class="section-card">
+            <div class="section-title"><i data-lucide="scroll-text" width="18" height="18"></i> سجل العمليات</div>
+            <button class="btn btn-success btn-sm" onclick="exportExcel('log')">
+                <i data-lucide="download" width="14" height="14"></i> تصدير Excel</button>
             <div class="filter-pills">
-                ${['الكل','وقود','زيت المحرك','زيت القير','أخرى'].map(f=>
-                    `<button class="pill ${currentFilter===f?'active':''}" onclick="setFilter('${f}')">${f}</button>`
+                ${['الكل','وقود','زيت المحرك','زيت القير','تغيير كفرات','فلتر مكينة','غيار الفرامل','بطارية','أخرى'].map(f=>
+                    `<button class="pill ${currentFilter===f?'active':''}" onclick="setFilter('${esc(f)}')">${f}</button>`
                 ).join('')}
             </div>
             <div id="logs_container"></div>
         </div>`;
         renderLogs();
     }
- 
+
     // ── EXTRA ──
     else if(tabId==='p7'){
-        if(!car){area.innerHTML=noCar('receipt');return;}
+        if(!car){area.innerHTML=noCar('receipt');initIcons();return;}
         const ef=extraFilter;
-        area.innerHTML=`${carHeaderHTML()}<div class="g-card">
-            <div class="section-title">${ic('receipt',18)} المصاريف الأخرى</div>
-            <button class="btn btn-success-outline btn-sm" onclick="exportExcel()">
-                ${ic('download',14)} تصدير Excel</button>
+        area.innerHTML=`${carHeaderHTML()}<div class="section-card">
+            <div class="section-title"><i data-lucide="receipt" width="18" height="18"></i> المصاريف الأخرى</div>
+            <button class="btn btn-success btn-sm" onclick="exportExcel('extra')">
+                <i data-lucide="download" width="14" height="14"></i> تصدير Excel</button>
             <div class="filter-pills">
                 <button class="pill ${ef==='الكل'?'active':''}"             onclick="setExtraFilter('الكل')">الكل</button>
                 <button class="pill pill-fine ${ef==='مخالفات'?'active':''}" onclick="setExtraFilter('مخالفات')">🚨 مخالفات</button>
                 <button class="pill pill-ins  ${ef==='تأمين'?'active':''}"   onclick="setExtraFilter('تأمين')">🛡️ تأمين</button>
             </div>
             <div style="display:flex;gap:8px;margin-bottom:16px">
-                ${ef!=='تأمين'?`<button class="btn btn-fine btn-sm" style="flex:1" onclick="openFineModal()">
-                    ${ic('plus',13)} إضافة مخالفة</button>`:''}
-                ${ef!=='مخالفات'?`<button class="btn btn-ins btn-sm" style="flex:1" onclick="openInsModal()">
-                    ${ic('plus',13)} إضافة تأمين</button>`:''}
+                ${ef!=='تأمين'?`<button class="btn btn-sm" style="flex:1;background:var(--danger-dim);border:1px solid rgba(244,63,94,.2);color:var(--danger)" onclick="openFineModal()">
+                    <i data-lucide="plus" width="13" height="13"></i> إضافة مخالفة</button>`:''}
+                ${ef!=='مخالفات'?`<button class="btn btn-sm" style="flex:1;background:var(--purple-dim);border:1px solid rgba(139,92,246,.2);color:var(--purple)" onclick="openInsModal()">
+                    <i data-lucide="plus" width="13" height="13"></i> إضافة تأمين</button>`:''}
             </div>
             <div id="extra_container"></div>
         </div>`;
         renderExtra();
     }
+
+    initIcons();
 }
- 
+
 // ══════════════════════════════════════════
 // REGISTER SUB-TAB
 // ══════════════════════════════════════════
 function setRegisterSubTab(tab){ registerSubTab=tab; showTab('p2'); }
 function setExtraFilter(f){ extraFilter=f; showTab('p7'); }
- 
+
 // ══════════════════════════════════════════
 // RENDER EXTRA
 // ══════════════════════════════════════════
@@ -1393,47 +862,96 @@ function renderExtra(){
     const car=cars[activeIdx];
     const container=document.getElementById('extra_container');
     if(!container)return;
-    const fines=car.fines?Object.keys(car.fines).map(k=>({...car.fines[k],key:k,_type:'fine'})):[];
-    const ins=car.insurance?Object.keys(car.insurance).map(k=>({...car.insurance[k],key:k,_type:'ins'})):[];
+    const fines=car.fines   ?Object.keys(car.fines).map(k=>({...car.fines[k],key:k,_type:'fine'})):[];
+    const ins  =car.insurance?Object.keys(car.insurance).map(k=>({...car.insurance[k],key:k,_type:'ins'})):[];
     let items=[];
-    if(extraFilter==='الكل') items=[...fines,...ins];
+    if(extraFilter==='الكل')        items=[...fines,...ins];
     else if(extraFilter==='مخالفات') items=fines;
-    else items=ins;
+    else                             items=ins;
     if(items.length===0){
-        container.innerHTML=`<div class="empty-state"><div class="ei">${ic(extraFilter==='تأمين'?'shield':'alert',48)}</div><p>لا توجد سجلات</p></div>`;
-        return;
+        container.innerHTML=`<div class="empty-state">
+            <div class="ei"><i data-lucide="${extraFilter==='تأمين'?'shield':'alert-octagon'}" width="48" height="48"></i></div>
+            <p>لا توجد سجلات</p></div>`;
+        initIcons();return;
     }
-    items.sort((a,b)=>{ const da=a._type==='fine'?a.date:(a.startDate||''); const db2=b._type==='fine'?b.date:(b.startDate||''); return db2.localeCompare(da); });
-    container.innerHTML=items.map(item=>item._type==='fine'?renderFineItem(item):renderInsItem(item)).join('');
+    items.sort((a,b)=>{
+        const da=a._type==='fine'?a.date:(a.startDate||'');
+        const db2=b._type==='fine'?b.date:(b.startDate||'');
+        return db2.localeCompare(da);
+    });
+    container.innerHTML=items.map(item=>{
+        if(item._type==='fine') return renderFineItem(item);
+        return renderInsItem(item);
+    }).join('');
+    initIcons();
 }
- 
+
 function renderFineItem(f){
     const paid=f.status==='مدفوعة';
     return`<div class="log-item">
-        <div class="log-dot fine">${ic('alert',18)}</div>
+        <div class="log-dot fine"><i data-lucide="alert-octagon" width="18" height="18"></i></div>
         <div class="log-info">
             <div class="log-title">${esc(f.fineType)}</div>
             <div class="log-meta">${esc(f.date)} · <span class="badge badge-fine">مخالفة</span></div>
         </div>
         <span class="status-badge ${paid?'status-paid':'status-pending'}">${paid?'مدفوعة':'معلقة'}</span>
         <div class="log-price">${Number(f.price).toLocaleString()} ر.س</div>
-        <div class="log-edit" onclick="openFineEditModal('${f.key}')">${ic('pencil',15)}</div>
-        <div class="log-del"  onclick="confirmDeleteExtra('fine','${f.key}')">${ic('trash',15)}</div>
+        <div class="log-edit" onclick="openFineEditModal('${f.key}')"><i data-lucide="pencil" width="15" height="15"></i></div>
+        <div class="log-del"  onclick="confirmDeleteExtra('fine','${f.key}')"><i data-lucide="trash-2" width="15" height="15"></i></div>
     </div>`;
 }
- 
+
 function renderInsItem(ins){
     const today=new Date(); today.setHours(0,0,0,0);
     const end=ins.endDate?new Date(ins.endDate):null;
     let statusClass='status-active', statusLabel='فعّال';
-    if(end){ const diff=Math.ceil((end-today)/(1000*60*60*24)); if(diff<0){statusClass='status-expired';statusLabel='منتهي';}else if(diff<=30){statusClass='status-expiring';statusLabel=`ينتهي بعد ${diff} يوم`;} }
+    if(end){
+        const diff=Math.ceil((end-today)/(1000*60*60*24));
+        if(diff<0){statusClass='status-expired';statusLabel='منتهي';}
+        else if(diff<=30){statusClass='status-expiring';statusLabel=`ينتهي بعد ${diff} يوم`;}
+    }
     let progress=100;
-    if(ins.startDate&&ins.endDate){ const s=new Date(ins.startDate),e=new Date(ins.endDate); const total=e-s; const elapsed=today-s; progress=total>0?Math.min(100,Math.max(0,Math.round((elapsed/total)*100))):100; }
-    const barColor=statusClass==='status-expired'?'var(--danger)':statusClass==='status-expiring'?'var(--warn)':'var(--success)';
+    if(ins.startDate&&ins.endDate){
+        const s=new Date(ins.startDate),e=new Date(ins.endDate);
+        const total=e-s; const elapsed=today-s;
+        progress=total>0?Math.min(100,Math.max(0,Math.round((elapsed/total)*100))):100;
+    }
+    const barColor=statusClass==='status-expired'?'var(--danger)':statusClass==='status-expiring'?'var(--gold)':'var(--success)';
+
+    let instalmentsHTML='';
+    if(ins.payMethod==='أقساط'&&ins.instalments>0&&ins.firstInstDate){
+        const perInst=Math.round(ins.price/ins.instalments);
+        const paidMap=ins.paidInstalments||{};
+        const paidCount=Object.keys(paidMap).length;
+        const remaining=ins.instalments-paidCount;
+        let instItems='';
+        for(let i=0;i<ins.instalments;i++){
+            const instDate=getInstDate(ins.firstInstDate,i);
+            const isPaid=paidMap[i]!==undefined;
+            const isUpcoming=!isPaid&&i===paidCount;
+            instItems+=`<div class="inst-item ${isPaid?'paid':isUpcoming?'upcoming':''}">
+                <span class="inst-num">${i+1}</span>
+                <span class="inst-date">${instDate}</span>
+                <span class="inst-amount">${perInst.toLocaleString()} ر.س</span>
+                ${isPaid
+                    ?`<span class="inst-paid-badge">✓ مدفوع</span>`
+                    :`<button class="inst-pay-btn" onclick="payInstalment('${ins.key}',${i})">دفع</button>`
+                }
+            </div>`;
+        }
+        instalmentsHTML=`<div class="inst-list">
+            <div class="inst-list-title">
+                <span>📆 الأقساط (${paidCount} من ${ins.instalments} مدفوعة)</span>
+                <span style="color:${remaining>0?'var(--gold)':'var(--success)'}">${remaining>0?remaining+' متبقٍ':'مكتمل ✓'}</span>
+            </div>
+            ${instItems}
+        </div>`;
+    }
+
     return`<div class="ins-card">
         <div class="ins-card-header">
-            <div class="ins-avatar">${ic('shield',22)}</div>
-            <div style="flex:1">
+            <div class="ins-avatar"><i data-lucide="shield" width="22" height="22"></i></div>
+            <div style="flex:1;min-width:0">
                 <div class="ins-title">${esc(ins.insType||'تأمين')}</div>
                 <div class="ins-type">${esc(ins.company||'')}</div>
             </div>
@@ -1443,25 +961,60 @@ function renderInsItem(ins){
             <div class="ins-date-item"><div class="ins-date-label">تاريخ البداية</div><div class="ins-date-val">${esc(ins.startDate)||'—'}</div></div>
             <div class="ins-date-item"><div class="ins-date-label">تاريخ الانتهاء</div><div class="ins-date-val">${esc(ins.endDate)||'—'}</div></div>
         </div>
-        ${ins.startDate&&ins.endDate?`<div class="ins-progress">
+        ${ins.startDate&&ins.endDate?`
+        <div class="ins-progress">
             <div class="ins-progress-label"><span>نسبة المنقضي</span><span>${progress}%</span></div>
             <div class="ins-progress-bar"><div class="ins-progress-fill" style="width:${progress}%;background:${barColor}"></div></div>
         </div>`:''}
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
             <div>
                 <div class="log-price" style="font-size:15px">${Number(ins.price).toLocaleString()} ر.س</div>
-                ${ins.payMethod?`<div style="font-size:11px;color:var(--text2);margin-top:4px">
-                    ${ins.payMethod==='أقساط'?`📆 أقساط · ${ins.instalments} قسط · ${Math.round(ins.price/ins.instalments).toLocaleString()} ر.س/قسط`:'💵 كاش'}
+                ${ins.payMethod?`<div style="font-size:11px;color:var(--muted2);margin-top:4px">
+                    ${ins.payMethod==='أقساط'
+                        ?`📆 أقساط · ${ins.instalments} قسط · ${Math.round(ins.price/ins.instalments).toLocaleString()} ر.س/قسط`
+                        :'💵 كاش'}
                 </div>`:''}
             </div>
             <div style="display:flex;gap:6px">
-                <div class="log-edit" onclick="openInsEditModal('${ins.key}')">${ic('pencil',15)}</div>
-                <div class="log-del"  onclick="confirmDeleteExtra('ins','${ins.key}')">${ic('trash',15)}</div>
+                <div class="log-edit" onclick="openInsEditModal('${ins.key}')"><i data-lucide="pencil" width="15" height="15"></i></div>
+                <div class="log-del"  onclick="confirmDeleteExtra('ins','${ins.key}')"><i data-lucide="trash-2" width="15" height="15"></i></div>
             </div>
         </div>
+        ${instalmentsHTML}
     </div>`;
 }
- 
+
+// ══════════════════════════════════════════
+// INSTALMENTS
+// ══════════════════════════════════════════
+function getInstDate(firstDate,index){
+    if(!firstDate)return'—';
+    const d=new Date(firstDate);
+    d.setMonth(d.getMonth()+index);
+    return d.toLocaleDateString('ar-SA',{year:'numeric',month:'short',day:'numeric'});
+}
+
+function payInstalment(insKey,instIndex){
+    const car=cars[activeIdx];
+    if(!car?.id)return;
+    const carId=car.id;
+    const today=new Date().toISOString().split('T')[0];
+    db.ref(`users/${userId}/garage/${carId}/insurance/${insKey}/paidInstalments/${instIndex}`)
+        .set(today)
+        .then(()=>{
+            // تحديث الحالة المحلية مباشرة
+            if(!cars[activeIdx]?.insurance?.[insKey]) return;
+            if(!cars[activeIdx].insurance[insKey].paidInstalments)
+                cars[activeIdx].insurance[insKey].paidInstalments={};
+            cars[activeIdx].insurance[insKey].paidInstalments[instIndex]=today;
+            const ins=cars[activeIdx].insurance[insKey];
+            const paidCount=Object.keys(ins.paidInstalments).length;
+            toast(paidCount>=ins.instalments?'🎉 تم سداد جميع الأقساط!':'تم تسجيل دفع القسط ✓',3000);
+            renderExtra();
+        })
+        .catch(()=>toast('حدث خطأ، حاول مجدداً'));
+}
+
 // ══════════════════════════════════════════
 // FINE MODAL
 // ══════════════════════════════════════════
@@ -1469,18 +1022,21 @@ function openFineModal(existingKey){
     const car=cars[activeIdx];
     const existing=existingKey&&car.fines?car.fines[existingKey]:null;
     const modal=document.getElementById('extra-modal');
-    Object.assign(modal.style,{display:'flex',position:'fixed',inset:'0',zIndex:'500',alignItems:'flex-end',justifyContent:'center',background:'rgba(0,0,0,0.7)',backdropFilter:'blur(8px)'});
+    Object.assign(modal.style,{display:'flex',position:'fixed',inset:'0',zIndex:'500',
+        alignItems:'flex-end',justifyContent:'center',
+        background:'rgba(0,0,0,0.7)',backdropFilter:'blur(6px)'});
     modal.innerHTML=`<div class="modal-box">
         <div class="modal-handle"></div>
-        <div class="modal-title" style="color:var(--danger)">${ic('alert',18)} ${existing?'تعديل مخالفة':'إضافة مخالفة'}</div>
+        <div class="modal-title" style="color:var(--danger)"><i data-lucide="alert-octagon" width="18" height="18"></i>
+            ${existing?'تعديل مخالفة':'إضافة مخالفة'}</div>
         <div class="input-group"><label>نوع المخالفة</label>
             <div class="select-wrap"><select id="fine_type">
-                <option value="تجاوز السرعة" ${existing?.fineType==='تجاوز السرعة'?'selected':''}>تجاوز السرعة</option>
-                <option value="وقوف ممنوع" ${existing?.fineType==='وقوف ممنوع'?'selected':''}>وقوف ممنوع</option>
-                <option value="تجاوز إشارة" ${existing?.fineType==='تجاوز إشارة'?'selected':''}>تجاوز إشارة</option>
+                <option value="تجاوز السرعة"   ${existing?.fineType==='تجاوز السرعة'?'selected':''}>تجاوز السرعة</option>
+                <option value="وقوف ممنوع"     ${existing?.fineType==='وقوف ممنوع'?'selected':''}>وقوف ممنوع</option>
+                <option value="تجاوز إشارة"    ${existing?.fineType==='تجاوز إشارة'?'selected':''}>تجاوز إشارة</option>
                 <option value="عدم ربط الحزام" ${existing?.fineType==='عدم ربط الحزام'?'selected':''}>عدم ربط الحزام</option>
                 <option value="استخدام الجوال" ${existing?.fineType==='استخدام الجوال'?'selected':''}>استخدام الجوال</option>
-                <option value="أخرى" ${existing?.fineType==='أخرى'?'selected':''}>أخرى</option>
+                <option value="أخرى"           ${existing?.fineType==='أخرى'?'selected':''}>أخرى</option>
             </select></div></div>
         <div class="input-group"><label>المبلغ (ر.س)</label>
             <input type="number" id="fine_price" value="${existing?existing.price:''}" placeholder="0" min="0"></div>
@@ -1488,38 +1044,44 @@ function openFineModal(existingKey){
             <input type="date" id="fine_date" value="${existing?existing.date:''}"></div>
         <div class="input-group"><label>حالة الدفع</label>
             <div class="select-wrap"><select id="fine_status">
-                <option value="معلقة" ${(!existing||existing.status==='معلقة')?'selected':''}>⏳ معلقة</option>
+                <option value="معلقة"  ${(!existing||existing.status==='معلقة')?'selected':''}>⏳ معلقة</option>
                 <option value="مدفوعة" ${existing?.status==='مدفوعة'?'selected':''}>✅ مدفوعة</option>
             </select></div></div>
         <div class="modal-actions">
             <button class="btn btn-ghost" style="flex:1" onclick="closeExtraModal()">إلغاء</button>
-            <button class="btn" style="flex:2;background:linear-gradient(135deg,var(--danger),#be123c);color:#fff"
+            <button class="btn btn-primary" style="flex:2;background:linear-gradient(135deg,var(--danger),#be123c);box-shadow:none"
                 id="save-fine-btn" onclick="saveFine('${existingKey||''}')">
-                ${ic('check',16)} حفظ</button>
+                <i data-lucide="check" width="16" height="16"></i> حفظ</button>
         </div>
     </div>`;
-    if(!existing) setTimeout(()=>{ const fd=document.getElementById('fine_date'); if(fd) fd.valueAsDate=new Date(); },50);
+    if(!existing) setTimeout(()=>{const fd=document.getElementById('fine_date');if(fd)fd.valueAsDate=new Date();},50);
     modal.onclick=e=>{if(e.target===modal)closeExtraModal();};
+    initIcons();
 }
-function openFineEditModal(key){ openFineModal(key); }
- 
+function openFineEditModal(key){openFineModal(key);}
+
 function saveFine(existingKey){
-    const car=cars[activeIdx]; if(!car?.id){toast('اختر مركبة أولاً');return;}
-    const carId=car.id; const isEdit=existingKey&&existingKey.length>0;
+    const car=cars[activeIdx];
+    if(!car?.id){toast('اختر مركبة أولاً');return;}
+    const carId=car.id;
+    const isEdit=existingKey&&existingKey.length>0;
     const fineType=document.getElementById('fine_type').value;
     const priceRaw=document.getElementById('fine_price').value;
-    const date=document.getElementById('fine_date').value;
-    const status=document.getElementById('fine_status').value;
+    const date    =document.getElementById('fine_date').value;
+    const status  =document.getElementById('fine_status').value;
     const price=parseFloat(priceRaw);
     if(!priceRaw||isNaN(price)||price<0){toast('أدخل مبلغاً صحيحاً');return;}
     if(!date){toast('اختر التاريخ');return;}
-    const btn=document.getElementById('save-fine-btn'); btn.disabled=true; btn.innerHTML='<div class="btn-spinner"></div>';
-    const ref=isEdit?db.ref(`users/${userId}/garage/${carId}/fines/${existingKey}`):db.ref(`users/${userId}/garage/${carId}/fines`).push();
+    const btn=document.getElementById('save-fine-btn');
+    btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div>';
+    const ref=isEdit
+        ?db.ref(`users/${userId}/garage/${carId}/fines/${existingKey}`)
+        :db.ref(`users/${userId}/garage/${carId}/fines`).push();
     ref.set({fineType,price,date,status})
         .then(()=>{closeExtraModal();toast(isEdit?'تم التعديل ✓':'تمت إضافة المخالفة ✓');extraFilter='مخالفات';showTab('p7');})
-        .catch(()=>{resetBtn('save-fine-btn',ic('check',16)+' حفظ');toast('حدث خطأ، حاول مجدداً');});
+        .catch(()=>{resetBtn('save-fine-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');toast('حدث خطأ');initIcons();});
 }
- 
+
 // ══════════════════════════════════════════
 // INSURANCE MODAL
 // ══════════════════════════════════════════
@@ -1527,18 +1089,21 @@ function openInsModal(existingKey){
     const car=cars[activeIdx];
     const existing=existingKey&&car.insurance?car.insurance[existingKey]:null;
     const modal=document.getElementById('extra-modal');
-    Object.assign(modal.style,{display:'flex',position:'fixed',inset:'0',zIndex:'500',alignItems:'flex-end',justifyContent:'center',background:'rgba(0,0,0,0.7)',backdropFilter:'blur(8px)'});
+    Object.assign(modal.style,{display:'flex',position:'fixed',inset:'0',zIndex:'500',
+        alignItems:'flex-end',justifyContent:'center',
+        background:'rgba(0,0,0,0.7)',backdropFilter:'blur(6px)'});
     modal.innerHTML=`<div class="modal-box">
         <div class="modal-handle"></div>
-        <div class="modal-title" style="color:var(--accent2)">${ic('shield',18)} ${existing?'تعديل التأمين':'إضافة تأمين'}</div>
+        <div class="modal-title" style="color:var(--purple)"><i data-lucide="shield" width="18" height="18"></i>
+            ${existing?'تعديل التأمين':'إضافة تأمين'}</div>
         <div class="input-group"><label>نوع التأمين</label>
             <div class="select-wrap"><select id="ins_type">
-                <option value="تأمين شامل" ${existing?.insType==='تأمين شامل'?'selected':''}>تأمين شامل</option>
+                <option value="تأمين شامل"     ${existing?.insType==='تأمين شامل'?'selected':''}>تأمين شامل</option>
                 <option value="تأمين ضد الغير" ${existing?.insType==='تأمين ضد الغير'?'selected':''}>تأمين ضد الغير</option>
             </select></div></div>
         <div class="input-group"><label>شركة التأمين (اختياري)</label>
             <input type="text" id="ins_company" value="${existing?esc(existing.company||''):''}" placeholder="مثال: ولاء، تكافل الراجحي..."></div>
-        <div class="input-group"><label>قسط التأمين (ر.س)</label>
+        <div class="input-group"><label>قسط التأمين الكلي (ر.س)</label>
             <input type="number" id="ins_price" value="${existing?existing.price:''}" placeholder="0" min="0"></div>
         <div class="input-group"><label>تاريخ البداية</label>
             <input type="date" id="ins_start" value="${existing?existing.startDate:''}"></div>
@@ -1546,207 +1111,359 @@ function openInsModal(existingKey){
             <input type="date" id="ins_end" value="${existing?existing.endDate:''}"></div>
         <div class="input-group"><label>طريقة الدفع</label>
             <div class="select-wrap"><select id="ins_pay_method" onchange="toggleInstalments()">
-                <option value="كاش" ${(!existing||existing.payMethod==='كاش')?'selected':''}>💵 كاش</option>
+                <option value="كاش"   ${(!existing||existing.payMethod==='كاش')?'selected':''}>💵 كاش (دفعة واحدة)</option>
                 <option value="أقساط" ${existing?.payMethod==='أقساط'?'selected':''}>📆 أقساط</option>
             </select></div></div>
         <div id="ins_install_group" class="${existing?.payMethod==='أقساط'?'input-group':'input-group hidden'}">
             <label>عدد الأقساط</label>
             <input type="number" id="ins_instalments" value="${existing?.instalments||''}" placeholder="مثال: 12" min="2" max="60">
+            <div style="margin-top:12px">
+                <label>تاريخ أول قسط</label>
+                <input type="date" id="ins_first_inst_date" value="${existing?.firstInstDate||''}">
+            </div>
         </div>
         <div class="modal-actions">
             <button class="btn btn-ghost" style="flex:1" onclick="closeExtraModal()">إلغاء</button>
-            <button class="btn" style="flex:2;background:linear-gradient(135deg,var(--accent2),#6d28d9);color:#fff"
+            <button class="btn btn-primary" style="flex:2;background:linear-gradient(135deg,var(--purple),#6d28d9);box-shadow:none"
                 id="save-ins-btn" onclick="saveIns('${existingKey||''}')">
-                ${ic('check',16)} حفظ</button>
+                <i data-lucide="check" width="16" height="16"></i> حفظ</button>
         </div>
     </div>`;
     modal.onclick=e=>{if(e.target===modal)closeExtraModal();};
+    initIcons();
 }
-function openInsEditModal(key){ openInsModal(key); }
- 
+function openInsEditModal(key){openInsModal(key);}
+
 function saveIns(existingKey){
-    const car=cars[activeIdx]; if(!car?.id){toast('اختر مركبة أولاً');return;}
-    const carId=car.id; const isEdit=existingKey&&existingKey.length>0;
-    const insType=document.getElementById('ins_type').value;
-    const company=document.getElementById('ins_company').value.trim();
-    const priceRaw=document.getElementById('ins_price').value;
-    const startDate=document.getElementById('ins_start').value;
-    const endDate=document.getElementById('ins_end').value;
+    const car=cars[activeIdx];
+    if(!car?.id){toast('اختر مركبة أولاً');return;}
+    const carId=car.id;
+    const isEdit=existingKey&&existingKey.length>0;
+    const insType   =document.getElementById('ins_type').value;
+    const company   =document.getElementById('ins_company').value.trim();
+    const priceRaw  =document.getElementById('ins_price').value;
+    const startDate =document.getElementById('ins_start').value;
+    const endDate   =document.getElementById('ins_end').value;
     const price=parseFloat(priceRaw);
     if(!priceRaw||isNaN(price)||price<0){toast('أدخل مبلغاً صحيحاً');return;}
     if(!startDate||!endDate){toast('أدخل تواريخ البداية والانتهاء');return;}
     if(endDate<=startDate){toast('تاريخ الانتهاء يجب أن يكون بعد البداية');return;}
-    const payMethod=document.getElementById('ins_pay_method').value;
+    const payMethod     =document.getElementById('ins_pay_method').value;
     const instalmentsRaw=document.getElementById('ins_instalments')?.value;
-    const instalments=payMethod==='أقساط'?(parseInt(instalmentsRaw)||0):0;
+    const instalments   =payMethod==='أقساط'?(parseInt(instalmentsRaw)||0):0;
+    const firstInstDate =payMethod==='أقساط'?(document.getElementById('ins_first_inst_date')?.value||''):'';
     if(payMethod==='أقساط'&&instalments<2){toast('أدخل عدد أقساط صحيح (2 أو أكثر)');return;}
-    const btn=document.getElementById('save-ins-btn'); btn.disabled=true; btn.innerHTML='<div class="btn-spinner-light"></div>';
-    const ref=isEdit?db.ref(`users/${userId}/garage/${carId}/insurance/${existingKey}`):db.ref(`users/${userId}/garage/${carId}/insurance`).push();
+    if(payMethod==='أقساط'&&!firstInstDate){toast('أدخل تاريخ أول قسط');return;}
+    const btn=document.getElementById('save-ins-btn');
+    btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div>';
+    const ref=isEdit
+        ?db.ref(`users/${userId}/garage/${carId}/insurance/${existingKey}`)
+        :db.ref(`users/${userId}/garage/${carId}/insurance`).push();
     const payload={insType,company,price,startDate,endDate,payMethod};
-    if(payMethod==='أقساط') payload.instalments=instalments;
+    if(payMethod==='أقساط'){
+        payload.instalments=instalments;
+        payload.firstInstDate=firstInstDate;
+        if(isEdit&&car.insurance?.[existingKey]?.paidInstalments)
+            payload.paidInstalments=car.insurance[existingKey].paidInstalments;
+    }
     ref.set(payload)
         .then(()=>{
-            closeExtraModal(); toast(isEdit?'تم التعديل ✓':'تمت إضافة التأمين ✓');
+            closeExtraModal();
+            toast(isEdit?'تم التعديل ✓':'تمت إضافة التأمين ✓');
             extraFilter='تأمين'; showTab('p7');
             const daysLeft=Math.ceil((new Date(endDate)-new Date())/(1000*60*60*24));
             if(daysLeft>=0&&daysLeft<=30) toast(`⚠️ التأمين ينتهي بعد ${daysLeft} يوم`,4000);
         })
-        .catch(()=>{resetBtn('save-ins-btn',ic('check',16)+' حفظ');toast('حدث خطأ، حاول مجدداً');});
+        .catch(()=>{resetBtn('save-ins-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');toast('حدث خطأ');initIcons();});
 }
-function closeExtraModal(){ const m=document.getElementById('extra-modal'); m.style.display='none'; m.innerHTML=''; }
- 
+
+function closeExtraModal(){const m=document.getElementById('extra-modal');m.style.display='none';m.innerHTML='';}
+
 // ══════════════════════════════════════════
 // DELETE EXTRA
 // ══════════════════════════════════════════
 function confirmDeleteExtra(type,key){
-    const car=cars[activeIdx]; if(!car?.id)return;
-    const carId=car.id; const label=type==='fine'?'المخالفة':'وثيقة التأمين'; const path=type==='fine'?'fines':'insurance';
+    const car=cars[activeIdx];
+    if(!car?.id)return;
+    const carId=car.id;
+    const label=type==='fine'?'المخالفة':'وثيقة التأمين';
+    const path =type==='fine'?'fines':'insurance';
     showConfirm(`حذف ${label}`,'هل أنت متأكد من الحذف؟ لا يمكن التراجع.',()=>{
         db.ref(`users/${userId}/garage/${carId}/${path}/${key}`).remove()
-            .then(()=>{ toast('تم الحذف ✓'); const updatedCar=cars.find(c=>c.id===carId); if(updatedCar){ if(type==='fine'&&updatedCar.fines) delete updatedCar.fines[key]; if(type==='ins'&&updatedCar.insurance) delete updatedCar.insurance[key]; } renderExtra(); })
+            .then(()=>{
+                toast('تم الحذف ✓');
+                const updatedCar=cars.find(c=>c.id===carId);
+                if(updatedCar){
+                    if(type==='fine'&&updatedCar.fines)     delete updatedCar.fines[key];
+                    if(type==='ins' &&updatedCar.insurance) delete updatedCar.insurance[key];
+                }
+                renderExtra();
+            })
             .catch(()=>toast('فشل الحذف — تحقق من الاتصال'));
     });
 }
- 
+
 // ══════════════════════════════════════════
 // ODO
 // ══════════════════════════════════════════
 function checkOdoWarn(cur){
     const val=parseInt(document.getElementById('odo_val')?.value);
-    const w=document.getElementById('odo-warn'); if(!w)return;
+    const w=document.getElementById('odo-warn');
+    if(!w)return;
     w.style.display=(val&&val<cur)?'flex':'none';
+    if(w.style.display==='flex')initIcons();
 }
+
 function updateOdo(currentOdo){
     const raw=document.getElementById('odo_val')?.value;
-    if(raw===''||raw===null||raw===undefined){toast('أدخل قراءة العداد');return;}
-    const v=parseInt(raw); if(isNaN(v)||v<0){toast('أدخل رقماً صحيحاً');return;}
+    if(!raw){toast('أدخل قراءة العداد');return;}
+    const v=parseInt(raw);
+    if(isNaN(v)||v<0){toast('أدخل رقماً صحيحاً');return;}
     if(!cars[activeIdx])return;
-    const btn=document.getElementById('odo-btn'); const carId=cars[activeIdx].id;
+    const btn=document.getElementById('odo-btn');
+    const carId=cars[activeIdx].id;
     if(btn){btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div> جاري التحديث...';}
-    db.ref(`users/${userId}/garage/${carId}`).update({lastOdo:v+' كم'})
+    db.ref(`users/${userId}/garage/${carId}`)
+        .update({lastOdo:v+' كم'})
         .then(()=>toast('تم تحديث العداد ✓'))
-        .catch(()=>{resetBtn('odo-btn',ic('gauge',16)+' تحديث العداد');toast('حدث خطأ');});
+        .catch(()=>{resetBtn('odo-btn','<i data-lucide="gauge" width="16" height="16"></i> تحديث العداد');toast('حدث خطأ');initIcons();});
 }
- 
+
 // ══════════════════════════════════════════
 // CHART
 // ══════════════════════════════════════════
 function buildMonthlyChart(logs){
     if(!logs.length)return{hasData:false};
     const months={},now=new Date();
-    for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1); const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; months[k]={label:d.toLocaleDateString('ar-SA',{month:'short'}),fuel:0,maint:0}; }
-    logs.forEach(l=>{ if(!l.date)return; const k=l.date.substring(0,7); if(months[k]){ if(l.cat==='وقود')months[k].fuel+=Number(l.price); else months[k].maint+=Number(l.price); } });
+    for(let i=5;i>=0;i--){
+        const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+        const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        months[k]={label:d.toLocaleDateString('ar-SA',{month:'short'}),fuel:0,maint:0};
+    }
+    logs.forEach(l=>{
+        if(!l.date)return;
+        const k=l.date.substring(0,7);
+        if(months[k]){
+            if(l.cat==='وقود')months[k].fuel+=Number(l.price);
+            else months[k].maint+=Number(l.price);
+        }
+    });
     const data=Object.values(months);
     const maxVal=Math.max(...data.map(d=>Math.max(d.fuel,d.maint)),1);
     return{data,maxVal,hasData:data.some(d=>d.fuel>0||d.maint>0)};
 }
 function renderChart({data,maxVal}){
-    const bars=data.map(d=>{ const fh=Math.max((d.fuel/maxVal)*80,d.fuel>0?4:0); const mh=Math.max((d.maint/maxVal)*80,d.maint>0?4:0); return`<div class="chart-bar-wrap"><div style="display:flex;gap:2px;align-items:flex-end;height:80px"><div class="chart-bar fuel-bar" style="height:${fh}px;flex:1"></div><div class="chart-bar maint-bar" style="height:${mh}px;flex:1"></div></div><div class="chart-label">${d.label}</div></div>`; }).join('');
-    return`<div class="chart-wrap"><div class="chart-title">المصروفات الشهرية (آخر 6 أشهر)</div><div class="chart-bars">${bars}</div><div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:rgba(110,231,247,0.7)"></div>وقود</div><div class="legend-item"><div class="legend-dot" style="background:rgba(167,139,250,0.7)"></div>صيانة</div></div></div>`;
+    const bars=data.map(d=>{
+        const fh=Math.max((d.fuel/maxVal)*80,d.fuel>0?4:0);
+        const mh=Math.max((d.maint/maxVal)*80,d.maint>0?4:0);
+        return`<div class="chart-bar-wrap">
+            <div style="display:flex;gap:2px;align-items:flex-end;height:80px">
+                <div class="chart-bar fuel-bar"  style="height:${fh}px;flex:1"></div>
+                <div class="chart-bar maint-bar" style="height:${mh}px;flex:1"></div>
+            </div>
+            <div class="chart-label">${d.label}</div>
+        </div>`;
+    }).join('');
+    return`<div class="chart-wrap">
+        <div class="chart-title">المصروفات الشهرية (آخر 6 أشهر)</div>
+        <div class="chart-bars">${bars}</div>
+        <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>وقود</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>صيانة</div>
+        </div>
+    </div>`;
 }
- 
+
 // ══════════════════════════════════════════
-// FILTER & LOG
+// FILTER — إصلاح المقارنة
 // ══════════════════════════════════════════
-function setFilter(f){ currentFilter=f; document.querySelectorAll('.pill:not(.pill-fine):not(.pill-ins)').forEach(p=>p.classList.toggle('active',p.textContent===f)); renderLogs(); }
- 
+function setFilter(f){
+    currentFilter=f;
+    document.querySelectorAll('#content-area .pill:not(.pill-fine):not(.pill-ins)').forEach(p=>{
+        p.classList.toggle('active', p.getAttribute('onclick')===`setFilter('${f}')`);
+    });
+    renderLogs();
+}
+
+// ══════════════════════════════════════════
+// RENDER LOGS
+// ══════════════════════════════════════════
 function renderLogs(){
-    const car=cars[activeIdx]; const container=document.getElementById('logs_container');
+    const car=cars[activeIdx];
+    const container=document.getElementById('logs_container');
+    if(!container)return;
     if(!car||!car.logs){
-        container.innerHTML=`<div class="empty-state"><div class="ei">${ic('clipboard',48)}</div><p>لا توجد سجلات بعد</p><button class="btn btn-primary btn-sm" style="width:auto;padding:0 24px" onclick="showTab('p2')">${ic('plus',14)} سجّل أول عملية</button></div>`;
-        return;
+        container.innerHTML=`<div class="empty-state">
+            <div class="ei"><i data-lucide="clipboard-list" width="48" height="48"></i></div>
+            <p>لا توجد سجلات بعد</p>
+            <button class="btn btn-primary btn-sm" style="width:auto;padding:0 24px" onclick="showTab('p2')">
+                <i data-lucide="plus-circle" width="14" height="14"></i> سجّل أول عملية</button></div>`;
+        initIcons();return;
     }
     const arr=Object.keys(car.logs).map(k=>({...car.logs[k],key:k}));
-    const filtered=currentFilter==='الكل'?arr:arr.filter(l=>l.title.includes(currentFilter)||l.cat.includes(currentFilter));
-    if(filtered.length===0){ container.innerHTML=`<div class="empty-state"><div class="ei">${ic('search',48)}</div><p>لا توجد نتائج</p></div>`; return; }
-    const total=filtered.reduce((a,b)=>a+Number(b.price),0);
-    container.innerHTML=filtered.slice().reverse().map(l=>{ const isFuel=l.cat==='وقود'; return`<div class="log-item"><div class="log-dot ${isFuel?'fuel':'maint'}">${ic(isFuel?'fuel':'wrench',18)}</div><div class="log-info"><div class="log-title">${esc(l.title)}</div><div class="log-meta">${esc(l.date)} · <span class="badge ${isFuel?'badge-fuel':'badge-maint'}">${l.cat}</span></div></div><div class="log-price">${Number(l.price).toLocaleString()} ر.س</div><div class="log-edit" onclick="openEditModal('${l.key}')">${ic('pencil',15)}</div><div class="log-del" onclick="confirmDeleteLog('${l.key}')">${ic('trash',15)}</div></div>`; }).join('')+`<div class="log-total"><span class="log-total-label">الإجمالي (${filtered.length} عملية)</span><span class="log-total-value">${total.toLocaleString()} ر.س</span></div>`;
+    const filtered=currentFilter==='الكل'
+        ? arr
+        : arr.filter(l=>l.title===currentFilter||l.cat===currentFilter||l.title.includes(currentFilter));
+    if(filtered.length===0){
+        container.innerHTML=`<div class="empty-state"><div class="ei"><i data-lucide="search-x" width="48" height="48"></i></div><p>لا توجد نتائج</p></div>`;
+        initIcons();return;
+    }
+    const sorted=filtered.slice().sort((a,b)=>b.date.localeCompare(a.date));
+    const total=sorted.reduce((a,b)=>a+Number(b.price),0);
+    container.innerHTML=sorted.map(l=>{
+        const isFuel=l.cat==='وقود';
+        return`<div class="log-item">
+            <div class="log-dot ${isFuel?'fuel':'maint'}">
+                <i data-lucide="${isFuel?'fuel':'wrench'}" width="18" height="18"></i></div>
+            <div class="log-info">
+                <div class="log-title">${esc(l.title)}</div>
+                <div class="log-meta">${esc(l.date)} · <span class="badge ${isFuel?'badge-fuel':'badge-maint'}">${l.cat}</span></div>
+            </div>
+            <div class="log-price">${Number(l.price).toLocaleString()} ر.س</div>
+            <div class="log-edit" onclick="openEditModal('${l.key}')"><i data-lucide="pencil" width="15" height="15"></i></div>
+            <div class="log-del"  onclick="confirmDeleteLog('${l.key}')"><i data-lucide="trash-2" width="15" height="15"></i></div>
+        </div>`;
+    }).join('')+`<div class="log-total">
+        <span class="log-total-label">الإجمالي (${sorted.length} عملية)</span>
+        <span class="log-total-value">${total.toLocaleString()} ر.س</span>
+    </div>`;
+    initIcons();
 }
- 
+
 // ══════════════════════════════════════════
-// CONFIRM
+// CONFIRM MODAL
 // ══════════════════════════════════════════
 let _confirmCb=null;
 function showConfirm(title,sub,onConfirm){
     const modal=document.getElementById('confirm-modal');
-    Object.assign(modal.style,{display:'flex',position:'fixed',inset:'0',zIndex:'600',alignItems:'center',justifyContent:'center',padding:'24px',background:'rgba(0,0,0,0.75)',backdropFilter:'blur(12px)'});
-    modal.innerHTML=`<div class="confirm-box"><div class="confirm-icon">${ic('trash',28)}</div><div class="confirm-title">${esc(title)}</div><div class="confirm-sub">${esc(sub)}</div><div class="confirm-actions"><button class="btn btn-ghost" style="flex:1" onclick="closeConfirm()">إلغاء</button><button class="btn btn-danger" style="flex:1" onclick="confirmAction()">${ic('trash',14)} حذف</button></div></div>`;
+    Object.assign(modal.style,{display:'flex',position:'fixed',inset:'0',zIndex:'600',
+        alignItems:'center',justifyContent:'center',padding:'20px',
+        background:'rgba(0,0,0,0.75)',backdropFilter:'blur(8px)'});
+    modal.innerHTML=`<div class="confirm-box">
+        <div class="confirm-icon"><i data-lucide="trash-2" width="28" height="28"></i></div>
+        <div class="confirm-title">${esc(title)}</div>
+        <div class="confirm-sub">${esc(sub)}</div>
+        <div class="confirm-actions">
+            <button class="btn btn-ghost" style="flex:1" onclick="closeConfirm()">إلغاء</button>
+            <button class="btn btn-danger-ghost" style="flex:1" onclick="confirmAction()">
+                <i data-lucide="trash-2" width="14" height="14"></i> حذف</button>
+        </div>
+    </div>`;
     _confirmCb=onConfirm;
     modal.onclick=e=>{if(e.target===modal)closeConfirm();};
+    initIcons();
 }
-function confirmAction(){ closeConfirm(); if(_confirmCb)_confirmCb(); }
-function closeConfirm(){ const m=document.getElementById('confirm-modal'); m.style.display='none'; m.innerHTML=''; _confirmCb=null; }
- 
+function confirmAction(){closeConfirm();if(_confirmCb)_confirmCb();}
+function closeConfirm(){const m=document.getElementById('confirm-modal');m.style.display='none';m.innerHTML='';_confirmCb=null;}
+
 // ══════════════════════════════════════════
 // DELETE LOG
 // ══════════════════════════════════════════
 function confirmDeleteLog(key){
-    const car=cars[activeIdx]; if(!car?.id)return; const carId=car.id;
+    const car=cars[activeIdx];
+    if(!car?.id)return;
+    const carId=car.id;
     showConfirm('حذف العملية','هل أنت متأكد من حذف هذه العملية؟ لا يمكن التراجع.',()=>{
         db.ref(`users/${userId}/garage/${carId}/logs/${key}`).remove()
-            .then(()=>{ toast('تم الحذف ✓'); const updatedCar=cars.find(c=>c.id===carId); if(updatedCar?.logs) delete updatedCar.logs[key]; renderLogs(); })
+            .then(()=>{
+                toast('تم الحذف ✓');
+                const updatedCar=cars.find(c=>c.id===carId);
+                if(updatedCar?.logs) delete updatedCar.logs[key];
+                renderLogs();
+            })
             .catch(()=>toast('فشل الحذف — تحقق من الاتصال'));
     });
 }
- 
+
 // ══════════════════════════════════════════
 // EDIT MODAL
 // ══════════════════════════════════════════
 function openEditModal(key){
-    const car=cars[activeIdx]; if(!car?.logs?.[key])return; const l=car.logs[key];
+    const car=cars[activeIdx];
+    if(!car?.logs?.[key])return;
+    const l=car.logs[key];
     const modal=document.getElementById('edit-modal');
-    Object.assign(modal.style,{display:'flex',position:'fixed',inset:'0',zIndex:'500',alignItems:'flex-end',justifyContent:'center',background:'rgba(0,0,0,0.7)',backdropFilter:'blur(8px)'});
-    modal.innerHTML=`<div class="modal-box"><div class="modal-handle"></div><div class="modal-title">${ic('pencil',18)} تعديل العملية</div><div class="input-group"><label>التفاصيل</label><input type="text" id="edit_title" value="${esc(l.title)}"></div><div class="input-group"><label>المبلغ (ر.س)</label><input type="number" id="edit_price" value="${esc(String(l.price))}" min="0"></div><div class="input-group"><label>التاريخ</label><input type="date" id="edit_date" value="${esc(l.date)}"></div><div class="modal-actions"><button class="btn btn-ghost" style="flex:1" onclick="closeEditModal()">إلغاء</button><button class="btn btn-primary" style="flex:2" id="save-edit-btn" onclick="saveEdit('${key}')">${ic('check',16)} حفظ التعديلات</button></div></div>`;
+    Object.assign(modal.style,{display:'flex',position:'fixed',inset:'0',zIndex:'500',
+        alignItems:'flex-end',justifyContent:'center',
+        background:'rgba(0,0,0,0.7)',backdropFilter:'blur(6px)'});
+    modal.innerHTML=`<div class="modal-box">
+        <div class="modal-handle"></div>
+        <div class="modal-title"><i data-lucide="pencil" width="18" height="18"></i> تعديل العملية</div>
+        <div class="input-group"><label>التفاصيل</label>
+            <input type="text" id="edit_title" value="${esc(l.title)}"></div>
+        <div class="input-group"><label>المبلغ (ر.س)</label>
+            <input type="number" id="edit_price" value="${esc(String(l.price))}" min="0"></div>
+        <div class="input-group"><label>التاريخ</label>
+            <input type="date" id="edit_date" value="${esc(l.date)}"></div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" style="flex:1" onclick="closeEditModal()">إلغاء</button>
+            <button class="btn btn-primary" style="flex:2" id="save-edit-btn" onclick="saveEdit('${key}')">
+                <i data-lucide="check" width="16" height="16"></i> حفظ التعديلات</button>
+        </div>
+    </div>`;
     modal.onclick=e=>{if(e.target===modal)closeEditModal();};
+    initIcons();
 }
-function closeEditModal(){ const m=document.getElementById('edit-modal'); m.style.display='none'; m.innerHTML=''; }
- 
+function closeEditModal(){const m=document.getElementById('edit-modal');m.style.display='none';m.innerHTML='';}
+
 function saveEdit(key){
-    const car=cars[activeIdx]; if(!car?.id){toast('خطأ: لا توجد مركبة');return;} const carId=car.id;
+    const car=cars[activeIdx];
+    if(!car?.id){toast('خطأ: لا توجد مركبة');return;}
+    const carId=car.id;
     const title=document.getElementById('edit_title').value.trim();
     const price=document.getElementById('edit_price').value;
-    const date=document.getElementById('edit_date').value;
+    const date =document.getElementById('edit_date').value;
     if(!title){toast('أدخل التفاصيل');return;}
-    const p=parseFloat(price); if(isNaN(p)||p<0){toast('أدخل مبلغاً صحيحاً');return;}
+    const p=parseFloat(price);
+    if(isNaN(p)||p<0){toast('أدخل مبلغاً صحيحاً');return;}
     if(!date){toast('اختر التاريخ');return;}
-    const btn=document.getElementById('save-edit-btn'); btn.disabled=true; btn.innerHTML='<div class="btn-spinner"></div>';
-    db.ref(`users/${userId}/garage/${carId}/logs/${key}`).update({title,price:p,date})
+    const btn=document.getElementById('save-edit-btn');
+    btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div>';
+    db.ref(`users/${userId}/garage/${carId}/logs/${key}`)
+        .update({title,price:p,date})
         .then(()=>{closeEditModal();toast('تم التعديل ✓');renderLogs();})
-        .catch(()=>{resetBtn('save-edit-btn',ic('check',16)+' حفظ التعديلات');toast('حدث خطأ');});
+        .catch(()=>{resetBtn('save-edit-btn','<i data-lucide="check" width="16" height="16"></i> حفظ التعديلات');toast('حدث خطأ');initIcons();});
 }
- 
+
 // ══════════════════════════════════════════
 // CAR CRUD
 // ══════════════════════════════════════════
-function startAddNewCar(){ isAddingNew=true; showTab('p1'); }
-function cancelAddCar()  { isAddingNew=false; showTab('p1'); }
- 
+function startAddNewCar(){isAddingNew=true;showTab('p1');}
+function cancelAddCar()  {isAddingNew=false;showTab('p1');}
+
 function saveCar(){
     const type=document.getElementById('v_type').value.trim();
     if(!type){toast('أدخل اسم المركبة');return;}
-    const btn=document.getElementById('save-car-btn'); btn.disabled=true; btn.innerHTML='<div class="btn-spinner"></div> جاري الحفظ...';
+    const btn=document.getElementById('save-car-btn');
+    btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div> جاري الحفظ...';
     if(isAddingNew){
         const carId=db.ref('users/'+userId+'/garage').push().key;
-        db.ref(`users/${userId}/garage/${carId}`).set({id:carId,type,model:document.getElementById('v_model').value,lastOdo:'0 كم'})
+        db.ref(`users/${userId}/garage/${carId}`)
+            .set({id:carId,type,model:document.getElementById('v_model').value,lastOdo:'0 كم'})
             .then(()=>{isAddingNew=false;toast('تمت إضافة المركبة ✓');})
-            .catch(()=>{resetBtn('save-car-btn',ic('check',16)+' حفظ البيانات');toast('حدث خطأ');});
+            .catch(()=>{resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');toast('حدث خطأ');initIcons();});
     } else {
-        const editCarId=cars[activeIdx]?.id; if(!editCarId){toast('خطأ');return;}
-        db.ref(`users/${userId}/garage/${editCarId}`).update({type,model:document.getElementById('v_model').value})
+        const editCarId=cars[activeIdx]?.id;
+        if(!editCarId){toast('خطأ: لا توجد مركبة محددة');resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');initIcons();return;}
+        db.ref(`users/${userId}/garage/${editCarId}`)
+            .update({type,model:document.getElementById('v_model').value})
             .then(()=>toast('تم الحفظ ✓'))
-            .catch(()=>{resetBtn('save-car-btn',ic('check',16)+' حفظ البيانات');toast('حدث خطأ');});
+            .catch(()=>{resetBtn('save-car-btn','<i data-lucide="check" width="16" height="16"></i> حفظ');toast('حدث خطأ');initIcons();});
     }
 }
- 
+
 function confirmDeleteCar(){
-    const car=cars[activeIdx]; if(!car?.id)return; const carId=car.id; const carName=car.type;
+    const car=cars[activeIdx];
+    if(!car?.id)return;
+    const carId=car.id;
+    const carName=car.type;
     showConfirm('حذف المركبة',`هل أنت متأكد من حذف "${carName}"؟ ستُحذف جميع البيانات نهائياً.`,()=>{
         db.ref(`users/${userId}/garage/${carId}`).remove()
             .then(()=>{activeIdx=0;toast('تم حذف المركبة ✓');})
             .catch(()=>toast('فشل الحذف — تحقق من الاتصال'));
     });
 }
- 
+
 // ══════════════════════════════════════════
 // ADD LOG
 // ══════════════════════════════════════════
@@ -1757,39 +1474,83 @@ function addLog(cat){
     const price=parseFloat(priceRaw);
     if(!priceRaw||isNaN(price)||price<0){toast('أدخل مبلغاً صحيحاً');return;}
     let title=isFuel?'تعبئة وقود':document.getElementById('m_type_sel').value;
-    if(title==='أخرى') title=document.getElementById('m_t_manual')?.value||'صيانة أخرى';
+    if(title==='أخرى') title=document.getElementById('m_t_manual')?.value.trim()||'صيانة أخرى';
     const date=isFuel?document.getElementById('f_d')?.value:document.getElementById('m_d')?.value;
     if(!date){toast('اختر التاريخ');return;}
     const btnId=isFuel?'fuel-btn':'maint-btn';
-    const btnHtml=isFuel?ic('fuel',16)+' تسجيل الوقود':ic('wrench',16)+' تسجيل الصيانة';
-    const btn=document.getElementById(btnId); const carId=cars[activeIdx].id;
+    const btnHtml=isFuel?'<i data-lucide="fuel" width="16" height="16"></i> تسجيل الوقود':'<i data-lucide="wrench" width="16" height="16"></i> تسجيل الصيانة';
+    const btn=document.getElementById(btnId);
+    const carId=cars[activeIdx].id;
     if(btn){btn.disabled=true;btn.innerHTML='<div class="btn-spinner"></div> جاري الحفظ...';}
-    db.ref(`users/${userId}/garage/${carId}/logs`).push({cat,price,title,date})
+    db.ref(`users/${userId}/garage/${carId}/logs`)
+        .push({cat,price,title,date})
         .then(()=>{toast('تم التسجيل ✓');currentFilter='الكل';showTab('p5');})
-        .catch(()=>{resetBtn(btnId,btnHtml);toast('حدث خطأ');});
+        .catch(()=>{resetBtn(btnId,btnHtml);toast('حدث خطأ');initIcons();});
 }
- 
+
 // ══════════════════════════════════════════
-// EXPORT EXCEL
+// EXPORT EXCEL — منفصل لكل صفحة
 // ══════════════════════════════════════════
-function exportExcel(){
-    const car=cars[activeIdx]; if(!car){toast('اختر مركبة أولاً');return;}
-    if(!car.logs&&!car.fines&&!car.insurance){toast('لا توجد بيانات للتصدير');return;}
+function exportExcel(source){
+    const car=cars[activeIdx];
+    if(!car){toast('اختر مركبة أولاً');return;}
     const wb=XLSX.utils.book_new();
-    if(car.logs){ const arr=Object.values(car.logs); const filtered=currentFilter==='الكل'?arr:arr.filter(l=>l.title.includes(currentFilter)||l.cat.includes(currentFilter)); if(filtered.length>0){ const total=filtered.reduce((a,b)=>a+Number(b.price),0); const data=filtered.slice().reverse().map(l=>({'Date':l.date,'Type':l.cat,'Details':l.title,'Amount':Number(l.price)})); data.push({'Date':'','Type':'','Details':'Total','Amount':total}); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(data),'Log'); } }
-    if(car.fines){ const fd=Object.values(car.fines).map(f=>({'Date':f.date,'Fine_Type':f.fineType,'Amount':Number(f.price),'Status':f.status})); if(fd.length>0) XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(fd),'Fines'); }
-    if(car.insurance){ const wi=Object.values(car.insurance).map(i=>({'Type':i.insType,'Company':i.company||'','Premium':Number(i.price),'Payment':i.payMethod||'','Instalments':i.instalments||'','Start':i.startDate,'End':i.endDate})); if(wi.length>0) XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(wi),'Insurance'); }
+
+    if(source==='log'||source==='all'){
+        if(car.logs){
+            const arr=Object.values(car.logs);
+            const filtered=currentFilter==='الكل'?arr:arr.filter(l=>l.title===currentFilter||l.cat===currentFilter||l.title.includes(currentFilter));
+            if(filtered.length>0){
+                const sorted=filtered.slice().sort((a,b)=>b.date.localeCompare(a.date));
+                const total=sorted.reduce((a,b)=>a+Number(b.price),0);
+                const data=sorted.map(l=>({'التاريخ':l.date,'النوع':l.cat,'التفاصيل':l.title,'المبلغ':Number(l.price)}));
+                data.push({'التاريخ':'','النوع':'','التفاصيل':'الإجمالي','المبلغ':total});
+                XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(data),'Log');
+            }
+        }
+    }
+
+    if(source==='extra'||source==='all'){
+        if(car.fines){
+            const fd=Object.values(car.fines).map(f=>({'التاريخ':f.date,'نوع المخالفة':f.fineType,'المبلغ':Number(f.price),'الحالة':f.status}));
+            if(fd.length>0) XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(fd),'Fines');
+        }
+        if(car.insurance){
+            const wi=Object.values(car.insurance).map(i=>({
+                'النوع':i.insType,'الشركة':i.company||'','القسط الكلي':Number(i.price),
+                'طريقة الدفع':i.payMethod||'','عدد الأقساط':i.instalments||'',
+                'أول قسط':i.firstInstDate||'',
+                'أقساط مدفوعة':i.paidInstalments?Object.keys(i.paidInstalments).length:0,
+                'البداية':i.startDate,'الانتهاء':i.endDate
+            }));
+            if(wi.length>0) XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(wi),'Insurance');
+        }
+    }
+
     if(wb.SheetNames.length===0){toast('لا توجد بيانات للتصدير');return;}
     const safeName=car.type.replace(/[^a-zA-Z0-9\u0600-\u06FF\s]/g,'').trim()||'car';
-    try{ XLSX.writeFile(wb,`record_${safeName}.xlsx`); toast('تم التصدير ✓'); } catch(e){ toast('حدث خطأ في التصدير'); }
+    try{
+        XLSX.writeFile(wb,`مركبتي_${safeName}.xlsx`);
+        toast('تم التصدير ✓');
+    }catch(e){
+        console.error(e);
+        toast('حدث خطأ في التصدير');
+    }
 }
- 
+
 // ══════════════════════════════════════════
 // MISC
 // ══════════════════════════════════════════
-function toggleInstalments(){ const v=document.getElementById('ins_pay_method')?.value; const g=document.getElementById('ins_install_group'); if(g) g.classList.toggle('hidden',v!=='أقساط'); }
-function toggleManualMaint(){ document.getElementById('manual_m_group')?.classList.toggle('hidden', document.getElementById('m_type_sel')?.value!=='أخرى'); }
+function toggleInstalments(){
+    const v=document.getElementById('ins_pay_method')?.value;
+    const g=document.getElementById('ins_install_group');
+    if(g) g.classList.toggle('hidden',v!=='أقساط');
+}
+
+function toggleManualMaint(){
+    document.getElementById('manual_m_group')?.classList.toggle('hidden',
+        document.getElementById('m_type_sel')?.value!=='أخرى');
+}
 </script>
 </body>
 </html>
- 
